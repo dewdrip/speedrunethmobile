@@ -7,7 +7,7 @@ import { useToast } from 'react-native-toast-notifications';
 import { useDispatch } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
 import SeedPhrase from '../../components/SeedPhrase';
-import { useSecureStorage, useWallet } from '../../hooks/scaffold-eth';
+import { useSecureStorage, useWallet } from '../../hooks/eth-mobile';
 import { initAccounts } from '../../store/reducers/Accounts';
 import { loginUser } from '../../store/reducers/Auth';
 import globalStyles from '../../styles/globalStyles';

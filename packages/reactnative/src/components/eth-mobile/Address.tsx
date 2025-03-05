@@ -6,7 +6,7 @@ import { useToast } from 'react-native-toast-notifications';
 import { Blockie } from '.';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { truncateAddress } from '../../utils/scaffold-eth';
+import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {

@@ -2,16 +2,16 @@ import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Divider, Text } from 'react-native-paper';
-import { useAccount, useBalance, useNetwork } from '../../hooks/scaffold-eth';
+import { useAccount, useBalance, useNetwork } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import {
   parseBalance,
   parseFloat,
   truncateAddress
-} from '../../utils/scaffold-eth';
+} from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
-import { Blockie } from '../scaffold-eth';
+import { Blockie } from '../eth-mobile';
 
 type Props = {
   modal: {

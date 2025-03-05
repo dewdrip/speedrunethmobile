@@ -1,4 +1,4 @@
-// import { GenericContractsDeclaration } from "../src/utils/scaffold-eth/contract";
+// import { GenericContractsDeclaration } from "../src/utils/eth-mobile/contract";
 
 /**
  * @example

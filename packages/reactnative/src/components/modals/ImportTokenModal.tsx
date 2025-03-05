@@ -12,13 +12,13 @@ import {
   useERC20Metadata,
   useNetwork,
   useTokens
-} from '../../hooks/scaffold-eth';
+} from '../../hooks/eth-mobile';
 import { addToken, Token } from '../../store/reducers/Tokens';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Button from '../buttons/CustomButton';
-import { Blockie } from '../scaffold-eth';
+import { Blockie } from '../eth-mobile';
 
 type Props = {
   modal: {

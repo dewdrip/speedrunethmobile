@@ -2,11 +2,11 @@ import { useIsFocused, useRoute } from '@react-navigation/native';
 import React, { useReducer } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 import { ActivityIndicator, Card, Text, useTheme } from 'react-native-paper';
-import { Address, Balance } from '../../../../../../components/scaffold-eth';
+import { Address, Balance } from '../../../../../../components/eth-mobile';
 import {
   useDeployedContractInfo,
   useNetwork
-} from '../../../../../../hooks/scaffold-eth';
+} from '../../../../../../hooks/eth-mobile';
 import globalStyles from '../../../../../../styles/globalStyles';
 import { COLORS } from '../../../../../../utils/constants';
 import { FONT_SIZE } from '../../../../../../utils/styles';

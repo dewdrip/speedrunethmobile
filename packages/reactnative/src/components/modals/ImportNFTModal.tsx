@@ -12,7 +12,7 @@ import {
   useERC721Metadata,
   useNetwork,
   useNFTs
-} from '../../hooks/scaffold-eth';
+} from '../../hooks/eth-mobile';
 import { addNFT } from '../../store/reducers/NFTs';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';

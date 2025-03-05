@@ -21,10 +21,10 @@ import {
   useNetwork,
   useSecureStorage,
   useTransactions
-} from '../../hooks/scaffold-eth';
+} from '../../hooks/eth-mobile';
 import { Account } from '../../store/reducers/Accounts';
 import { addRecipient } from '../../store/reducers/Recipients';
-import { parseBalance, parseFloat } from '../../utils/scaffold-eth';
+import { parseBalance, parseFloat } from '../../utils/eth-mobile';
 import Amount from './modules/Amount';
 import Header from './modules/Header';
 import PastRecipients from './modules/PastRecipients';

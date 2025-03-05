@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import { useCryptoPrice, useNetwork } from '../../../hooks/scaffold-eth';
+import { useCryptoPrice, useNetwork } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
 import { FONT_SIZE } from '../../../utils/styles';

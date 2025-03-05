@@ -1,6 +1,6 @@
 # 🧠 Think → 👨‍💻 Build → 🚀 Deploy
 
-✍️ **Scaffold-ETH-Mobile** is an open-source toolkit for building decentralized applications (dApps) on Ethereum and other EVM-compatible blockchains. It simplifies mobile dApp development with fast, secure and customizable pre-built components to create, deploy and interact with smart contracts.
+✍️ **ETH Mobile** is an open-source toolkit for building decentralized applications (dApps) on Ethereum and other EVM-compatible blockchains. It simplifies mobile dApp development with fast, secure and customizable pre-built components to create, deploy and interact with smart contracts.
 
 [Watch me mint a Snowman NFT!☃️](https://youtu.be/CaJTnRtLOK8)
 
@@ -36,9 +36,9 @@ To get started, follow the steps below:
 1. Clone this repo & install dependencies
 
 ```
-git clone https://github.com/ValentineCodes/scaffold-eth-mobile.git
+git clone https://github.com/dewdrip/eth-mobile.git
 
-cd scaffold-eth-mobile
+cd eth-mobile
 
 yarn install
 
@@ -67,7 +67,7 @@ yarn deploy
 
 This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-5. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/scaffold.config.ts`
+5. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/ethmobile.config.ts`
 
 #### To determine your local IP address:
 
@@ -101,7 +101,7 @@ yarn ios
 
 8. Import one of the funded accounts in your local blockchain into your wallet to have funds for testing
 
-You can interact with your smart contract using the `DebugContracts` tab. You can configure your supported networks in `packages/reactnative/scaffold.config.ts`.
+You can interact with your smart contract using the `DebugContracts` tab. You can configure your supported networks in `packages/reactnative/ethmobile.config.ts`.
 
 Run smart contract test with `yarn hardhat:test`
 
@@ -109,8 +109,8 @@ Run smart contract test with `yarn hardhat:test`
 - Edit your frontend in `packages/reactnative/src/screens`
 - Edit your deployment scripts in `packages/hardhat/deploy`
 
-## Contributing to Scaffold-ETH-Mobile
+## Contributing to ETH Mobile
 
-We welcome contributions to Scaffold-ETH-Mobile!
+We welcome contributions to ETH Mobile!
 
-Please see [CONTRIBUTING.MD](https://github.com/ValentineCodes/scaffold-eth-mobile/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH.
+Please see [CONTRIBUTING.MD](https://github.com/dewdrip/eth-mobile/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to ETH Mobile.

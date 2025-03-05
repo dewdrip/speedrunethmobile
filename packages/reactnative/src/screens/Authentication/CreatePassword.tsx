@@ -6,7 +6,7 @@ import { Button, Divider, Switch, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import BackButton from '../../components/buttons/BackButton';
 import PasswordInput from '../../components/forms/PasswordInput';
-import { useSecureStorage } from '../../hooks/scaffold-eth';
+import { useSecureStorage } from '../../hooks/eth-mobile';
 import styles from '../../styles/authentication/createPassword';
 import { COLORS } from '../../utils/constants';
 
@@ -92,7 +92,7 @@ function CreatePassword({}: Props) {
           Create Password
         </Text>
         <Text variant="bodyLarge" style={styles.subtitle}>
-          This password will unlock Scaffold-ETH only on this device
+          This password will unlock ETH Mobile only on this device
         </Text>
 
         <View style={styles.formContainer}>

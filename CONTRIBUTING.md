@@ -1,18 +1,18 @@
-# Welcome to Scaffold-ETH Contributing Guide
+# Welcome to ETH Mobile Contributing Guide
 
-Thank you for investing your time in contributing to Scaffold-ETH!
+Thank you for investing your time in contributing to ETH Mobile!
 
 This guide aims to provide an overview of the contribution workflow to help us make the contribution process effective for everyone involved.
 
 ## About the Project
 
-Scaffold-ETH is a minimal and forkable repo providing builders with a starter kit to build decentralized applications on Ethereum.
+ETH Mobile is a minimal and forkable repo providing builders with a starter kit to build decentralized applications on Ethereum.
 
 Read the [README](README.md) to get an overview of the project.
 
 ### Vision
 
-The goal of Scaffold-ETH is to provide the primary building blocks for a decentralized application.
+The goal of ETH Mobile is to provide the primary building blocks for a decentralized application.
 
 The repo can be forked to include integrations and more features, but we want to keep the master branch simple and minimal.
 
@@ -44,7 +44,7 @@ Issues should be used to report problems, request a new feature, or discuss pote
 
 #### Solve an issue
 
-Scan through our [existing issues](https://github.com/scaffold-eth/scaffold-eth-2/issues) to find one that interests you.
+Scan through our [existing issues](https://github.com/dewdrip/eth-mobile/issues) to find one that interests you.
 
 If a contributor is working on the issue, they will be assigned to the individual. If you find an issue to work on, you are welcome to assign it to yourself and open a PR with a fix for it.
 

@@ -1,5 +1,5 @@
 import { useNetwork } from '.';
-import { contracts, GenericContract } from '../../utils/scaffold-eth';
+import { contracts, GenericContract } from '../../utils/eth-mobile';
 
 export function useAllContracts(): {
   [contractName: string]: GenericContract;

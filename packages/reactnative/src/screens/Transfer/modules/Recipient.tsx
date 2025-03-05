@@ -4,13 +4,13 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { Text, TextInput } from 'react-native-paper';
 import { useSelector } from 'react-redux';
-import scaffoldConfig from '../../../../scaffold.config';
-import { Blockie } from '../../../components/scaffold-eth';
-import { useAccount } from '../../../hooks/scaffold-eth';
+import ethmobileConfig from '../../../../ethmobile.config';
+import { Blockie } from '../../../components/eth-mobile';
+import { useAccount } from '../../../hooks/eth-mobile';
 import { Account } from '../../../store/reducers/Accounts';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
-import { isENS } from '../../../utils/scaffold-eth';
+import { isENS } from '../../../utils/eth-mobile';
 import { FONT_SIZE } from '../../../utils/styles';
 
 type Props = {
@@ -53,7 +53,7 @@ export default function Recipient({ recipient, onChange, onSubmit }: Props) {
     if (isENS(value)) {
       try {
         const provider = new JsonRpcProvider(
-          `https://eth-mainnet.alchemyapi.io/v2/${scaffoldConfig.networks.ethereum}`
+          `https://eth-mainnet.alchemyapi.io/v2/${ethmobileConfig.networks.ethereum}`
         );
 
         const address = await provider.resolveName(value);

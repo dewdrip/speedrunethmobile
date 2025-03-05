@@ -8,17 +8,17 @@ import { IconButton, Text } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useDispatch } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
-import { Blockie, CopyableText } from '../../components/scaffold-eth';
+import { Blockie, CopyableText } from '../../components/eth-mobile';
 import {
   useAccount,
   useERC20Balance,
   useERC20Metadata,
   useNetwork
-} from '../../hooks/scaffold-eth';
+} from '../../hooks/eth-mobile';
 import { removeToken } from '../../store/reducers/Tokens';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { truncateAddress } from '../../utils/scaffold-eth';
+import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {};

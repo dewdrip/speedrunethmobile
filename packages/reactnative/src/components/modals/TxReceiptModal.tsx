@@ -3,7 +3,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useNetwork } from '../../hooks/scaffold-eth';
+import { useNetwork } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';

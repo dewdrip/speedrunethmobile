@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { IconButton, Text } from 'react-native-paper';
 import BackButton from '../../components/buttons/BackButton';
-import { useTokens } from '../../hooks/scaffold-eth';
+import { useTokens } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';

@@ -1,11 +1,11 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
-import { useAccount, useBalance, useNetwork } from '../../hooks/scaffold-eth';
+import { useAccount, useBalance, useNetwork } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
-import { parseBalance } from '../../utils/scaffold-eth';
+import { parseBalance } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
-import { Blockie } from '../scaffold-eth';
+import { Blockie } from '../eth-mobile';
 
 type Props = {
   modal: {

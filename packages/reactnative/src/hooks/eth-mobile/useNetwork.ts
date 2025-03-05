@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { Network } from '../../../scaffold.config';
+import { Network } from '../../../ethmobile.config';
 
 export const useNetwork = () => {
   const connectedNetwork: Network = useSelector(

@@ -9,7 +9,7 @@ import {
   useSecureStorage,
   useTransactions
 } from '.';
-import { parseFloat } from '../../utils/scaffold-eth';
+import { parseFloat } from '../../utils/eth-mobile';
 
 interface UseScaffoldWriteConfig {
   contractName: string;

@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Blockie } from '../../../components/scaffold-eth';
-import { useERC20Balance, useERC20Metadata } from '../../../hooks/scaffold-eth';
+import { Blockie } from '../../../components/eth-mobile';
+import { useERC20Balance, useERC20Metadata } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { FONT_SIZE } from '../../../utils/styles';
 

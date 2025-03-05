@@ -6,14 +6,14 @@ import QRCode from 'react-native-qrcode-svg';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAccount } from '../../hooks/scaffold-eth';
+import { useAccount } from '../../hooks/eth-mobile';
 import { Account, removeAccount } from '../../store/reducers/Accounts';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import CustomButton from '../buttons/CustomButton';
+import { Blockie, CopyableText } from '../eth-mobile';
 import EditAccountNameForm from '../forms/EditAccountNameForm';
-import { Blockie, CopyableText } from '../scaffold-eth';
 
 type Props = {
   modal: {

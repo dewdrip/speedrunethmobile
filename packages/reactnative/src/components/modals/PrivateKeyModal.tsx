@@ -5,16 +5,16 @@ import { Surface, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useAccount, useSecureStorage } from '../../hooks/scaffold-eth';
+import { useAccount, useSecureStorage } from '../../hooks/eth-mobile';
 import { Account } from '../../store/reducers/Accounts';
 import globalStyles from '../../styles/globalStyles';
 import { Security } from '../../types/security';
 import { Wallet } from '../../types/wallet';
 import { COLORS } from '../../utils/constants';
-import { truncateAddress } from '../../utils/scaffold-eth';
+import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Button from '../buttons/CustomButton';
-import { Blockie } from '../scaffold-eth';
+import { Blockie } from '../eth-mobile';
 
 type Props = {
   modal: {

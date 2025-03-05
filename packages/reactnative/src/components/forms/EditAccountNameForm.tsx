@@ -4,7 +4,7 @@ import { Text, TextInput } from 'react-native-paper';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAccount } from '../../hooks/scaffold-eth';
+import { useAccount } from '../../hooks/eth-mobile';
 import { Account, changeName } from '../../store/reducers/Accounts';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -16,7 +16,7 @@ type Props = {
 export default function EditAccountNameForm({ close }: Props) {
   const dispatch = useDispatch();
 
-  const accounts: Account[] = useSelector(state => state.accounts);
+  const accounts: Account[] = useSelector((state: any) => state.accounts);
   const connectedAccount: Account = useAccount();
 
   const [name, setName] = useState(connectedAccount.name);

@@ -40,7 +40,7 @@ export default function Home({}: Props) {
           Welcome to
         </Text>
         <Text variant="displaySmall" style={globalStyles.textSemiBold}>
-          Scaffold-ETH
+          ETH Mobile
         </Text>
 
         <Text

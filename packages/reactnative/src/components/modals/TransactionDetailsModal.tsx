@@ -3,13 +3,13 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { Divider, Text } from 'react-native-paper';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useNetwork } from '../../hooks/scaffold-eth';
+import { useNetwork } from '../../hooks/eth-mobile';
 import { Transaction } from '../../store/reducers/Transactions';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { parseTimestamp, truncateAddress } from '../../utils/scaffold-eth';
+import { parseTimestamp, truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
-import { CopyableText } from '../scaffold-eth';
+import { CopyableText } from '../eth-mobile';
 
 type Props = {
   modal: {

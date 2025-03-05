@@ -11,19 +11,16 @@ import { useModal } from 'react-native-modalfy';
 import { IconButton, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { CopyableText } from '../../../../../components/scaffold-eth';
+import { CopyableText } from '../../../../../components/eth-mobile';
 import {
   useAccount,
   useBalance,
   useCryptoPrice,
   useNetwork
-} from '../../../../../hooks/scaffold-eth';
+} from '../../../../../hooks/eth-mobile';
 import globalStyles from '../../../../../styles/globalStyles';
 import { COLORS } from '../../../../../utils/constants';
-import {
-  parseBalance,
-  truncateAddress
-} from '../../../../../utils/scaffold-eth';
+import { parseBalance, truncateAddress } from '../../../../../utils/eth-mobile';
 import { FONT_SIZE } from '../../../../../utils/styles';
 
 type Props = {

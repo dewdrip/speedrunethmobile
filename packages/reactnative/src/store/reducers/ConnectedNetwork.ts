@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import scaffoldConfig, { Network } from '../../../scaffold.config';
+import ethmobileConfig, { Network } from '../../../ethmobile.config';
 
-const initialState: Network = Object.values(scaffoldConfig.networks)[0];
+const initialState: Network = Object.values(ethmobileConfig.networks)[0];
 
 export const connectedNetworkSlice = createSlice({
   name: 'CONNECTED_NETWORK',
   initialState,
   reducers: {
     switchNetwork: (state, action: PayloadAction<number>) => {
-      const newNetwork = Object.values(scaffoldConfig.networks).find(
+      const newNetwork = Object.values(ethmobileConfig.networks).find(
         network => network.id === action.payload
       );
 

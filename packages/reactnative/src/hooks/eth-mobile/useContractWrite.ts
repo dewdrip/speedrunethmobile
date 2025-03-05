@@ -5,7 +5,7 @@ import { useModal } from 'react-native-modalfy';
 import { useToast } from 'react-native-toast-notifications';
 import { Address, TransactionReceipt } from 'viem';
 import { useAccount, useNetwork, useSecureStorage, useTransactions } from '.';
-import { parseFloat } from '../../utils/scaffold-eth';
+import { parseFloat } from '../../utils/eth-mobile';
 
 interface UseWriteConfig {
   abi: Abi;

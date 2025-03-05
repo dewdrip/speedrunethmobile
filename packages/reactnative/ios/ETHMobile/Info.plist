@@ -32,9 +32,9 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Scaffold-ETH needs to access your Camera</string>
+	<string>ETH Mobile needs to access your Camera</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Scaffold-ETH needs to access your Photo Library</string>
+	<string>ETH Mobile needs to access your Photo Library</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string/>
 	<key>UILaunchStoryboardName</key>

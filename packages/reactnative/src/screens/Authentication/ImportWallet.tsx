@@ -16,7 +16,7 @@ import BackButton from '../../components/buttons/BackButton';
 import ScanButton from '../../components/buttons/ScanButton';
 import PasswordInput from '../../components/forms/PasswordInput';
 import SeedPhraseInput from '../../components/forms/SeedPhraseInput';
-import { useSecureStorage, useWallet } from '../../hooks/scaffold-eth';
+import { useSecureStorage, useWallet } from '../../hooks/eth-mobile';
 import { initAccounts } from '../../store/reducers/Accounts';
 import { loginUser } from '../../store/reducers/Auth';
 import styles from '../../styles/authentication/importWallet';

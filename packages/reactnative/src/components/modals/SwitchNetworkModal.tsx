@@ -4,8 +4,8 @@ import { Text } from 'react-native-paper';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useDispatch } from 'react-redux';
-import scaffoldConfig, { Network } from '../../../scaffold.config';
-import { useNetwork } from '../../hooks/scaffold-eth';
+import ethmobileConfig, { Network } from '../../../ethmobile.config';
+import { useNetwork } from '../../hooks/eth-mobile';
 import { switchNetwork } from '../../store/reducers/ConnectedNetwork';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -42,7 +42,7 @@ export default function SwitchNetworkModal({ modal: { closeModal } }: Props) {
       </View>
 
       <ScrollView>
-        {Object.values(scaffoldConfig.networks).map((_network: Network) => (
+        {Object.values(ethmobileConfig.networks).map((_network: Network) => (
           <Pressable
             key={_network.id}
             onPress={() =>

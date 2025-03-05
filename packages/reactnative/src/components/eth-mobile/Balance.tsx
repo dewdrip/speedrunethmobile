@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, TextStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useBalance, useNetwork } from '../../hooks/scaffold-eth';
+import { useBalance, useNetwork } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
-import { parseBalance } from '../../utils/scaffold-eth';
+import { parseBalance } from '../../utils/eth-mobile';
 
 type Props = {
   address: string;

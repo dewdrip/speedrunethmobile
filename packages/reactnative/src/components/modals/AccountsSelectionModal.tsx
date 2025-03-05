@@ -7,9 +7,9 @@ import { useSelector } from 'react-redux';
 import { Account } from '../../store/reducers/Accounts';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { truncateAddress } from '../../utils/scaffold-eth';
+import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
-import { Blockie } from '../scaffold-eth';
+import { Blockie } from '../eth-mobile';
 
 type Props = {
   modal: {
