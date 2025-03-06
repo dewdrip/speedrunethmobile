@@ -15,9 +15,15 @@ export type NetworkConfig = {
   [key: string]: Network;
 };
 
-// This is our default Alchemy API key.
-// You can get your own at https://dashboard.alchemyapi.io
+/* 
+  This is our default Alchemy API key.
+  You can get your own at https://dashboard.alchemyapi.io
+*/
 const ALCHEMY_KEY = 'K18rs5rCTi1A-RDyPUw92tvL7I2cGVUB';
+
+/*
+  Get the `coingeckoPriceId` of your network from https://docs.google.com/spreadsheets/d/1wTTuxXt8n9q7C4NDXqQpI3wpKu1_5bGVmP9Xz0XGSyU/edit?gid=0#gid=0
+*/
 
 const config: Config = {
   // The networks on which your DApp is live
