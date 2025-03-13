@@ -1,4 +1,4 @@
-# 🧠 Think → 👨‍💻 Build → 🚀 Deploy
+# 🧠 Think → 👨‍💻 Build → 🚀
 
 ✍️ **ETH Mobile** is an open-source toolkit for building decentralized applications (dApps) on Ethereum and other EVM-compatible blockchains. It simplifies mobile dApp development with fast, secure and customizable pre-built components to create, deploy and interact with smart contracts.
 
