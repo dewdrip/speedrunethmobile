@@ -10,11 +10,11 @@
 
 - 🧑‍💻 **Contract Debugger**: Inspect smart contract details such as address, balance, variables, and functions. It also allows real-time interaction with contracts, making development more efficient.
 
-![Contract Debugger](./assets/debugger.png)
+![Contract Debugger](https://dewdrip.github.io/eth-mobile/assets/debugger.png)
 
 - 💳 **In-Built Wallet**: A secure mobile crypto wallet for managing funds, signing transactions, and interacting with multiple EVM-compatible chains.
 
-![Wallet](./assets/wallet.png)
+![Wallet](https://dewdrip.github.io/eth-mobile/assets/wallet.png)
 
 - ✅ **Contract Hot Reload**: Automatically updates the mobile frontend to reflect changes made to smart contracts during development.
 - 🪝 **Custom Hooks**: A collection of React hooks with TypeScript autocompletion, simplifying contract interaction in your mobile app.
