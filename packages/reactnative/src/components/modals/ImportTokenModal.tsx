@@ -220,7 +220,8 @@ const styles = StyleSheet.create({
   tokenBalance: {
     marginLeft: 12,
     fontSize: FONT_SIZE['md'],
-    ...globalStyles.text
+    ...globalStyles.text,
+    flex: 1
   },
   buttonContainer: {
     flexDirection: 'row',

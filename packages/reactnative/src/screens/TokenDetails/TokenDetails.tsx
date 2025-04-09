@@ -72,8 +72,12 @@ export default function TokenDetails({}: Props) {
           <Blockie address={token.address} size={2.5 * FONT_SIZE['xl']} />
 
           <Text variant="headlineLarge" style={styles.balanceText}>
-            {balance !== null &&
-              `${Number(ethers.formatUnits(balance, token.decimals)).toLocaleString('en-US')} ${token.symbol}`}
+            {tokenMetadata && balance
+              ? Number(
+                  ethers.formatUnits(balance, tokenMetadata.decimals)
+                ).toLocaleString('en-US')
+              : null}{' '}
+            {token.symbol}
           </Text>
         </View>
 

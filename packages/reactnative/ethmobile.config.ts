@@ -56,8 +56,8 @@ const config: Config = {
       name: 'Arbitrum',
       provider: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
       id: 42161,
-      currencySymbol: 'ARB',
-      coingeckoPriceId: 'arbitrum',
+      currencySymbol: 'ETH',
+      coingeckoPriceId: 'ethereum',
       blockExplorer: 'https://arbiscan.io'
     },
     arbitrumGoerli: {
