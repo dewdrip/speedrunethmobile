@@ -1,14 +1,15 @@
 import { Contract, formatEther, JsonRpcProvider, Wallet } from 'ethers';
 import { useModal } from 'react-native-modalfy';
 import { useToast } from 'react-native-toast-notifications';
+import { useSelector } from 'react-redux';
 import { Address, TransactionReceipt } from 'viem';
 import {
   useAccount,
   useDeployedContractInfo,
   useNetwork,
-  useSecureStorage,
   useTransactions
 } from '.';
+import { Account } from '../../store/reducers/Wallet';
 import { parseFloat } from '../../utils/eth-mobile';
 
 interface UseScaffoldWriteConfig {
@@ -52,7 +53,7 @@ export function useScaffoldContractWrite({
   const network = useNetwork();
   const toast = useToast();
   const connectedAccount = useAccount();
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   const { addTx } = useTransactions();
   /**
@@ -82,18 +83,17 @@ export function useScaffoldContractWrite({
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new JsonRpcProvider(network.provider);
-        const accounts = await getItem('accounts');
-        const activeAccount = Array.from(accounts).find(
-          account =>
+        const activeAccount = wallet.accounts.find(
+          (account: Account) =>
             account.address.toLowerCase() ===
             connectedAccount.address.toLowerCase()
         );
 
-        const wallet = new Wallet(activeAccount.privateKey, provider);
+        const activeWallet = new Wallet(activeAccount.privateKey, provider);
         const contract = new Contract(
           deployedContractData.address,
           deployedContractData.abi,
-          wallet
+          activeWallet
         );
 
         openModal('SignTransactionModal', {
@@ -117,18 +117,17 @@ export function useScaffoldContractWrite({
       async function onConfirm() {
         try {
           const provider = new JsonRpcProvider(network.provider);
-          const accounts = await getItem('accounts');
-          const activeAccount = Array.from(accounts).find(
-            account =>
+          const activeAccount = wallet.accounts.find(
+            (account: Account) =>
               account.address.toLowerCase() ===
               connectedAccount.address.toLowerCase()
           );
 
-          const wallet = new Wallet(activeAccount.privateKey, provider);
+          const activeWallet = new Wallet(activeAccount.privateKey, provider);
           const contract = new Contract(
             deployedContractData!.address,
             deployedContractData!.abi,
-            wallet
+            activeWallet
           );
 
           const tx = await contract[functionName](..._args, {

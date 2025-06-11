@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, Text } from 'react-native-paper';
@@ -7,9 +7,11 @@ import { useToast } from 'react-native-toast-notifications';
 import { useDispatch } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
 import SeedPhrase from '../../components/SeedPhrase';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage, useWallet } from '../../hooks/eth-mobile';
 import { initAccounts } from '../../store/reducers/Accounts';
 import { loginUser } from '../../store/reducers/Auth';
+import { initWallet } from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
@@ -20,10 +22,10 @@ interface Wallet {
   address: string;
 }
 
-type Props = {};
-
-export default function CreateWallet({}: Props) {
+export default function CreateWallet() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { password } = route.params as { password: string };
   const toast = useToast();
   const { createWallet } = useWallet();
   const [wallet, setWallet] = useState<Wallet>();
@@ -56,16 +58,34 @@ export default function CreateWallet({}: Props) {
       return;
     }
     try {
-      await saveItem('seedPhrase', wallet.mnemonic);
+      const encryptor = new Encryptor({
+        keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+      });
 
-      const initWallet = {
+      const encryptedMnemonic = await encryptor.encrypt(
+        password,
+        wallet.mnemonic
+      );
+
+      await saveItem('seedPhrase', encryptedMnemonic);
+
+      const account = {
         address: wallet.address,
         privateKey: wallet.privateKey
       };
 
-      await saveItem('accounts', [initWallet]);
+      const encryptedAccount = await encryptor.encrypt(password, [account]);
 
-      dispatch(initAccounts([{ ...initWallet }]));
+      await saveItem('accounts', encryptedAccount);
+
+      dispatch(initAccounts([account.address]));
+      dispatch(
+        initWallet({
+          password,
+          mnemonic: wallet.mnemonic,
+          accounts: [account]
+        })
+      );
       dispatch(loginUser());
       //@ts-ignore
       navigation.navigate('Dashboard');
@@ -74,7 +94,7 @@ export default function CreateWallet({}: Props) {
     }
   };
 
-  const generateNewWallet = () => {
+  const generateNewWallet = async () => {
     try {
       const wallet = createWallet();
       setWallet(wallet);
@@ -85,7 +105,9 @@ export default function CreateWallet({}: Props) {
   };
 
   useEffect(() => {
-    generateNewWallet();
+    setTimeout(() => {
+      generateNewWallet();
+    }, 500);
   }, []);
 
   return (

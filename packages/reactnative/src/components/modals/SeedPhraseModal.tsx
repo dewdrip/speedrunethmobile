@@ -5,9 +5,8 @@ import { Surface, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useSecureStorage } from '../../hooks/eth-mobile';
+import { useSelector } from 'react-redux';
 import globalStyles from '../../styles/globalStyles';
-import { Security } from '../../types/security';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Button from '../buttons/CustomButton';
@@ -20,7 +19,7 @@ type Props = {
 
 export default function SeedPhraseModal({ modal: { closeModal } }: Props) {
   const toast = useToast();
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -33,18 +32,13 @@ export default function SeedPhraseModal({ modal: { closeModal } }: Props) {
     }
 
     // verify password
-    const security = (await getItem('security')) as Security;
-
-    if (password !== security.password) {
+    if (password !== wallet.password) {
       setError('Incorrect password!');
       return;
     }
 
     // retrieve seed phrase
-    const seedPhrase = (await getItem('seedPhrase')) as string;
-    if (seedPhrase) {
-      setSeedPhrase(seedPhrase);
-    }
+    setSeedPhrase(wallet.mnemonic);
   };
 
   const handleInputChange = (value: string) => {
@@ -100,6 +94,8 @@ export default function SeedPhraseModal({ modal: { closeModal } }: Props) {
             mode="outlined"
             secureTextEntry
             placeholder="Password"
+            placeholderTextColor="#a3a3a3"
+            textColor="black"
             onChangeText={handleInputChange}
             onSubmitEditing={showSeedPhrase}
             style={styles.input}

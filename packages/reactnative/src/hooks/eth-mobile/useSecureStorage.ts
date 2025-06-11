@@ -1,19 +1,20 @@
 import { useCallback, useState } from 'react';
-import EncryptedStorage from 'react-native-encrypted-storage';
+import * as Keychain from 'react-native-keychain';
 
 /**
  * Type for useSecureStorage return object.
  */
 interface UseSecureStorageReturn {
   saveItem: <T>(key: string, value: T) => Promise<void>;
-  getItem: <T>(key: string) => Promise<T | null>;
+  saveItemWithBiometrics: <T>(key: string, value: T) => Promise<void>;
+  getItem: (key: string) => Promise<string | null>;
   removeItem: (key: string) => Promise<void>;
   loading: boolean;
   error: string | null;
 }
 
 /**
- * A custom React hook for interacting with react-native-encrypted-storage.
+ * A custom React hook for interacting with react-native-keychain.
  * It provides methods to securely store, retrieve, and remove sensitive data.
  *
  * @returns {UseSecureStorageReturn} The functions and states for secure storage.
@@ -23,7 +24,7 @@ export function useSecureStorage(): UseSecureStorageReturn {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Save a key-value pair to EncryptedStorage.
+   * Save a key-value pair to Keychain.
    *
    * @template T - The type of the value being stored.
    * @param {string} key - The key to store the value under.
@@ -37,10 +38,48 @@ export function useSecureStorage(): UseSecureStorageReturn {
         setError(null);
         const stringValue =
           typeof value === 'object' ? JSON.stringify(value) : String(value);
-        await EncryptedStorage.setItem(key, stringValue);
+
+        await Keychain.setGenericPassword(key, stringValue, {
+          service: key,
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED
+        });
       } catch (err) {
         setError((err as Error).message || 'Failed to save item.');
         console.error('useSecureStorage saveItem error:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  /**
+   * Save a key-value pair to Keychain with biometrics.
+   *
+   * @template T - The type of the value being stored.
+   * @param {string} key - The key to store the value under.
+   * @param {T} value - The value to store (will be stringified if an object).
+   * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+   */
+  const saveItemWithBiometrics = useCallback(
+    async <T>(key: string, value: T): Promise<void> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const stringValue =
+          typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+        await Keychain.setGenericPassword(key, stringValue, {
+          service: key,
+          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
+          authenticationPrompt: {
+            title: 'Authenticate to store item securely'
+          }
+        });
+      } catch (err) {
+        setError((err as Error).message || 'Failed to save item.');
+        console.error('useSecureStorage saveItemWithBiometrics error:', err);
       } finally {
         setLoading(false);
       }
@@ -55,17 +94,23 @@ export function useSecureStorage(): UseSecureStorageReturn {
    * @param {string} key - The key of the value to retrieve.
    * @returns {Promise<T | null>} - A promise resolving to the retrieved value (parsed if JSON) or null if not found.
    */
-  const getItem = useCallback(async <T>(key: string): Promise<T | null> => {
+  const getItem = useCallback(async (key: string): Promise<string | null> => {
     try {
       setLoading(true);
       setError(null);
-      const value = await EncryptedStorage.getItem(key);
-      if (!value) return null; // Prevent JSON.parse(null) error
+      const credentials = await Keychain.getGenericPassword({
+        service: key,
+        authenticationPrompt: {
+          title: 'Authenticate'
+        }
+      });
+      if (!credentials) return null;
+      const value = credentials.password;
 
       try {
-        return JSON.parse(value) as T; // Attempt to parse JSON
+        return value; // Attempt to parse JSON
       } catch {
-        return value as T; // Return as a plain string if parsing fails
+        return value; // Return as a plain string if parsing fails
       }
     } catch (err) {
       setError((err as Error).message || 'Failed to retrieve item.');
@@ -86,7 +131,9 @@ export function useSecureStorage(): UseSecureStorageReturn {
     try {
       setLoading(true);
       setError(null);
-      await EncryptedStorage.removeItem(key);
+      await Keychain.resetGenericPassword({
+        service: key
+      });
     } catch (err) {
       setError((err as Error).message || 'Failed to remove item.');
       console.error('useSecureStorage removeItem error:', err);
@@ -97,6 +144,7 @@ export function useSecureStorage(): UseSecureStorageReturn {
 
   return {
     saveItem,
+    saveItemWithBiometrics,
     getItem,
     removeItem,
     loading,

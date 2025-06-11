@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   BackHandler,
   ScrollView,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { useModal } from 'react-native-modalfy';
 import { Button, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
@@ -15,17 +14,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import PasswordInput from '../../components/forms/PasswordInput';
 import Logo from '../../components/Logo';
 import { ConsentModalParams } from '../../components/modals/ConsentModal';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage } from '../../hooks/eth-mobile';
 import { loginUser, logoutUser } from '../../store/reducers/Auth';
 import { clearRecipients } from '../../store/reducers/Recipients';
+import { clearWallet, initWallet } from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
-import { Security } from '../../types/security';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {};
-
-export default function Login({}: Props) {
+export default function Login() {
   const toast = useToast();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -34,11 +32,43 @@ export default function Login({}: Props) {
   const auth = useSelector((state: any) => state.auth);
 
   const [password, setPassword] = useState('');
-  const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
 
   const { openModal } = useModal();
 
-  const initWallet = () => {
+  const unlockWithPassword = async () => {
+    if (!password) {
+      toast.show('Password cannot be empty!', {
+        type: 'danger'
+      });
+      return;
+    }
+
+    const encryptedSeedPhrase = (await getItem('seedPhrase')) as string;
+    const encryptedAccounts = (await getItem('accounts')) as string;
+
+    const encryptor = new Encryptor({
+      keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+    });
+
+    const seedPhrase = await encryptor.decrypt(password, encryptedSeedPhrase);
+
+    if (!seedPhrase) {
+      toast.show('Incorrect password!', {
+        type: 'danger'
+      });
+      return;
+    }
+
+    const accounts = await encryptor.decrypt(password, encryptedAccounts);
+
+    dispatch(
+      initWallet({
+        password,
+        mnemonic: seedPhrase,
+        accounts: accounts
+      })
+    );
+
     if (!auth.isLoggedIn) {
       dispatch(loginUser());
     }
@@ -51,88 +81,17 @@ export default function Login({}: Props) {
     navigation.navigate('Dashboard');
   };
 
-  const unlockWithPassword = async () => {
-    if (!password) {
-      toast.show('Password cannot be empty!', {
-        type: 'danger'
-      });
-      return;
-    }
-
-    const security = (await getItem('security')) as Security;
-    if (password !== security.password) {
-      toast.show('Incorrect password!', {
-        type: 'danger'
-      });
-      return;
-    }
-
-    initWallet();
-  };
-
-  const unlockWithBiometrics = async () => {
-    const rnBiometrics = new ReactNativeBiometrics();
-
-    try {
-      const signInWithBio = async () => {
-        let epochTimeSeconds = Math.round(
-          new Date().getTime() / 1000
-        ).toString();
-        let payload = epochTimeSeconds + 'some message';
-
-        try {
-          const response = await rnBiometrics.createSignature({
-            promptMessage: 'Sign in',
-            payload: payload
-          });
-
-          if (response.success) {
-            initWallet();
-          }
-        } catch (error) {
-          return;
-        }
-      };
-
-      const { available } = await rnBiometrics.isSensorAvailable();
-
-      if (available) {
-        const { keysExist } = await rnBiometrics.biometricKeysExist();
-
-        if (!keysExist) {
-          await rnBiometrics.createKeys();
-        }
-
-        signInWithBio();
-      }
-    } catch (error) {
-      toast.show('Could not sign in with biometrics', {
-        type: 'danger'
-      });
-    }
-  };
-
   const resetWallet = async () => {
     await removeItem('seedPhrase');
     await removeItem('accounts');
-    await removeItem('security');
     dispatch(clearRecipients());
+    dispatch(clearWallet());
     dispatch(logoutUser());
     setTimeout(() => {
       // @ts-ignore
       navigation.navigate('Onboarding');
     }, 100);
   };
-
-  useEffect(() => {
-    (async () => {
-      const security = (await getItem('security')) as Security;
-      setIsBiometricsEnabled(security.isBiometricsEnabled);
-      if (security.isBiometricsEnabled) {
-        unlockWithBiometrics();
-      }
-    })();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -189,17 +148,11 @@ export default function Login({}: Props) {
 
       <Button
         mode="contained"
-        onPress={
-          isBiometricsEnabled && !password
-            ? unlockWithBiometrics
-            : unlockWithPassword
-        }
+        onPress={unlockWithPassword}
         style={styles.button}
         labelStyle={styles.buttonText}
       >
-        {isBiometricsEnabled && !password
-          ? 'SIGN IN WITH BIOMETRICS'
-          : 'SIGN IN'}
+        SIGN IN
       </Button>
 
       <Text variant="bodyLarge" style={styles.resetText}>

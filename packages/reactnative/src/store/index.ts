@@ -17,11 +17,13 @@ import NFTs from './reducers/NFTs';
 import Recipients from './reducers/Recipients';
 import Tokens from './reducers/Tokens';
 import Transactions from './reducers/Transactions';
+import Wallet from './reducers/Wallet';
 
 const persistConfig = {
   key: 'root',
   version: 1,
-  storage: AsyncStorage
+  storage: AsyncStorage,
+  blacklist: ['wallet']
 };
 
 const reducers = combineReducers({
@@ -31,7 +33,8 @@ const reducers = combineReducers({
   transactions: Transactions,
   recipients: Recipients,
   tokens: Tokens,
-  nfts: NFTs
+  nfts: NFTs,
+  wallet: Wallet
 });
 
 const persistedReducer = persistReducer(persistConfig, reducers);

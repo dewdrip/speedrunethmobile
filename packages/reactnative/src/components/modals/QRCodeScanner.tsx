@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Camera } from 'react-native-camera-kit';
+import { BackHandler, Platform, StyleSheet, View } from 'react-native';
+import { Camera, CameraType } from 'react-native-camera-kit';
 import { IconButton } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import { Camera as VCamera } from 'react-native-vision-camera';
@@ -62,18 +62,31 @@ export default function QRCodeScanner({
   };
 
   useEffect(() => {
+    const backhandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        closeModal();
+
+        return true;
+      }
+    );
+
     (async () => {
       await requestCameraPermission();
     })();
+
+    return () => backhandler.remove();
   }, []);
 
   return (
     isCameraPermitted && (
       <View style={styles.container}>
         <Camera
+          cameraType={CameraType.Back}
           scanBarcode={true}
           onReadCode={(event: { nativeEvent: { codeStringValue: string } }) => {
             params.onScan(event.nativeEvent.codeStringValue);
+            closeModal();
           }}
           showFrame={true}
           laserColor="blue"
@@ -103,7 +116,7 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: 'absolute',
-    top: 20,
-    right: 5
+    top: Platform.OS === 'ios' ? 60 : 20,
+    right: 10
   }
 });

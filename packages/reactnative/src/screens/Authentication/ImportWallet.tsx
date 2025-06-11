@@ -1,14 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import {
-  ActivityIndicator,
-  Button,
-  Divider,
-  Switch,
-  Text
-} from 'react-native-paper';
+import { ActivityIndicator, Button, Divider, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import { useDispatch } from 'react-redux';
 import { ethers } from '../../../patches/ethers';
@@ -16,9 +9,11 @@ import BackButton from '../../components/buttons/BackButton';
 import ScanButton from '../../components/buttons/ScanButton';
 import PasswordInput from '../../components/forms/PasswordInput';
 import SeedPhraseInput from '../../components/forms/SeedPhraseInput';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage, useWallet } from '../../hooks/eth-mobile';
 import { initAccounts } from '../../store/reducers/Accounts';
 import { loginUser } from '../../store/reducers/Auth';
+import { initWallet } from '../../store/reducers/Wallet';
 import styles from '../../styles/authentication/importWallet';
 import { COLORS } from '../../utils/constants';
 
@@ -32,9 +27,7 @@ function ImportWallet() {
   const [seedPhrase, setSeedPhrase] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const [isBiometricsAvailable, setIsBiometricsAvailable] = useState(false);
 
   function isValidMnemonic(seedPhrase: string) {
     return ethers.Mnemonic.isValidMnemonic(seedPhrase);
@@ -90,17 +83,34 @@ function ImportWallet() {
 
     const wallet = importWallet(seedPhrase, 0);
 
-    const initWallet = {
-      address: wallet.address,
-      privateKey: wallet.privateKey
-    };
-
     try {
-      await saveItem('seedPhrase', seedPhrase);
-      await saveItem('accounts', [initWallet]);
-      await saveItem('security', { password, isBiometricsEnabled });
+      const encryptor = new Encryptor({
+        keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+      });
 
-      dispatch(initAccounts([{ ...initWallet }]));
+      const encryptedMnemonic = await encryptor.encrypt(
+        password,
+        wallet.mnemonic
+      );
+
+      await saveItem('seedPhrase', encryptedMnemonic);
+      const account = {
+        address: wallet.address,
+        privateKey: wallet.privateKey
+      };
+
+      const encryptedAccount = await encryptor.encrypt(password, [account]);
+
+      await saveItem('accounts', encryptedAccount);
+
+      dispatch(initAccounts([account.address]));
+      dispatch(
+        initWallet({
+          password,
+          mnemonic: wallet.mnemonic,
+          accounts: [account]
+        })
+      );
       dispatch(loginUser());
 
       // @ts-ignore
@@ -116,19 +126,6 @@ function ImportWallet() {
       setIsImporting(false);
     }
   };
-
-  useEffect(() => {
-    (async () => {
-      // check biometrics availability
-      const rnBiometrics = new ReactNativeBiometrics();
-
-      const { available } = await rnBiometrics.isSensorAvailable();
-
-      if (available) {
-        setIsBiometricsAvailable(available);
-      }
-    })();
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -170,23 +167,6 @@ function ImportWallet() {
             onChange={setConfirmPassword}
             onSubmit={importAccount}
           />
-
-          {isBiometricsAvailable && (
-            <>
-              <Divider style={{ backgroundColor: COLORS.gray }} />
-
-              <View style={styles.biometricsContainer}>
-                <Text variant="bodyLarge" style={styles.biometricsTitle}>
-                  Sign in with Biometrics
-                </Text>
-                <Switch
-                  value={isBiometricsEnabled}
-                  onValueChange={setIsBiometricsEnabled}
-                  color={COLORS.primary}
-                />
-              </View>
-            </>
-          )}
 
           <Divider style={{ backgroundColor: COLORS.gray }} />
 

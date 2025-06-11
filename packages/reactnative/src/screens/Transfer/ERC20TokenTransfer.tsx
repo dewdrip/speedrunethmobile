@@ -18,7 +18,7 @@ import { BackHandler, StyleSheet, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { Divider } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Address, erc20Abi } from 'viem';
 import CustomButton from '../../components/buttons/CustomButton';
 import {
@@ -26,7 +26,6 @@ import {
   useERC20Balance,
   useERC20Metadata,
   useNetwork,
-  useSecureStorage,
   useTransactions
 } from '../../hooks/eth-mobile';
 import { Account } from '../../store/reducers/Accounts';
@@ -65,21 +64,20 @@ export default function ERC20TokenTransfer() {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
 
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   const estimateGasCost = async () => {
     try {
       // @ts-ignore
-      const accounts: any[] = await getItem('accounts');
-      const activeAccount = Array.from(accounts).find(
-        account =>
+      const activeAccount = wallet.accounts.find(
+        (account: Account) =>
           account.address.toLowerCase() === sender.address.toLowerCase()
       );
 
       const provider = new JsonRpcProvider(network.provider);
-      const wallet = new Wallet(activeAccount.privateKey, provider);
+      const activeWallet = new Wallet(activeAccount.privateKey, provider);
 
-      const tokenContract = new Contract(token.address, erc20Abi, wallet);
+      const tokenContract = new Contract(token.address, erc20Abi, activeWallet);
 
       const gasEstimate = await tokenContract.transfer.estimateGas(
         '0x2B0BC5225b6bB4E6C8B1A8e0d5454198C3269b1D',
@@ -100,15 +98,15 @@ export default function ERC20TokenTransfer() {
 
   const transfer = async (): Promise<TransactionReceipt | null> => {
     // @ts-ignore
-    const accounts: any[] = await getItem('accounts');
-    const activeAccount = Array.from(accounts).find(
-      account => account.address.toLowerCase() === sender.address.toLowerCase()
+    const activeAccount = wallet.accounts.find(
+      (account: Account) =>
+        account.address.toLowerCase() === sender.address.toLowerCase()
     );
 
     const provider = new JsonRpcProvider(network.provider);
-    const wallet = new Wallet(activeAccount.privateKey, provider);
+    const activeWallet = new Wallet(activeAccount.privateKey, provider);
 
-    const tokenContract = new Contract(token.address, erc20Abi, wallet);
+    const tokenContract = new Contract(token.address, erc20Abi, activeWallet);
 
     const tx = await tokenContract.transfer(
       recipient,

@@ -1,6 +1,6 @@
 import { isAddress, JsonRpcProvider } from 'ethers';
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { Text, TextInput } from 'react-native-paper';
 import { useSelector } from 'react-redux';
@@ -29,6 +29,7 @@ export default function Recipient({ recipient, onChange, onSubmit }: Props) {
   const account = useAccount();
 
   const scanQRCode = () => {
+    Keyboard.dismiss();
     openModal('QRCodeScanner', {
       onScan: onChange
     });
@@ -99,6 +100,8 @@ export default function Recipient({ recipient, onChange, onSubmit }: Props) {
         mode="outlined"
         style={styles.input}
         placeholder="Recipient Address"
+        placeholderTextColor="#a3a3a3"
+        textColor="black"
         onChangeText={handleInputChange}
         onSubmitEditing={onSubmit}
         left={

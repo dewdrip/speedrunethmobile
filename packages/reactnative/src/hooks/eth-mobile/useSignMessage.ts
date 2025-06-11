@@ -1,6 +1,8 @@
 import { JsonRpcProvider, Wallet } from 'ethers';
 import { useModal } from 'react-native-modalfy';
-import { useAccount, useNetwork, useSecureStorage } from '.';
+import { useSelector } from 'react-redux';
+import { useAccount, useNetwork } from '.';
+import { Account } from '../../store/reducers/Wallet';
 
 interface UseSignMessageConfig {
   message?: string | Uint8Array<ArrayBufferLike>;
@@ -23,7 +25,7 @@ export function useSignMessage({
   const { openModal } = useModal();
   const network = useNetwork();
   const connectedAccount = useAccount();
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   /**
    * Signs a message using the connected wallet.
@@ -54,14 +56,13 @@ export function useSignMessage({
       async function onConfirm() {
         try {
           const provider = new JsonRpcProvider(network.provider);
-          const accounts = await getItem('accounts');
 
-          if (!accounts || !Array.isArray(accounts)) {
+          if (!wallet.accounts || !Array.isArray(wallet.accounts)) {
             throw new Error('No accounts found in secure storage.');
           }
 
-          const activeAccount = accounts.find(
-            (account: { address: string }) =>
+          const activeAccount = wallet.accounts.find(
+            (account: Account) =>
               account.address.toLowerCase() ===
               connectedAccount.address.toLowerCase()
           );
@@ -70,8 +71,8 @@ export function useSignMessage({
             throw new Error('Active account not found.');
           }
 
-          const wallet = new Wallet(activeAccount.privateKey, provider);
-          const signature = await wallet.signMessage(messageToSign!);
+          const activeWallet = new Wallet(activeAccount.privateKey, provider);
+          const signature = await activeWallet.signMessage(messageToSign!);
           resolve(signature);
         } catch (error) {
           reject(error instanceof Error ? error : new Error(String(error)));

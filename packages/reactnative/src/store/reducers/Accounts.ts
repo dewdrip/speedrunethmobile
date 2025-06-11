@@ -11,12 +11,14 @@ export const accountsSlice = createSlice({
   initialState: [] as Account[] | [],
   reducers: {
     initAccounts: (state, action) => {
-      const wallets = action.payload;
-      const accounts = wallets.map((wallet: any, index: number) => ({
-        name: `Account ${index + 1}`,
-        address: wallet.address,
-        isConnected: index === 0
-      }));
+      const accountAddresses = action.payload;
+      const accounts = accountAddresses.map(
+        (address: string, index: number) => ({
+          name: `Account ${index + 1}`,
+          address,
+          isConnected: index === 0
+        })
+      );
 
       return accounts;
     },

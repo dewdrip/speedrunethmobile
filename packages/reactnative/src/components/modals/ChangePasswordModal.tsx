@@ -4,9 +4,11 @@ import { Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage } from '../../hooks/eth-mobile';
+import { setPassword as setWalletPassword } from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
-import { Security } from '../../types/security';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Button from '../buttons/CustomButton';
 import PasswordInput from '../forms/PasswordInput';
@@ -19,7 +21,9 @@ type Props = {
 
 export default function ChangePasswordModal({ modal: { closeModal } }: Props) {
   const toast = useToast();
-  const { saveItem, getItem } = useSecureStorage();
+  const { saveItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
+  const dispatch = useDispatch();
 
   const [password, setPassword] = useState({
     current: '',
@@ -29,39 +33,58 @@ export default function ChangePasswordModal({ modal: { closeModal } }: Props) {
 
   const change = async () => {
     try {
-      const security = (await getItem('security')) as Security;
+      const existingPassword = wallet.password;
+      const currentPassword = password.current.trim();
+      const newPassword = password.new.trim();
+      const confirmPassword = password.confirm.trim();
 
-      if (!password.current || !password.new || !password.confirm) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
         toast.show('Password cannot be empty!', { type: 'warning' });
         return;
       }
 
-      if (password.new.length < 8) {
+      if (newPassword.length < 8) {
         toast.show('Password must be at least 8 characters', {
           type: 'warning'
         });
         return;
       }
 
-      if (password.current.trim() !== security.password) {
+      if (currentPassword !== existingPassword) {
         toast.show('Incorrect password!', { type: 'warning' });
         return;
       }
 
-      if (password.current.trim() === password.new.trim()) {
+      if (currentPassword === newPassword) {
         toast.show('Cannot use current password', { type: 'warning' });
         return;
       }
 
-      if (password.new.trim() !== password.confirm.trim()) {
+      if (newPassword !== confirmPassword) {
         toast.show('Passwords do not match!', { type: 'warning' });
         return;
       }
 
-      await saveItem(
-        'security',
-        JSON.stringify({ ...security, password: password.new.trim() })
+      // @ts-ignore
+      dispatch(setWalletPassword(newPassword));
+
+      const encryptor = new Encryptor({
+        keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+      });
+
+      const encryptedMnemonic = await encryptor.encrypt(
+        newPassword,
+        wallet.mnemonic
       );
+
+      await saveItem('seedPhrase', encryptedMnemonic);
+
+      const encryptedAccounts = await encryptor.encrypt(
+        newPassword,
+        wallet.accounts
+      );
+
+      await saveItem('accounts', encryptedAccounts);
 
       closeModal();
       toast.show('Password Changed Successfully', { type: 'success' });

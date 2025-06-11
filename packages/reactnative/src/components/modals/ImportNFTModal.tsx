@@ -119,6 +119,8 @@ export default function ImportNFTModal({ modal: { closeModal } }: Props) {
             outlineStyle={{ borderRadius: 12, borderColor: COLORS.gray }}
             contentStyle={globalStyles.text}
             placeholder={'0x...'}
+            placeholderTextColor="#a3a3a3"
+            textColor="black"
             onChangeText={setAddress}
             onSubmitEditing={importNFT}
           />
@@ -144,6 +146,8 @@ export default function ImportNFTModal({ modal: { closeModal } }: Props) {
             outlineStyle={{ borderRadius: 12, borderColor: COLORS.gray }}
             contentStyle={globalStyles.text}
             placeholder={'Enter the token id'}
+            placeholderTextColor="#a3a3a3"
+            textColor="black"
             onChangeText={setTokenId}
             onSubmitEditing={importNFT}
           />

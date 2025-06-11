@@ -126,6 +126,8 @@ export default function ImportTokenModal({ modal: { closeModal } }: Props) {
               outlineStyle={{ borderRadius: 12, borderColor: COLORS.gray }}
               contentStyle={globalStyles.text}
               placeholder={'0x...'}
+              placeholderTextColor="#a3a3a3"
+              textColor="black"
               onChangeText={value => setAddress(value.trim())}
               onSubmitEditing={getTokenData}
             />

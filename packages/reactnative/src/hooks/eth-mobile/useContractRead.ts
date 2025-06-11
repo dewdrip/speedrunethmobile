@@ -1,6 +1,8 @@
 import { Contract, InterfaceAbi, JsonRpcProvider, Wallet } from 'ethers';
 import { useEffect, useState } from 'react';
-import { useAccount, useNetwork, useSecureStorage } from '.';
+import { useSelector } from 'react-redux';
+import { useAccount, useNetwork } from '.';
+import { Account } from '../../store/reducers/Wallet';
 
 interface UseContractReadConfig {
   abi?: InterfaceAbi;
@@ -28,7 +30,7 @@ export function useContractRead({
 }: Partial<UseContractReadConfig> = {}) {
   const network = useNetwork();
   const connectedAccount = useAccount();
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   const [data, setData] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(enabled);
@@ -46,17 +48,15 @@ export function useContractRead({
       setIsLoading(true);
       const provider = new JsonRpcProvider(network.provider);
 
-      const accounts = await getItem('accounts');
-
-      const activeAccount = Array.from(accounts).find(
-        account =>
+      const activeAccount = wallet.accounts.find(
+        (account: Account) =>
           account.address.toLowerCase() ===
           connectedAccount.address.toLowerCase()
       );
 
-      const wallet = new Wallet(activeAccount.privateKey, provider);
+      const activeWallet = new Wallet(activeAccount.privateKey, provider);
 
-      const contract = new Contract(address, abi, wallet);
+      const contract = new Contract(address, abi, activeWallet);
 
       const result = await contract[functionName](...(args || []));
 
@@ -87,17 +87,15 @@ export function useContractRead({
       setIsLoading(true);
       const provider = new JsonRpcProvider(network.provider);
 
-      const accounts = await getItem('accounts');
-
-      const activeAccount = Array.from(accounts).find(
-        account =>
+      const activeAccount = wallet.accounts.find(
+        (account: Account) =>
           account.address.toLowerCase() ===
           connectedAccount.address.toLowerCase()
       );
 
-      const wallet = new Wallet(activeAccount.privateKey, provider);
+      const activeWallet = new Wallet(activeAccount.privateKey, provider);
 
-      const contract = new Contract(address, abi, wallet);
+      const contract = new Contract(address, abi, activeWallet);
 
       const result = await contract[functionName](...(args || []));
 

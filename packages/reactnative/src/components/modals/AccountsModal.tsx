@@ -6,6 +6,7 @@ import { useToast } from 'react-native-toast-notifications';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import {
   useAccount,
   useSecureStorage,
@@ -16,8 +17,11 @@ import {
   addAccount,
   switchAccount
 } from '../../store/reducers/Accounts';
+import {
+  addAccount as addWalletAccount,
+  Wallet
+} from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
-import { Wallet } from '../../types/wallet';
 import { COLORS } from '../../utils/constants';
 import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
@@ -34,9 +38,10 @@ export default function AccountsModal({ modal: { closeModal } }: Props) {
   const dispatch = useDispatch();
   const toast = useToast();
   const { importWallet } = useWallet();
-  const { getItem, saveItem } = useSecureStorage();
+  const { saveItem } = useSecureStorage();
 
   const accounts: Account[] = useSelector((state: any) => state.accounts);
+  const wallet: Wallet = useSelector((state: any) => state.wallet);
   const connectedAccount = useAccount();
 
   const { openModal } = useModal();
@@ -49,7 +54,7 @@ export default function AccountsModal({ modal: { closeModal } }: Props) {
   };
 
   const createAccount = async () => {
-    const mnemonic = (await getItem('seedPhrase')) as string;
+    const mnemonic = wallet.mnemonic;
     let newAccount;
 
     for (let i = 0; i < Infinity; i++) {
@@ -69,17 +74,21 @@ export default function AccountsModal({ modal: { closeModal } }: Props) {
       return;
     }
 
-    const createdAccounts = (await getItem('accounts')) as Wallet[];
-    await saveItem(
-      'accounts',
-      JSON.stringify([
-        ...createdAccounts,
-        { privateKey: newAccount.privateKey, address: newAccount.address }
-      ])
-    );
+    const encryptor = new Encryptor({
+      keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+    });
 
+    const encryptedAccounts = await encryptor.encrypt(wallet.password, [
+      ...wallet.accounts,
+      newAccount
+    ] as any);
+
+    await saveItem('accounts', encryptedAccounts);
+
+    dispatch(addWalletAccount(newAccount));
     dispatch(addAccount({ address: newAccount.address }));
     dispatch(switchAccount(newAccount.address));
+
     closeModal();
   };
 

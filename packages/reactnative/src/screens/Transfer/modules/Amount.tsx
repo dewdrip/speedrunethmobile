@@ -128,6 +128,8 @@ export default function Amount({
         mode="outlined"
         style={styles.input}
         placeholder={`0 ${isDollar ? 'USD' : token}`}
+        placeholderTextColor="#a3a3a3"
+        textColor="black"
         onChangeText={handleInputChange}
         onSubmitEditing={onConfirm}
         keyboardType="number-pad"

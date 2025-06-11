@@ -12,7 +12,7 @@ import { BackHandler, StyleSheet, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { Divider } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Address } from 'viem';
 import CustomButton from '../../components/buttons/CustomButton';
 import {
@@ -54,7 +54,7 @@ export default function NetworkTokenTransfer() {
     address: sender.address
   });
 
-  const { getItem } = useSecureStorage();
+  const wallet = useSelector((state: any) => state.wallet);
 
   const estimateGasCost = async () => {
     try {
@@ -74,15 +74,15 @@ export default function NetworkTokenTransfer() {
 
   const transfer = async (): Promise<TransactionReceipt | null> => {
     // @ts-ignore
-    const accounts: any[] = await getItem('accounts');
-    const activeAccount = Array.from(accounts).find(
-      account => account.address.toLowerCase() === sender.address.toLowerCase()
+    const activeAccount = wallet.accounts.find(
+      (account: Account) =>
+        account.address.toLowerCase() === sender.address.toLowerCase()
     );
 
     const provider = new JsonRpcProvider(network.provider);
-    const wallet = new Wallet(activeAccount.privateKey, provider);
+    const activeWallet = new Wallet(activeAccount.privateKey, provider);
 
-    const tx = await wallet.sendTransaction({
+    const tx = await activeWallet.sendTransaction({
       from: sender.address,
       to: recipient,
       value: parseEther(amount.toString())

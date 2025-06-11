@@ -5,11 +5,10 @@ import { Surface, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 //@ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useAccount, useSecureStorage } from '../../hooks/eth-mobile';
+import { useSelector } from 'react-redux';
+import { useAccount } from '../../hooks/eth-mobile';
 import { Account } from '../../store/reducers/Accounts';
 import globalStyles from '../../styles/globalStyles';
-import { Security } from '../../types/security';
-import { Wallet } from '../../types/wallet';
 import { COLORS } from '../../utils/constants';
 import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
@@ -24,8 +23,8 @@ type Props = {
 
 export default function PrivateKeyModal({ modal: { closeModal } }: Props) {
   const connectedAccount: Account = useAccount();
+  const wallet = useSelector((state: any) => state.wallet);
 
-  const { getItem } = useSecureStorage();
   const toast = useToast();
 
   const [password, setPassword] = useState('');
@@ -38,19 +37,17 @@ export default function PrivateKeyModal({ modal: { closeModal } }: Props) {
       return;
     }
 
-    const security = (await getItem('security')) as Security;
-
-    if (password !== security.password) {
+    if (password !== wallet.password) {
       setError('Incorrect password!');
       return;
     }
 
-    const accounts = (await getItem('accounts')) as Wallet[];
-    const wallet = Array.from(accounts).find(
-      wallet => wallet.address === connectedAccount.address
+    const account = wallet.accounts.find(
+      (walletAccount: Account) =>
+        walletAccount.address === connectedAccount.address
     );
 
-    setPrivateKey(wallet!.privateKey);
+    setPrivateKey(account!.privateKey);
   };
 
   const handleInputChange = (value: string) => {
@@ -120,6 +117,8 @@ export default function PrivateKeyModal({ modal: { closeModal } }: Props) {
             mode="outlined"
             secureTextEntry
             placeholder="Password"
+            placeholderTextColor="#a3a3a3"
+            textColor="black"
             error={!!error}
             outlineStyle={{ borderRadius: 12, borderColor: COLORS.gray }}
             contentStyle={globalStyles.text}

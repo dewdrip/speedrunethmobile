@@ -1,17 +1,18 @@
 import { ethers } from 'ethers';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import { useModal } from 'react-native-modalfy';
 import { IconButton, Text, TextInput } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
+import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage } from '../../hooks/eth-mobile';
 import {
   Account,
   addAccount,
   switchAccount
 } from '../../store/reducers/Accounts';
+import { addAccount as addWalletAccount } from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
-import { Wallet } from '../../types/wallet';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Button from '../buttons/CustomButton';
@@ -29,28 +30,34 @@ export default function ImportAccountModal({ modal: { closeModal } }: Props) {
   const { saveItem, getItem } = useSecureStorage();
   const dispatch = useDispatch();
   const accounts: Account[] = useSelector((state: any) => state.accounts);
+  const wallet = useSelector((state: any) => state.wallet);
   const { openModal } = useModal();
 
   const importWallet = async () => {
     try {
-      const wallet = new ethers.Wallet(privateKey);
+      const newWallet = new ethers.Wallet(privateKey);
 
-      if (accounts.find(account => account.address == wallet.address)) {
+      if (accounts.find(account => account.address == newWallet.address)) {
         setError('Account already exists');
         return;
       }
 
-      const createdAccounts = (await getItem('accounts')) as Wallet[];
-      await saveItem(
-        'accounts',
-        JSON.stringify([
-          ...createdAccounts,
-          { privateKey: privateKey, address: wallet.address }
-        ])
-      );
+      const newAccount = { address: newWallet.address, privateKey };
 
-      dispatch(addAccount({ address: wallet.address }));
-      dispatch(switchAccount(wallet.address));
+      const encryptor = new Encryptor({
+        keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
+      });
+
+      const encryptedAccounts = await encryptor.encrypt(wallet.password, [
+        ...wallet.accounts,
+        newAccount
+      ] as any);
+
+      await saveItem('accounts', encryptedAccounts);
+
+      dispatch(addWalletAccount(newAccount));
+      dispatch(addAccount({ address: newAccount.address }));
+      dispatch(switchAccount(newAccount.address));
 
       closeModal();
     } catch (error) {
@@ -66,6 +73,7 @@ export default function ImportAccountModal({ modal: { closeModal } }: Props) {
   };
 
   const scanPk = () => {
+    Keyboard.dismiss();
     openModal('QRCodeScanner', {
       onScan: setPrivateKey
     });
@@ -93,6 +101,8 @@ export default function ImportAccountModal({ modal: { closeModal } }: Props) {
           mode="outlined"
           secureTextEntry
           placeholder="Enter your private key here"
+          placeholderTextColor="#a3a3a3"
+          textColor="black"
           right={
             <TextInput.Icon
               icon="qrcode-scan"
