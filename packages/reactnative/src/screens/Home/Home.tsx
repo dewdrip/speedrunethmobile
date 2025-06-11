@@ -4,9 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import globalStyles from '../../../styles/globalStyles';
-import { COLORS } from '../../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../../utils/styles';
+import globalStyles from '../../styles/globalStyles';
+import { COLORS } from '../../utils/constants';
+import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 
 type Props = {};
 
@@ -54,7 +54,7 @@ export default function Home({}: Props) {
           Get started by editing
         </Text>
         <HighlightedText>
-          packages/reactnative/src/screens/Main/Tab/Home.tsx
+          packages/reactnative/src/screens/Dashboard/Tab/Home.tsx
         </HighlightedText>
 
         <View

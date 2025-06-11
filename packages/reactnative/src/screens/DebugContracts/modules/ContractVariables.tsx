@@ -7,7 +7,7 @@ import {
   ContractName,
   GenericContract,
   InheritedFunctions
-} from '../../../../../../utils/eth-mobile';
+} from '../../../utils/eth-mobile';
 import DisplayVariable from './DisplayVariable';
 
 export default function ContractVariables({

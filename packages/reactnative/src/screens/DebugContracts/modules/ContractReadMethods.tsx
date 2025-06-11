@@ -2,12 +2,9 @@ import { Abi, AbiFunction } from 'abitype';
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import globalStyles from '../../../../../../styles/globalStyles';
-import {
-  GenericContract,
-  InheritedFunctions
-} from '../../../../../../utils/eth-mobile';
-import { FONT_SIZE } from '../../../../../../utils/styles';
+import globalStyles from '../../../styles/globalStyles';
+import { GenericContract, InheritedFunctions } from '../../../utils/eth-mobile';
+import { FONT_SIZE } from '../../../utils/styles';
 import ReadOnlyFunctionForm from './ReadOnlyFunctionForm';
 
 type Props = {

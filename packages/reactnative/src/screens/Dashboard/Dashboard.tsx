@@ -4,16 +4,14 @@ import React from 'react';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { COLORS } from '../../utils/constants';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
-import DebugContracts from './Tab/DebugContracts';
-import Home from './Tab/Home';
-import Settings from './Tab/Settings';
-import Wallet from './Tab/Wallet';
+import DebugContracts from '../DebugContracts';
+import Home from '../Home';
+import Settings from '../Settings';
+import Wallet from '../Wallet';
 
 const Tab = createBottomTabNavigator();
 
-type Props = {};
-
-export default function Main({}: Props) {
+export default function Dashboard() {
   return (
     <Tab.Navigator
       screenOptions={{

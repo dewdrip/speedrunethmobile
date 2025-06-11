@@ -6,7 +6,7 @@ import {
   InputBase,
   IntegerInput,
   IntegerVariant
-} from '../../../../../../components/eth-mobile';
+} from '../../../components/eth-mobile';
 
 type Props = {
   setForm: Dispatch<SetStateAction<Record<string, any>>>;

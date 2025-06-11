@@ -12,14 +12,14 @@ import Share from 'react-native-share';
 import { useToast } from 'react-native-toast-notifications';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { Network } from '../../../../../../ethmobile.config';
-import { Blockie } from '../../../../../components/eth-mobile';
-import Logo from '../../../../../components/Logo';
-import { useAccount, useNetwork } from '../../../../../hooks/eth-mobile';
-import { Account } from '../../../../../store/reducers/Accounts';
-import globalStyles from '../../../../../styles/globalStyles';
-import { COLORS } from '../../../../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../../../../utils/styles';
+import { Network } from '../../../../ethmobile.config';
+import BackButton from '../../../components/buttons/BackButton';
+import { Blockie } from '../../../components/eth-mobile';
+import { useAccount, useNetwork } from '../../../hooks/eth-mobile';
+import { Account } from '../../../store/reducers/Accounts';
+import globalStyles from '../../../styles/globalStyles';
+import { COLORS } from '../../../utils/constants';
+import { FONT_SIZE, WINDOW_WIDTH } from '../../../utils/styles';
 
 type Props = {};
 
@@ -56,7 +56,10 @@ export default function Header({}: Props) {
 
   return (
     <View style={styles.container}>
-      <Logo size={WINDOW_WIDTH * 0.08} />
+      <View style={styles.titleContainer}>
+        <BackButton />
+        <Text style={styles.title}>Wallet</Text>
+      </View>
 
       <Menu>
         <MenuTrigger>
@@ -161,9 +164,15 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.gray,
     borderBottomWidth: 1
   },
-  logo: {
-    width: 3 * FONT_SIZE['xl'],
-    height: 3 * FONT_SIZE['xl']
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  title: {
+    fontSize: FONT_SIZE.xl,
+    ...globalStyles.textBold,
+    marginBottom: -5
   },
   menuOption: {
     flexDirection: 'row',

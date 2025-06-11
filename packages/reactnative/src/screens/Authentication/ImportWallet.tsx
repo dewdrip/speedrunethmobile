@@ -104,7 +104,7 @@ function ImportWallet() {
       dispatch(loginUser());
 
       // @ts-ignore
-      navigation.navigate('Main');
+      navigation.navigate('Dashboard');
     } catch (error) {
       toast.show(
         'Failed to import wallet. Please ensure you have a stable network connection and try again',
