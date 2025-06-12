@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
 import SeedPhrase from '../../components/SeedPhrase';
 import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
@@ -31,8 +31,12 @@ export default function CreateWallet() {
   const [wallet, setWallet] = useState<Wallet>();
   const [hasSeenSeedPhrase, setHasSeenSeedPhrase] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { saveItem } = useSecureStorage();
+  const { saveItem, saveItemWithBiometrics } = useSecureStorage();
   const dispatch = useDispatch();
+
+  const isBiometricsEnabled = useSelector(
+    (state: any) => state.settings.isBiometricsEnabled as boolean
+  );
 
   const copySeedPhrase = () => {
     if (isLoading) return;
@@ -77,6 +81,10 @@ export default function CreateWallet() {
       const encryptedAccount = await encryptor.encrypt(password, [account]);
 
       await saveItem('accounts', encryptedAccount);
+
+      if (isBiometricsEnabled) {
+        await saveItemWithBiometrics('password', password);
+      }
 
       dispatch(initAccounts([account.address]));
       dispatch(

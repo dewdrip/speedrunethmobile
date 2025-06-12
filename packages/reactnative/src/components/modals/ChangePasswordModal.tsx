@@ -21,9 +21,12 @@ type Props = {
 
 export default function ChangePasswordModal({ modal: { closeModal } }: Props) {
   const toast = useToast();
-  const { saveItem } = useSecureStorage();
+  const { saveItem, saveItemWithBiometrics } = useSecureStorage();
   const wallet = useSelector((state: any) => state.wallet);
   const dispatch = useDispatch();
+  const isBiometricsEnabled = useSelector(
+    (state: any) => state.settings.isBiometricsEnabled as boolean
+  );
 
   const [password, setPassword] = useState({
     current: '',
@@ -85,6 +88,10 @@ export default function ChangePasswordModal({ modal: { closeModal } }: Props) {
       );
 
       await saveItem('accounts', encryptedAccounts);
+
+      if (isBiometricsEnabled) {
+        await saveItemWithBiometrics('password', newPassword);
+      }
 
       closeModal();
       toast.show('Password Changed Successfully', { type: 'success' });

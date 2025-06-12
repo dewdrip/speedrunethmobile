@@ -15,6 +15,7 @@ import Auth from './reducers/Auth';
 import ConnectedNetwork from './reducers/ConnectedNetwork';
 import NFTs from './reducers/NFTs';
 import Recipients from './reducers/Recipients';
+import Settings from './reducers/Settings';
 import Tokens from './reducers/Tokens';
 import Transactions from './reducers/Transactions';
 import Wallet from './reducers/Wallet';
@@ -34,7 +35,8 @@ const reducers = combineReducers({
   recipients: Recipients,
   tokens: Tokens,
   nfts: NFTs,
-  wallet: Wallet
+  wallet: Wallet,
+  settings: Settings
 });
 
 const persistedReducer = persistReducer(persistConfig, reducers);

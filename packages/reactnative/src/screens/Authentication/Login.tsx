@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   BackHandler,
   ScrollView,
@@ -18,6 +18,7 @@ import { Encryptor, LEGACY_DERIVATION_OPTIONS } from '../../core/Encryptor';
 import { useSecureStorage } from '../../hooks/eth-mobile';
 import { loginUser, logoutUser } from '../../store/reducers/Auth';
 import { clearRecipients } from '../../store/reducers/Recipients';
+import { clearSettings } from '../../store/reducers/Settings';
 import { clearWallet, initWallet } from '../../store/reducers/Wallet';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -30,19 +31,15 @@ export default function Login() {
   const { getItem, removeItem } = useSecureStorage();
 
   const auth = useSelector((state: any) => state.auth);
+  const isBiometricsEnabled = useSelector(
+    (state: any) => state.settings.isBiometricsEnabled as boolean
+  );
 
   const [password, setPassword] = useState('');
 
   const { openModal } = useModal();
 
-  const unlockWithPassword = async () => {
-    if (!password) {
-      toast.show('Password cannot be empty!', {
-        type: 'danger'
-      });
-      return;
-    }
-
+  const _initialize = async (password: string) => {
     const encryptedSeedPhrase = (await getItem('seedPhrase')) as string;
     const encryptedAccounts = (await getItem('accounts')) as string;
 
@@ -81,11 +78,35 @@ export default function Login() {
     navigation.navigate('Dashboard');
   };
 
+  const unlockWithBiometrics = async () => {
+    const password = await getItem('password');
+    if (!password) {
+      toast.show('No password found!', {
+        type: 'danger'
+      });
+      return;
+    }
+
+    _initialize(password);
+  };
+
+  const unlockWithPassword = async () => {
+    if (!password) {
+      toast.show('Password cannot be empty!', {
+        type: 'danger'
+      });
+      return;
+    }
+
+    _initialize(password);
+  };
+
   const resetWallet = async () => {
     await removeItem('seedPhrase');
     await removeItem('accounts');
     dispatch(clearRecipients());
     dispatch(clearWallet());
+    dispatch(clearSettings());
     dispatch(logoutUser());
     setTimeout(() => {
       // @ts-ignore
@@ -95,6 +116,11 @@ export default function Login() {
 
   useFocusEffect(
     useCallback(() => {
+      if (isBiometricsEnabled) {
+        dispatch(clearWallet());
+        unlockWithBiometrics();
+      }
+
       const backhandler = BackHandler.addEventListener(
         'hardwareBackPress',
         () => {
@@ -148,11 +174,17 @@ export default function Login() {
 
       <Button
         mode="contained"
-        onPress={unlockWithPassword}
+        onPress={
+          isBiometricsEnabled && !password
+            ? unlockWithBiometrics
+            : unlockWithPassword
+        }
         style={styles.button}
         labelStyle={styles.buttonText}
       >
-        SIGN IN
+        {isBiometricsEnabled && !password
+          ? 'SIGN IN WITH BIOMETRICS'
+          : 'SIGN IN'}
       </Button>
 
       <Text variant="bodyLarge" style={styles.resetText}>

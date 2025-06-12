@@ -1,10 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Button, Divider, Text } from 'react-native-paper';
+import * as Keychain from 'react-native-keychain';
+import { Button, Divider, Switch, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
+import { useDispatch } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
 import PasswordInput from '../../components/forms/PasswordInput';
+import { setBiometrics } from '../../store/reducers/Settings';
 import styles from '../../styles/authentication/createPassword';
 import { COLORS } from '../../utils/constants';
 
@@ -15,6 +18,17 @@ function CreatePassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [biometricType, setBiometricType] =
+    useState<Keychain.BIOMETRY_TYPE | null>(null);
+  const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    Keychain.getSupportedBiometryType().then(type => {
+      setBiometricType(type);
+    });
+  }, []);
 
   const createPassword = async () => {
     if (!password) {
@@ -41,6 +55,10 @@ function CreatePassword() {
     try {
       setIsCreating(true);
 
+      if (isBiometricsEnabled) {
+        dispatch(setBiometrics(true));
+      }
+
       // clean up
       setPassword('');
       setConfirmPassword('');
@@ -65,7 +83,7 @@ function CreatePassword() {
           Create Password
         </Text>
         <Text variant="bodyLarge" style={styles.subtitle}>
-          This password will unlock ETH Mobile only on this device
+          This password will unlock Treegens only on this device
         </Text>
 
         <View style={styles.formContainer}>
@@ -88,6 +106,21 @@ function CreatePassword() {
             onChange={setConfirmPassword}
             onSubmit={createPassword}
           />
+
+          {biometricType && (
+            <>
+              <Divider style={{ backgroundColor: COLORS.gray }} />
+
+              <View style={styles.biometricsContainer}>
+                <Text variant="titleLarge">Sign in with {biometricType}</Text>
+                <Switch
+                  value={isBiometricsEnabled}
+                  onValueChange={setIsBiometricsEnabled}
+                  color={COLORS.primary}
+                />
+              </View>
+            </>
+          )}
 
           <Divider
             style={{ marginVertical: 16, backgroundColor: COLORS.gray }}
