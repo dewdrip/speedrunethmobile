@@ -83,7 +83,7 @@ function CreatePassword() {
           Create Password
         </Text>
         <Text variant="bodyLarge" style={styles.subtitle}>
-          This password will unlock Treegens only on this device
+          This password will unlock ETH Mobile only on this device
         </Text>
 
         <View style={styles.formContainer}>

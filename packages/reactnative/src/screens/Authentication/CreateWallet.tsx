@@ -1,8 +1,8 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Divider, Text } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, Divider, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
@@ -34,6 +34,8 @@ export default function CreateWallet() {
   const { saveItem, saveItemWithBiometrics } = useSecureStorage();
   const dispatch = useDispatch();
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const isBiometricsEnabled = useSelector(
     (state: any) => state.settings.isBiometricsEnabled as boolean
   );
@@ -52,6 +54,7 @@ export default function CreateWallet() {
   };
 
   const saveWallet = async () => {
+    if (isSaving) return;
     if (!wallet || !hasSeenSeedPhrase) {
       toast.show(
         "You haven't even seen your seed phrase. Do you want to lose your funds?🤨",
@@ -61,6 +64,9 @@ export default function CreateWallet() {
       );
       return;
     }
+
+    setIsSaving(true);
+
     try {
       const encryptor = new Encryptor({
         keyDerivationOptions: LEGACY_DERIVATION_OPTIONS
@@ -99,6 +105,8 @@ export default function CreateWallet() {
       navigation.navigate('Dashboard');
     } catch (error) {
       return;
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -160,7 +168,7 @@ export default function CreateWallet() {
           style={styles.nextButton}
           labelStyle={[styles.buttonText, { color: 'white' }]}
         >
-          Next
+          {isSaving ? <ActivityIndicator color="white" /> : 'Next'}
         </Button>
       </ScrollView>
     </View>

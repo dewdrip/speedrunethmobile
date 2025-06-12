@@ -79,13 +79,9 @@ export default function Login() {
   };
 
   const unlockWithBiometrics = async () => {
-    const password = await getItem('password');
-    if (!password) {
-      toast.show('No password found!', {
-        type: 'danger'
-      });
-      return;
-    }
+    const password = (await getItem('password')) as string;
+
+    if (!password) return;
 
     _initialize(password);
   };
