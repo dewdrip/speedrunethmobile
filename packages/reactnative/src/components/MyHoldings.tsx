@@ -1,12 +1,10 @@
 import axios from 'axios';
-import { InterfaceAbi } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
-  useContractRead,
-  useDeployedContractInfo,
+  useScaffoldContract,
   useScaffoldContractRead
 } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
@@ -28,9 +26,9 @@ export default function MyHoldings() {
 
   const toast = useToast();
 
-  const { data: yourCollectibleContract } =
-    useDeployedContractInfo('YourCollectible');
-  const { readContract } = useContractRead();
+  const { data: yourCollectibleContract } = useScaffoldContract({
+    contractName: 'YourCollectible'
+  });
 
   const { data: myTotalBalance } = useScaffoldContractRead({
     contractName: 'YourCollectible',
@@ -52,19 +50,12 @@ export default function MyHoldings() {
     const totalBalance = parseInt(myTotalBalance.toString());
     for (let tokenIndex = 0; tokenIndex < totalBalance; tokenIndex++) {
       try {
-        const tokenId = await readContract({
-          address: yourCollectibleContract.address,
-          abi: yourCollectibleContract.abi as InterfaceAbi,
-          functionName: 'tokenOfOwnerByIndex',
-          args: [connectedAddress, BigInt(tokenIndex)]
-        });
+        const tokenId = await yourCollectibleContract.read.tokenOfOwnerByIndex([
+          connectedAddress,
+          BigInt(tokenIndex)
+        ]);
 
-        const tokenURI = await readContract({
-          address: yourCollectibleContract.address,
-          abi: yourCollectibleContract.abi as InterfaceAbi,
-          functionName: 'tokenURI',
-          args: [tokenId]
-        });
+        const tokenURI = await yourCollectibleContract.read.tokenURI([tokenId]);
 
         const ipfsHash = tokenURI.replace(
           'https://ipfs.io/ipfs/',
