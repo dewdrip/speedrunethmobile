@@ -5,6 +5,7 @@ import { useToast } from 'react-native-toast-notifications';
 import { useScaffoldContractWrite } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
+import { WINDOW_WIDTH } from '../utils/styles';
 import { Address } from './eth-mobile';
 import { InputBase } from './eth-mobile/input';
 import { Collectible } from './MyHoldings';
@@ -38,7 +39,11 @@ export function NFTCard({ nft }: NFTCardProps) {
     <View style={styles.card}>
       {/* Image Section */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: nft.image }} style={styles.image} />
+        <Image
+          source={{ uri: nft.image }}
+          style={styles.image}
+          resizeMode="stretch"
+        />
         <View style={styles.idBadge}>
           <Text style={styles.idText}># {nft.id}</Text>
         </View>
@@ -115,7 +120,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: 300,
+    width: WINDOW_WIDTH * 0.8,
     marginVertical: 8
   },
   imageContainer: {
