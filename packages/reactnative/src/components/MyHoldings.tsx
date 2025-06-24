@@ -38,16 +38,15 @@ export default function MyHoldings() {
   });
 
   const updateMyCollectibles = async (): Promise<void> => {
-    if (
-      myTotalBalance === null ||
-      yourCollectibleContract === undefined ||
-      connectedAddress === undefined
-    )
+    if (yourCollectibleContract === undefined || connectedAddress === undefined)
       return;
 
     setAllCollectiblesLoading(true);
     const collectibleUpdate: Collectible[] = [];
-    const totalBalance = parseInt(myTotalBalance.toString());
+    const _myTotalBalance = await yourCollectibleContract.read.balanceOf([
+      connectedAddress
+    ]);
+    const totalBalance = parseInt(_myTotalBalance.toString());
     for (let tokenIndex = 0; tokenIndex < totalBalance; tokenIndex++) {
       try {
         const tokenId = await yourCollectibleContract.read.tokenOfOwnerByIndex([
