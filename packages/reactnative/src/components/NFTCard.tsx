@@ -6,8 +6,7 @@ import { useScaffoldContractWrite } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
 import { WINDOW_WIDTH } from '../utils/styles';
-import { Address } from './eth-mobile';
-import { InputBase } from './eth-mobile/input';
+import { Address, AddressInput } from './eth-mobile';
 import { Collectible } from './MyHoldings';
 
 interface NFTCardProps {
@@ -84,7 +83,7 @@ export function NFTCard({ nft }: NFTCardProps) {
         {/* Transfer Section */}
         <View style={styles.transferSection}>
           <Text style={styles.labelText}>Transfer To: </Text>
-          <InputBase
+          <AddressInput
             value={transferToAddress}
             placeholder="receiver address"
             onChange={setTransferToAddress}
