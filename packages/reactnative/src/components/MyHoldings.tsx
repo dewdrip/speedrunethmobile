@@ -77,7 +77,7 @@ export default function MyHoldings() {
         console.log(e);
       }
     }
-    collectibleUpdate.sort((a, b) => a.id - b.id);
+    collectibleUpdate.sort((a, b) => b.id - a.id);
     setMyAllCollectibles(collectibleUpdate);
     setAllCollectiblesLoading(false);
   };
