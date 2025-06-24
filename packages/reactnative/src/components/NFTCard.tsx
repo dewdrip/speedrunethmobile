@@ -6,6 +6,7 @@ import { useScaffoldContractWrite } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
 import { WINDOW_WIDTH } from '../utils/styles';
+import CustomButton from './buttons/CustomButton';
 import { Address, AddressInput } from './eth-mobile';
 import { Collectible } from './MyHoldings';
 
@@ -21,8 +22,11 @@ export function NFTCard({ nft }: NFTCardProps) {
     functionName: 'transferFrom'
   });
 
+  const [isTransferring, setIsTransferring] = useState(false);
+
   const transferNFT = async () => {
     try {
+      setIsTransferring(true);
       await transfer({
         args: [nft.owner, transferToAddress, BigInt(nft.id.toString())]
       });
@@ -31,6 +35,8 @@ export function NFTCard({ nft }: NFTCardProps) {
         type: 'danger'
       });
       console.error('Error transferring NFT: ', error);
+    } finally {
+      setIsTransferring(false);
     }
   };
 
@@ -88,19 +94,13 @@ export function NFTCard({ nft }: NFTCardProps) {
             placeholder="receiver address"
             onChange={setTransferToAddress}
           />
-        </View>
-
-        {/* Action Button */}
-        <View style={styles.actionContainer}>
-          <Button
-            mode="contained"
+          <CustomButton
+            text="Send"
             onPress={transferNFT}
-            style={styles.transferButton}
-            labelStyle={styles.buttonLabel}
             disabled={!transferToAddress}
-          >
-            Send
-          </Button>
+            loading={isTransferring}
+            style={styles.transferButton}
+          />
         </View>
       </View>
     </View>
@@ -195,18 +195,10 @@ const styles = StyleSheet.create({
   transferSection: {
     gap: 8
   },
-  actionContainer: {
-    alignItems: 'flex-end',
-    marginTop: 8
-  },
   transferButton: {
+    alignSelf: 'flex-end',
+    width: 120,
     backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingHorizontal: 32
-  },
-  buttonLabel: {
-    ...globalStyles.textMedium,
-    fontSize: 14,
-    letterSpacing: 0.5
+    marginTop: -15
   }
 });
