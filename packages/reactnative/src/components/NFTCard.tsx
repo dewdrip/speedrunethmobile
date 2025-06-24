@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import { Button, Chip, Text } from 'react-native-paper';
+import { Chip, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import { useScaffoldContractWrite } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
