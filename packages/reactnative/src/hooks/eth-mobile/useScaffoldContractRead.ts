@@ -87,7 +87,7 @@ export function useScaffoldContractRead({
     return () => {
       provider.off('block');
     };
-  }, [isLoadingDeployedContractData, watch, network]);
+  }, [isLoadingDeployedContractData, watch, network, connectedAccount]);
 
   return {
     data,

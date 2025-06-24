@@ -87,15 +87,14 @@ export default function MyHoldings() {
     updateMyCollectibles();
   }, [myTotalBalance, yourCollectibleContract, connectedAddress]);
 
-  if (allCollectiblesLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
-  }
   return (
     <>
+      {allCollectiblesLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      )}
+
       {myAllCollectibles.length === 0 ? (
         <View style={styles.noNFTsContainer}>
           <Text style={styles.noNFTsText}>No NFTs found</Text>
