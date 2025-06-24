@@ -30,6 +30,7 @@ export function NFTCard({ nft }: NFTCardProps) {
       await transfer({
         args: [nft.owner, transferToAddress, BigInt(nft.id.toString())]
       });
+      setTransferToAddress('');
     } catch (error) {
       toast.show('Error transferring NFT', {
         type: 'danger'
