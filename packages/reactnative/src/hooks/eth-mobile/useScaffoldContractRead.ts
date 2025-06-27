@@ -66,6 +66,7 @@ export function useScaffoldContractRead({
       }
       setData(result);
     } catch (error) {
+      console.log(`Error fetching ${functionName} data: `, error);
       setError(error);
     } finally {
       setIsLoading(false);

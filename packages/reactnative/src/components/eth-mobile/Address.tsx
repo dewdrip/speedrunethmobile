@@ -10,7 +10,7 @@ import { truncateAddress } from '../../utils/eth-mobile';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {
-  address: string;
+  address: string | null | undefined;
   containerStyle?: ViewStyle;
   textStyle?: TextStyle;
   iconStyle?: TextStyle;
@@ -25,11 +25,14 @@ export function Address({
   const toast = useToast();
 
   const copy = () => {
+    if (!address) return;
     Clipboard.setString(address);
     toast.show('Copied to clipboard', {
       type: 'success'
     });
   };
+
+  if (!address) return;
 
   return (
     <View style={[styles.container, containerStyle]}>

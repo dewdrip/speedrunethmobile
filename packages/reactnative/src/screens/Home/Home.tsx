@@ -1,168 +1,383 @@
-import { useNavigation } from '@react-navigation/native';
+import { formatEther, parseEther } from 'ethers';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
-// @ts-ignore
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import { Text } from 'react-native-paper';
+import CustomButton from '../../components/buttons/CustomButton';
+import { Address } from '../../components/eth-mobile';
+import {
+  useAccount,
+  useBalance,
+  useDeployedContractInfo,
+  useNetwork,
+  useScaffoldContractRead,
+  useScaffoldContractWrite
+} from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
-import { COLORS } from '../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
+import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {};
+// Simple time formatting function
+const formatTimeLeft = (seconds: bigint | undefined): string => {
+  if (!seconds) return '0';
+  const totalSeconds = Number(seconds);
+  if (totalSeconds <= 0) return '0';
 
-function HighlightedText({ children }: { children: string }) {
-  return (
-    <View
-      style={{ backgroundColor: COLORS.primaryLight, paddingHorizontal: 4 }}
-    >
-      <Text
-        style={{
-          textAlign: 'center',
-          fontSize: FONT_SIZE['md'],
-          ...globalStyles.text
-        }}
-      >
-        {children}
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${secs}s`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+};
+
+// ETH Price component
+const ETHToPrice = ({
+  value,
+  style
+}: {
+  value: string | undefined;
+  style?: any;
+}) => {
+  const network = useNetwork();
+
+  if (!value) {
+    return (
+      <Text style={[globalStyles.text, style]}>
+        {value || '0'} {network.currencySymbol}
       </Text>
-    </View>
-  );
-}
+    );
+  }
 
-export default function Home({}: Props) {
-  const navigation = useNavigation();
+  return (
+    <Text style={[globalStyles.text, style]}>
+      {value} {network.currencySymbol}
+    </Text>
+  );
+};
+
+export default function Home() {
+  const { address: connectedAddress } = useAccount();
+  const { data: StakerContract } = useDeployedContractInfo('Staker');
+  const { data: ExampleExternalContact } = useDeployedContractInfo(
+    'ExampleExternalContract'
+  );
+  const network = useNetwork();
+
+  const { balance: stakerContractBalance } = useBalance({
+    address: StakerContract?.address || '',
+    watch: true
+  });
+  const { balance: exampleExternalContractBalance } = useBalance({
+    address: ExampleExternalContact?.address || '',
+    watch: true
+  });
+
+  // Contract Read Actions
+  const { data: threshold } = useScaffoldContractRead({
+    contractName: 'Staker',
+    functionName: 'threshold',
+    watch: true
+  });
+  const { data: timeLeft } = useScaffoldContractRead({
+    contractName: 'Staker',
+    functionName: 'timeLeft',
+    watch: true
+  });
+  const { data: myStake } = useScaffoldContractRead({
+    contractName: 'Staker',
+    functionName: 'balances',
+    args: [connectedAddress],
+    watch: true
+  });
+  const { data: isStakingCompleted } = useScaffoldContractRead({
+    contractName: 'ExampleExternalContract',
+    functionName: 'completed',
+    watch: true
+  });
+
+  // Helper function to safely get the first value from data
+  const getFirstValue = (data: any): any => {
+    if (Array.isArray(data)) {
+      return data[0];
+    }
+    return data;
+  };
+
+  const thresholdValue = getFirstValue(threshold);
+  const timeLeftValue = getFirstValue(timeLeft);
+  const myStakeValue = getFirstValue(myStake);
+  const isCompletedValue = getFirstValue(isStakingCompleted);
+
+  const { write: execute } = useScaffoldContractWrite({
+    contractName: 'Staker',
+    functionName: 'execute'
+  });
+
+  const { write: withdraw } = useScaffoldContractWrite({
+    contractName: 'Staker',
+    functionName: 'withdraw'
+  });
+
+  const { write: stake } = useScaffoldContractWrite({
+    contractName: 'Staker',
+    functionName: 'stake'
+  });
+
+  const handleExecute = async () => {
+    try {
+      await execute();
+    } catch (err) {
+      console.error('Error calling execute function: ', err);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    try {
+      await withdraw();
+    } catch (err) {
+      console.error('Error calling withdraw function: ', err);
+    }
+  };
+
+  const handleStake = async () => {
+    try {
+      await stake({ value: parseEther('0.5') });
+    } catch (err) {
+      console.error('Error calling stake function: ', err);
+    }
+  };
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 10 }}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
     >
-      <View style={{ paddingVertical: 32, alignItems: 'center' }}>
-        <Text variant="headlineSmall" style={globalStyles.text}>
-          Welcome to
-        </Text>
-        <Text variant="displaySmall" style={globalStyles.textSemiBold}>
-          ETH Mobile
-        </Text>
-
-        <Text
-          style={{
-            marginTop: 16,
-            marginBottom: 4,
-            fontSize: FONT_SIZE['lg'],
-            ...globalStyles.text
-          }}
-        >
-          Get started by editing
-        </Text>
-        <HighlightedText>
-          packages/reactnative/src/screens/Dashboard/Tab/Home.tsx
-        </HighlightedText>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            marginTop: 16,
-            marginBottom: 4,
-            gap: 4,
-            maxWidth: '100%'
-          }}
-        >
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            Edit your smart contract
+      {isCompletedValue && (
+        <View style={styles.successCard}>
+          <Text style={styles.successTitle}>
+            🎉 Staking App triggered `ExampleExternalContract` 🎉
           </Text>
-          <HighlightedText>YourContract.sol</HighlightedText>
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            in
-          </Text>
+          <View style={styles.successBalanceContainer}>
+            <ETHToPrice
+              value={
+                exampleExternalContractBalance
+                  ? formatEther(exampleExternalContractBalance)
+                  : undefined
+              }
+              style={styles.successBalanceText}
+            />
+            <Text style={styles.successBalanceLabel}>staked !!</Text>
+          </View>
         </View>
-        <HighlightedText>packages/hardhat/contracts</HighlightedText>
-      </View>
+      )}
 
-      <View style={styles.featuresContainer}>
-        {/* Contract Debugger */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="bug-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
+      <View
+        style={[styles.mainCard, !isCompletedValue && styles.mainCardNoSuccess]}
+      >
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Staker Contract</Text>
+          <Address
+            address={StakerContract?.address}
+            containerStyle={styles.addressContainer}
+            textStyle={styles.addressText}
+          />
+        </View>
 
-            <Text style={styles.featureCaption}>
-              Tinker with your smart contracts using the
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('DebugContracts')}
-              >
-                {' '}
-                DebugContracts{' '}
-              </Text>
-              tab
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Time Left</Text>
+            <Text style={styles.statValue}>
+              {timeLeftValue ? formatTimeLeft(timeLeftValue) : '0'}
             </Text>
-          </Card.Content>
-        </Card>
-
-        {/* Wallet */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="wallet-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Manage your accounts, funds, and tokens in your
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('Wallet')}
-              >
-                {' '}
-                Wallet
-              </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>You Staked</Text>
+            <Text style={styles.statValue}>
+              {myStakeValue ? formatEther(myStakeValue) : '0'}{' '}
+              {network.currencySymbol}
             </Text>
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
+
+        <View style={styles.totalStakedContainer}>
+          <Text style={styles.statLabel}>Total Staked</Text>
+          <View style={styles.totalStakedValues}>
+            <ETHToPrice
+              value={
+                stakerContractBalance
+                  ? formatEther(stakerContractBalance)
+                  : undefined
+              }
+              style={styles.totalStakedText}
+            />
+            <Text style={styles.totalStakedDivider}>/</Text>
+            <ETHToPrice
+              value={thresholdValue ? formatEther(thresholdValue) : undefined}
+              style={styles.totalStakedText}
+            />
+          </View>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <View style={styles.buttonRow}>
+            <CustomButton
+              text="Execute!"
+              type="outline"
+              onPress={handleExecute}
+              style={styles.actionButton}
+              labelStyle={styles.buttonLabel}
+            />
+            <CustomButton
+              text="Withdraw"
+              type="outline"
+              onPress={handleWithdraw}
+              style={styles.actionButton}
+              labelStyle={styles.buttonLabel}
+            />
+          </View>
+          <CustomButton
+            text="🔏 Stake 0.5 ether!"
+            type="outline"
+            onPress={handleStake}
+            style={styles.stakeButton}
+            labelStyle={styles.buttonLabel}
+          />
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  featuresContainer: {
-    flex: 1,
-    padding: 10,
-    justifyContent: 'center',
+  container: {
+    flexGrow: 1,
+    padding: 16,
     alignItems: 'center',
-    gap: 20
+    gap: 48,
+    backgroundColor: 'white'
   },
-  feature: {
-    paddingVertical: 32,
-    width: '90%',
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: 24,
+  successCard: {
     backgroundColor: 'white',
-    gap: 24
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    marginTop: 48,
+    alignItems: 'center',
+    gap: 8
   },
-  featureCaption: {
+  successTitle: {
+    fontSize: FONT_SIZE['lg'],
+    fontWeight: '600',
     textAlign: 'center',
-    width: WINDOW_WIDTH * 0.6,
+    ...globalStyles.textSemiBold
+  },
+  successBalanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  successBalanceText: {
     fontSize: FONT_SIZE['lg'],
     ...globalStyles.text
   },
-  featureLink: {
-    textDecorationLine: 'underline',
+  successBalanceLabel: {
     fontSize: FONT_SIZE['lg'],
+    marginLeft: 4,
+    ...globalStyles.text
+  },
+  mainCard: {
+    backgroundColor: 'white',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    gap: 32
+  },
+  mainCardNoSuccess: {
+    marginTop: 96
+  },
+  headerSection: {
+    alignItems: 'center',
+    width: '100%'
+  },
+  title: {
+    fontSize: FONT_SIZE['xl'] * 1.5,
+    marginBottom: 8,
+    fontWeight: '600',
+    ...globalStyles.textSemiBold
+  },
+  addressContainer: {
+    alignSelf: 'center'
+  },
+  addressText: {
+    fontSize: FONT_SIZE['lg'],
+    ...globalStyles.text,
+    marginTop: 5
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%'
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1
+  },
+  statLabel: {
+    fontSize: FONT_SIZE['lg'],
+    marginBottom: 4,
+    fontWeight: '600',
+    ...globalStyles.textSemiBold
+  },
+  statValue: {
+    fontSize: FONT_SIZE['md'],
+    ...globalStyles.text
+  },
+  totalStakedContainer: {
+    alignItems: 'center',
+    width: '100%'
+  },
+  totalStakedValues: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  totalStakedText: {
+    fontSize: FONT_SIZE['md'],
+    ...globalStyles.text
+  },
+  totalStakedDivider: {
+    fontSize: FONT_SIZE['md'],
+    ...globalStyles.text
+  },
+  buttonContainer: {
+    width: '100%',
+    gap: 20
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 28
+  },
+  actionButton: {
+    flex: 1
+  },
+  stakeButton: {
+    width: '100%'
+  },
+  buttonLabel: {
     ...globalStyles.textSemiBold
   }
 });

@@ -4,14 +4,16 @@ import { useNetwork } from '.';
 
 interface UseBalanceConfig {
   address: string;
+  watch?: boolean;
 }
 
 /**
  *
  * @param config - The config settings
  * @param config.address - account address
+ * @param config.watch - refetch balance on each block mine
  */
-export function useBalance({ address }: UseBalanceConfig) {
+export function useBalance({ address, watch }: UseBalanceConfig) {
   const network = useNetwork();
 
   const [balance, setBalance] = useState<bigint | null>(null);
@@ -20,6 +22,8 @@ export function useBalance({ address }: UseBalanceConfig) {
   const [error, setError] = useState<any>(null);
 
   async function getBalance() {
+    if (!address) return;
+
     setIsLoading(true);
 
     try {
@@ -51,14 +55,16 @@ export function useBalance({ address }: UseBalanceConfig) {
 
     getBalance();
 
-    provider.on('block', blockNumber => {
-      getBalance();
-    });
+    if (watch) {
+      provider.on('block', blockNumber => {
+        getBalance();
+      });
+    }
 
     return () => {
       provider.off('block');
     };
-  }, [address, network]);
+  }, [address, network, watch]);
 
   return {
     balance,
