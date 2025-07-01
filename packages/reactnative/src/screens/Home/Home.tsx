@@ -152,12 +152,13 @@ export default function Home() {
     }
   };
 
-  const { data: stakeEvents, isLoading: isLoadingEvents } = useScaffoldEventHistory({
-    contractName: 'Staker',
-    eventName: 'Stake',
-    fromBlock: 0n,
-    watch: true
-  });
+  const { data: stakeEvents, isLoading: isLoadingEvents } =
+    useScaffoldEventHistory({
+      contractName: 'Staker',
+      eventName: 'Stake',
+      fromBlock: 0n,
+      watch: true
+    });
 
   return (
     <ScrollView
@@ -257,28 +258,35 @@ export default function Home() {
         </View>
       </View>
 
-              {/* Stake Events Section */}
-              <View style={styles.eventsContainer}>
-          <Text style={styles.eventsTitle}>Recent Stakes</Text>
-          {isLoadingEvents ? (
-            <Text style={styles.eventsText}>Loading events...</Text>
-          ) : stakeEvents && stakeEvents.length > 0 ? (
-            <View style={styles.eventsList}>
-              {stakeEvents.slice(0, 5).map((event, index) => (
+      {/* Stake Events Section */}
+      <View style={styles.eventsContainer}>
+        <Text style={styles.eventsTitle}>Recent Stakes</Text>
+        {isLoadingEvents ? (
+          <Text style={styles.eventsText}>Loading events...</Text>
+        ) : stakeEvents && stakeEvents.length > 0 ? (
+          <View style={styles.eventsList}>
+            {stakeEvents
+              .slice(0, 5)
+              .map((event, index) => (
                 <View key={index} style={styles.eventItem}>
                   <Text style={styles.eventUser}>
-                    User: {event.args?.[0] ? `${event.args[0].slice(0, 6)}...${event.args[0].slice(-4)}` : 'Unknown'}
+                    User:{' '}
+                    {event.args?.[0]
+                      ? `${event.args[0].slice(0, 6)}...${event.args[0].slice(-4)}`
+                      : 'Unknown'}
                   </Text>
                   <Text style={styles.eventAmount}>
-                    Amount: {event.args?.[1] ? formatEther(event.args[1]) : '0'} {network.currencySymbol}
+                    Amount: {event.args?.[1] ? formatEther(event.args[1]) : '0'}{' '}
+                    {network.currencySymbol}
                   </Text>
                 </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.eventsText}>No stake events found</Text>
-          )}
-        </View>
+              ))
+              .reverse()}
+          </View>
+        ) : (
+          <Text style={styles.eventsText}>No stake events found</Text>
+        )}
+      </View>
     </ScrollView>
   );
 }

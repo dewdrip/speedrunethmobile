@@ -7,7 +7,7 @@ import {
   TransactionReceipt,
   TransactionResponse
 } from 'ethers';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDeployedContractInfo, useNetwork } from '.';
 import { ContractName } from '../../utils/eth-mobile';
 
@@ -40,7 +40,6 @@ interface EventHistoryState {
   status: 'idle' | 'pending' | 'error' | 'success';
   error: Error | null;
   isLoading: boolean;
-  isFetchingNewEvent: boolean;
 }
 
 const getEvents = async (
@@ -54,8 +53,7 @@ const getEvents = async (
     blockData?: boolean;
     transactionData?: boolean;
     receiptData?: boolean;
-  },
-  contractAbi?: any
+  }
 ): Promise<EventData[]> => {
   try {
     // Convert filters to ethers format
@@ -68,29 +66,11 @@ const getEvents = async (
       });
     }
 
-    // Generate event signature from contract ABI if available
-    let eventSignature: string | undefined;
-    if (contractAbi) {
-      try {
-        const contractInterface = new Interface(contractAbi as any);
-        const eventFragment = contractInterface.getEvent(eventName);
-        if (eventFragment) {
-          eventSignature = eventFragment.topicHash;
-        }
-      } catch (error) {
-        console.warn(
-          `Could not generate signature for event ${eventName}:`,
-          error
-        );
-      }
-    }
-
-    // Get logs using ethers with event signature if available
+    // Get logs using ethers - we'll filter by event name later
     const logs = await provider.getLogs({
       address: contractAddress,
       fromBlock: fromBlock,
       toBlock: toBlock,
-      topics: eventSignature ? [eventSignature] : undefined,
       ...ethersFilters
     });
 
@@ -144,9 +124,6 @@ const getEvents = async (
 
 /**
  * Reads events from a deployed contract using ethers
- *
- * This hook efficiently retrieves only the specified event by using the event signature
- * in the getLogs call, rather than fetching all events and filtering them.
  *
  * @example
  * ```tsx
@@ -231,156 +208,125 @@ export const useScaffoldEventHistory = <
     data: undefined,
     status: 'idle',
     error: null,
-    isLoading: false,
-    isFetchingNewEvent: false
+    isLoading: false
   });
-  const [currentBlockNumber, setCurrentBlockNumber] = useState<bigint | null>(
-    null
-  );
-  const [lastFetchedBlock, setLastFetchedBlock] = useState<bigint>(fromBlock);
+  const lastFetchedBlock = useRef<bigint>(fromBlock);
 
   const { data: deployedContractData } = useDeployedContractInfo(
     contractName as string
   );
 
   // Create provider
-  const provider = network?.provider
-    ? new JsonRpcProvider(network.provider)
-    : null;
-
-  const isContractAddressAndProviderReady =
-    Boolean(deployedContractData?.address) && Boolean(provider);
+  const provider = new JsonRpcProvider(network.provider);
 
   // Fetch events function
-  const fetchEvents = useCallback(
-    async (isNewEventFetch = false) => {
-      if (
-        !isContractAddressAndProviderReady ||
-        !deployedContractData?.address ||
-        !provider
-      ) {
-        return;
-      }
+  const fetchEvents = useCallback(async () => {
+    if (!deployedContractData) return;
 
-      setState(prev => ({
-        ...prev,
-        isLoading: !isNewEventFetch,
-        isFetchingNewEvent: isNewEventFetch,
-        status: isNewEventFetch ? prev.status : 'pending'
-      }));
+    setState(prev => ({
+      ...prev,
+      isLoading: true,
+      status: 'pending'
+    }));
 
-      try {
-        const toBlock = currentBlockNumber || undefined;
-        const fromBlockToUse = isNewEventFetch ? lastFetchedBlock : fromBlock;
+    try {
+      const currentBlockNumber = BigInt(await provider.getBlockNumber());
 
-        const data = await getEvents(
-          provider,
-          String(deployedContractData.address),
-          eventName,
-          fromBlockToUse,
-          toBlock,
-          filters,
-          { blockData, transactionData, receiptData },
-          deployedContractData.abi
+      const toBlock = currentBlockNumber;
+      const fromBlockToUse = lastFetchedBlock.current;
+
+      const data = await getEvents(
+        provider,
+        String(deployedContractData.address),
+        eventName,
+        fromBlockToUse,
+        toBlock,
+        filters,
+        { blockData, transactionData, receiptData }
+      );
+
+      // Create contract interface for proper event decoding
+      const contractInterface = new Interface(deployedContractData.abi as any);
+
+      const processedData = data.map(event =>
+        addIndexedArgsToEvent(event, contractInterface, eventName)
+      );
+
+      setState(prev => {
+        // Create a Set of existing transaction hashes to avoid duplicates
+        const existingTxHashes = new Set(
+          (prev.data || []).map(event => event.log.transactionHash)
         );
 
-        // Create contract interface for proper event decoding
-        const contractInterface = new Interface(
-          deployedContractData.abi as any
+        // Filter out events that already exist based on transaction hash
+        const uniqueNewData = processedData.filter(
+          event => !existingTxHashes.has(event.log.transactionHash)
         );
 
-        const processedData = data
-          .map(event =>
-            addIndexedArgsToEvent(event, contractInterface, eventName)
-          )
-          .reverse();
+        const newData = [...(prev.data || []), ...uniqueNewData];
 
-        setState(prev => ({
-          data: isNewEventFetch
-            ? [...(prev.data || []), ...processedData]
-            : processedData,
+        return {
+          data: newData,
           status: 'success',
           error: null,
-          isLoading: false,
-          isFetchingNewEvent: false
-        }));
+          isLoading: false
+        };
+      });
 
-        if (isNewEventFetch && data.length > 0) {
-          setLastFetchedBlock(currentBlockNumber || fromBlock);
-        }
-      } catch (error) {
-        setState(prev => ({
-          ...prev,
-          status: 'error',
-          error: error as Error,
-          isLoading: false,
-          isFetchingNewEvent: false
-        }));
+      if (data.length > 0) {
+        lastFetchedBlock.current = currentBlockNumber || fromBlock;
       }
-    },
-    [
-      isContractAddressAndProviderReady,
-      deployedContractData?.address,
-      provider,
-      eventName,
-      fromBlock,
-      filters,
-      blockData,
-      transactionData,
-      receiptData,
-      currentBlockNumber,
-      lastFetchedBlock
-    ]
-  );
-
-  // Initial fetch
-  useEffect(() => {
-    if (enabled && isContractAddressAndProviderReady) {
-      fetchEvents(false);
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        status: 'error',
+        error: error as Error,
+        isLoading: false
+      }));
     }
-  }, [enabled, isContractAddressAndProviderReady]);
-
-  // Watch for new blocks if enabled
-  useEffect(() => {
-    if (!watch || !provider) return;
-
-    const updateBlockNumber = async () => {
-      try {
-        const blockNumber = await provider.getBlockNumber();
-        setCurrentBlockNumber(BigInt(blockNumber));
-      } catch (error) {
-        console.error('Error getting block number:', error);
-      }
-    };
-
-    updateBlockNumber();
-
-    // Set up polling for new blocks
-    const interval = setInterval(updateBlockNumber, 15000); // Poll every 15 seconds
-
-    return () => clearInterval(interval);
-  }, [watch, provider]);
+  }, [
+    deployedContractData,
+    provider,
+    eventName,
+    fromBlock,
+    filters,
+    blockData,
+    transactionData,
+    receiptData,
+    lastFetchedBlock
+  ]);
 
   // Fetch new events when block number changes (for watch mode)
   useEffect(() => {
-    if (watch && currentBlockNumber && lastFetchedBlock < currentBlockNumber) {
-      fetchEvents(true);
+    if (!enabled) return;
+
+    fetchEvents();
+
+    provider.off('block');
+
+    if (watch) {
+      provider.on('block', blockNumber => {
+        fetchEvents();
+      });
+    } else {
+      provider.off('block');
     }
-  }, [watch, currentBlockNumber, lastFetchedBlock]);
+
+    return () => {
+      provider.off('block');
+    };
+  }, [watch, deployedContractData]);
 
   // Refetch function
   const refetch = useCallback(() => {
-    if (enabled && isContractAddressAndProviderReady) {
-      fetchEvents(false);
-    }
-  }, [enabled, isContractAddressAndProviderReady]);
+    fetchEvents();
+  }, [enabled]);
 
   return {
     data: state.data,
     status: state.status,
     error: state.error,
     isLoading: state.isLoading,
-    isFetchingNewEvent: state.isFetchingNewEvent,
     refetch
   };
 };

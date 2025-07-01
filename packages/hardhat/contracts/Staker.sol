@@ -14,7 +14,7 @@ error Staker__StakingCompleted();
 contract Staker {
     uint256 public constant threshold = 1 ether;
     ExampleExternalContract public exampleExternalContract;
-    uint256 public deadline = block.timestamp + 5 minutes;
+    uint256 public deadline = block.timestamp + 3 minutes;
     bool public openForWithdraw = false;
 
     mapping(address => uint256) public balances;
