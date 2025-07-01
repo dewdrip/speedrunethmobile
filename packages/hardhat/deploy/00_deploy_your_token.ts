@@ -1,15 +1,14 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { DeployFunction } from 'hardhat-deploy/types';
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+// import { Contract } from "ethers";
 
 /**
- * Deploys mocks using the deployer account and
+ * Deploys a contract named "YourToken" using the deployer account and
  * constructor arguments set to the deployer address
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployMocks: DeployFunction = async function (
-  hre: HardhatRuntimeEnvironment
-) {
+const deployYourToken: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -21,27 +20,24 @@ const deployMocks: DeployFunction = async function (
     You can run the `yarn account` command to check your balance in every network.
   */
   const { deployer } = await hre.getNamedAccounts();
-  const { deploy, log } = hre.deployments;
+  const { deploy } = hre.deployments;
 
-  await deploy('MockERC20', {
+  await deploy("YourToken", {
     from: deployer,
+    // Contract constructor arguments
+    args: [],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true
+    autoMine: true,
   });
 
-  await deploy('MockNFT', {
-    from: deployer,
-    log: true,
-    autoMine: true
-  });
-
-  log('🚀 Mocks Deployed!\n');
+  // Get the deployed contract
+  // const yourToken = await hre.ethers.getContract<Contract>("YourToken", deployer);
 };
 
-export default deployMocks;
+export default deployYourToken;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags mocks
-deployMocks.tags = ['mocks'];
+// e.g. yarn deploy --tags YourToken
+deployYourToken.tags = ["YourToken"];
