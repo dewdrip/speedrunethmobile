@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./YourToken.sol";
 
 contract Vendor is Ownable {
-    event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
+    event BuyTokens(address buyer, uint256 amountOfTokens, uint256 amountOfETH);
     event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfETH);
 
     YourToken public yourToken;
@@ -19,7 +19,7 @@ contract Vendor is Ownable {
     function buyTokens() public payable {
         uint256 tokensToBuy = msg.value * tokensPerEth;
         yourToken.transfer(msg.sender, tokensToBuy);
-        emit BuyTokens(msg.sender, msg.value, tokensToBuy);
+        emit BuyTokens(msg.sender, tokensToBuy, msg.value);
     }
 
     // ToDo: create a withdraw() function that lets the owner withdraw ETH

@@ -1,119 +1,112 @@
-import { formatEther } from 'ethers';
-import React, { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import React from 'react';
 import {
-  useAccount,
-  useDeployedContractInfo,
-  useScaffoldContractRead
-} from '../../hooks/eth-mobile';
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View
+} from 'react-native';
+import { Card, DataTable, Text } from 'react-native-paper';
+import { Address } from '../../components/eth-mobile';
+import { useScaffoldEventHistory } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { parseTimestamp } from '../../utils/eth-mobile';
+import { parseBalance } from '../../utils/eth-mobile/helpers';
 import { FONT_SIZE } from '../../utils/styles';
 
-interface Event {
-  type: 'BuyTokens' | 'SellTokens';
-  buyer?: string;
-  seller?: string;
-  amountOfETH: bigint;
-  amountOfTokens: bigint;
-  timestamp: number;
-  transactionHash: string;
-}
-
 export default function Events() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const { address } = useAccount();
-  const { data: vendorContractData } = useDeployedContractInfo('Vendor');
-
-  const { data: buyTokensEvents } = useScaffoldContractRead({
+  // BuyTokens Events
+  const {
+    data: buyTokenEvents,
+    isLoading: isBuyEventsLoading,
+    refetch: refetchBuyTokenEvents
+  } = useScaffoldEventHistory({
     contractName: 'Vendor',
-    functionName: 'BuyTokens',
-    args: [address]
+    eventName: 'BuyTokens',
+    fromBlock: 0n,
+    watch: true
   });
 
-  const { data: sellTokensEvents } = useScaffoldContractRead({
+  // SellTokens Events
+  const {
+    data: sellTokenEvents,
+    isLoading: isSellEventsLoading,
+    refetch: refetchSellTokenEvents
+  } = useScaffoldEventHistory({
     contractName: 'Vendor',
-    functionName: 'SellTokens',
-    args: [address]
+    eventName: 'SellTokens',
+    fromBlock: 0n,
+    watch: true
   });
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    // In a real implementation, you would refetch events here
-    setTimeout(() => setRefreshing(false), 1000);
-  };
-
-  useEffect(() => {
-    // This is a mock implementation - in a real app you would fetch actual events
-    const mockEvents: Event[] = [
-      {
-        type: 'BuyTokens',
-        buyer: address,
-        amountOfETH: 1000000000000000000n, // 1 ETH
-        amountOfTokens: 100000000000000000000n, // 100 tokens
-        timestamp: Date.now() - 3600000, // 1 hour ago
-        transactionHash: '0x1234567890abcdef...'
-      },
-      {
-        type: 'SellTokens',
-        seller: address,
-        amountOfETH: 500000000000000000n, // 0.5 ETH
-        amountOfTokens: 50000000000000000000n, // 50 tokens
-        timestamp: Date.now() - 7200000, // 2 hours ago
-        transactionHash: '0xabcdef1234567890...'
-      }
-    ];
-    setEvents(mockEvents);
-  }, [address]);
-
-  const renderEvent = (event: Event, index: number) => {
-    const isBuyEvent = event.type === 'BuyTokens';
-    const address = isBuyEvent ? event.buyer : event.seller;
-
+  const renderEventTable = (
+    title: string,
+    events: any[] | undefined,
+    isLoading: boolean
+  ) => {
     return (
-      <Card key={index} style={styles.eventCard}>
-        <Card.Content>
-          <View style={styles.eventHeader}>
-            <Text variant="titleMedium" style={styles.eventType}>
-              {isBuyEvent ? '🟢 Buy Tokens' : '🔴 Sell Tokens'}
-            </Text>
-            <Text variant="bodySmall" style={styles.timestamp}>
-              {parseTimestamp(event.timestamp)}
-            </Text>
+      <View style={styles.section}>
+        <Text variant="headlineSmall" style={styles.sectionTitle}>
+          {title}
+        </Text>
+
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
+        ) : (
+          <Card style={styles.tableCard}>
+            <DataTable>
+              <DataTable.Header style={styles.tableHeader}>
+                <DataTable.Title style={styles.headerCell}>
+                  <Text style={styles.headerText}>
+                    {title === 'Buy Token Events' ? 'Buyer' : 'Seller'}
+                  </Text>
+                </DataTable.Title>
+                <DataTable.Title style={styles.headerCell}>
+                  <Text style={styles.headerText}>Amount of Tokens</Text>
+                </DataTable.Title>
+                <DataTable.Title style={styles.headerCell}>
+                  <Text style={styles.headerText}>Amount of ETH</Text>
+                </DataTable.Title>
+              </DataTable.Header>
 
-          <View style={styles.eventDetails}>
-            <Text variant="bodyMedium" style={styles.detailText}>
-              <Text style={styles.label}>Address: </Text>
-              <Text style={styles.value}>
-                {address?.slice(0, 8)}...{address?.slice(-6)}
-              </Text>
-            </Text>
-
-            <Text variant="bodyMedium" style={styles.detailText}>
-              <Text style={styles.label}>ETH Amount: </Text>
-              <Text style={styles.value}>
-                {Number(formatEther(event.amountOfETH)).toFixed(4)} ETH
-              </Text>
-            </Text>
-
-            <Text variant="bodyMedium" style={styles.detailText}>
-              <Text style={styles.label}>Token Amount: </Text>
-              <Text style={styles.value}>
-                {Number(formatEther(event.amountOfTokens)).toFixed(2)} tokens
-              </Text>
-            </Text>
-
-            <Text variant="bodySmall" style={styles.txHash}>
-              TX: {event.transactionHash.slice(0, 10)}...
-              {event.transactionHash.slice(-8)}
-            </Text>
-          </View>
-        </Card.Content>
-      </Card>
+              {!events || events.length === 0 ? (
+                <DataTable.Row>
+                  <DataTable.Cell style={styles.emptyCell}>
+                    <Text style={styles.emptyText}>No events found</Text>
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ) : (
+                events.map((event, index) => (
+                  <DataTable.Row key={index} style={styles.tableRow}>
+                    <DataTable.Cell style={styles.cell}>
+                      <Address
+                        address={event.args?.[0]}
+                        containerStyle={styles.addressContainer}
+                      />
+                    </DataTable.Cell>
+                    <DataTable.Cell style={styles.cell}>
+                      <Text style={styles.valueText}>
+                        {Number(
+                          parseBalance(event.args?.[1] || 0n)
+                        ).toLocaleString('en-US')}
+                      </Text>
+                    </DataTable.Cell>
+                    <DataTable.Cell style={styles.cell}>
+                      <Text style={styles.valueText}>
+                        {Number(
+                          parseBalance(event.args?.[2] || 0n)
+                        ).toLocaleString('en-US')}
+                      </Text>
+                    </DataTable.Cell>
+                  </DataTable.Row>
+                ))
+              )}
+            </DataTable>
+          </Card>
+        )}
+      </View>
     );
   };
 
@@ -121,31 +114,20 @@ export default function Events() {
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl
+          refreshing={isBuyEventsLoading || isSellEventsLoading}
+          onRefresh={() => {
+            refetchBuyTokenEvents();
+            refetchSellTokenEvents();
+          }}
+        />
       }
     >
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          Token Vendor Events
-        </Text>
-        <Text variant="bodyMedium" style={styles.subtitle}>
-          Recent buy and sell transactions
-        </Text>
-      </View>
-
-      {events.length === 0 ? (
-        <Card style={styles.emptyCard}>
-          <Card.Content>
-            <Text variant="bodyLarge" style={styles.emptyText}>
-              No events found
-            </Text>
-            <Text variant="bodyMedium" style={styles.emptySubtext}>
-              Start trading tokens to see events here
-            </Text>
-          </Card.Content>
-        </Card>
-      ) : (
-        events.map((event, index) => renderEvent(event, index))
+      {renderEventTable('Buy Token Events', buyTokenEvents, isBuyEventsLoading)}
+      {renderEventTable(
+        'Sell Token Events',
+        sellTokenEvents,
+        isSellEventsLoading
       )}
     </ScrollView>
   );
@@ -159,7 +141,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 24,
     alignItems: 'center'
   },
   title: {
@@ -170,65 +152,60 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
     ...globalStyles.text
   },
-  eventCard: {
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.primaryLight,
-    elevation: 2,
-    shadowColor: COLORS.primaryLight,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2
+  section: {
+    marginBottom: 32
   },
-  eventHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12
-  },
-  eventType: {
-    fontWeight: 'bold',
-    ...globalStyles.textMedium
-  },
-  timestamp: {
-    color: COLORS.gray,
-    ...globalStyles.text
-  },
-  eventDetails: {
-    gap: 8
-  },
-  detailText: {
-    ...globalStyles.text
-  },
-  label: {
-    fontWeight: '600',
-    color: COLORS.gray
-  },
-  value: {
-    fontWeight: '500',
-    color: COLORS.primary
-  },
-  txHash: {
-    color: COLORS.gray,
-    marginTop: 8,
-    fontFamily: 'monospace'
-  },
-  emptyCard: {
-    marginTop: 40,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderStyle: 'dashed'
-  },
-  emptyText: {
+  sectionTitle: {
     textAlign: 'center',
     marginBottom: 8,
+    fontSize: FONT_SIZE.lg,
     ...globalStyles.textMedium
   },
-  emptySubtext: {
-    textAlign: 'center',
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40
+  },
+  tableCard: {
+    backgroundColor: 'white'
+  },
+  tableHeader: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomWidth: 0,
+    backgroundColor: COLORS.primaryLight
+  },
+  headerCell: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  headerText: {
+    ...globalStyles.textMedium,
+    fontSize: FONT_SIZE.sm
+  },
+  tableRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray
+  },
+  cell: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  addressContainer: { transform: [{ scale: 0.8 }], marginTop: 5 },
+  valueText: {
+    ...globalStyles.text,
+    fontSize: FONT_SIZE.sm,
+    textAlign: 'center'
+  },
+  emptyCell: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20
+  },
+  emptyText: {
+    ...globalStyles.text,
     color: COLORS.gray,
-    ...globalStyles.text
+    textAlign: 'center'
   }
 });

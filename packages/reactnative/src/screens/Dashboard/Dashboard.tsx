@@ -59,13 +59,13 @@ export default function Dashboard() {
             <>
               {focused ? (
                 <Ionicons
-                  name="list"
+                  name="flash"
                   color={COLORS.primary}
                   size={WINDOW_WIDTH * 0.06}
                 />
               ) : (
                 <Ionicons
-                  name="list-outline"
+                  name="flash-outline"
                   color={'grey'}
                   size={WINDOW_WIDTH * 0.06}
                 />

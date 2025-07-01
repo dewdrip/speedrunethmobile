@@ -21,11 +21,6 @@ const features: Feature[] = [
     title: 'Transactions',
     icon: 'swap-horizontal-outline',
     component: 'Transactions'
-  },
-  {
-    title: 'Events',
-    icon: 'list-outline',
-    component: 'Events'
   }
 ];
 
