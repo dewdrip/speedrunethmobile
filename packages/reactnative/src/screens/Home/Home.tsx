@@ -1,6 +1,6 @@
 import { formatEther, parseEther } from 'ethers';
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TextStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import CustomButton from '../../components/buttons/CustomButton';
 import { Address } from '../../components/eth-mobile';
@@ -41,7 +41,7 @@ const ETHToPrice = ({
   style
 }: {
   value: string | undefined;
-  style?: any;
+  style?: TextStyle;
 }) => {
   const network = useNetwork();
 
@@ -269,16 +269,14 @@ export default function Home() {
               .slice(0, 5)
               .map((event, index) => (
                 <View key={index} style={styles.eventItem}>
-                  <Text style={styles.eventUser}>
-                    User:{' '}
-                    {event.args?.[0]
-                      ? `${event.args[0].slice(0, 6)}...${event.args[0].slice(-4)}`
-                      : 'Unknown'}
-                  </Text>
-                  <Text style={styles.eventAmount}>
-                    Amount: {event.args?.[1] ? formatEther(event.args[1]) : '0'}{' '}
-                    {network.currencySymbol}
-                  </Text>
+                  <Address
+                    address={event?.args?.[0]}
+                    textStyle={{ fontSize: FONT_SIZE.lg, marginTop: 5 }}
+                  />
+                  <ETHToPrice
+                    value={event.args?.[1] ? formatEther(event.args[1]) : '0'}
+                    style={{ fontSize: FONT_SIZE.lg }}
+                  />
                 </View>
               ))
               .reverse()}
@@ -438,6 +436,9 @@ const styles = StyleSheet.create({
     gap: 16
   },
   eventItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
     padding: 16,
     backgroundColor: 'white',
