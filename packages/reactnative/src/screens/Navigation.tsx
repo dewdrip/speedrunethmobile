@@ -11,6 +11,7 @@ import Onboarding from './Authentication/Onboarding';
 import WalletSetup from './Authentication/WalletSetup';
 import Dashboard from './Dashboard';
 import DebugContracts from './DebugContracts';
+import Events from './Events';
 import Home from './Home';
 import NFTs from './NFTs';
 import Settings from './Settings';
@@ -49,6 +50,7 @@ type AppStackParamsList = {
   Tokens: undefined;
   NFTs: undefined;
   Transactions: undefined;
+  Events: undefined;
   Home: undefined;
   Wallet: undefined;
   Settings: undefined;
@@ -92,6 +94,7 @@ export default function Navigation({}: Props) {
         <AppStack.Screen name="Tokens" component={Tokens} />
         <AppStack.Screen name="NFTs" component={NFTs} />
         <AppStack.Screen name="Transactions" component={Transactions} />
+        <AppStack.Screen name="Events" component={Events} />
         <AppStack.Screen name="Home" component={Home} />
         <AppStack.Screen name="Settings" component={Settings} />
         <AppStack.Screen name="Wallet" component={Wallet} />

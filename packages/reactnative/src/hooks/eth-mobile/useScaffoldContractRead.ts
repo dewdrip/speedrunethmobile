@@ -35,7 +35,7 @@ export function useScaffoldContractRead({
   const connectedAccount = useAccount();
   const wallet = useSelector((state: any) => state.wallet);
 
-  const [data, setData] = useState<any[] | null>(null);
+  const [data, setData] = useState<any | any[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any>(null);
 

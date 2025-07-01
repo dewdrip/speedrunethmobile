@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { COLORS } from '../../utils/constants';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
 import DebugContracts from '../DebugContracts';
+import Events from '../Events';
 import Home from '../Home';
 import Settings from '../Settings';
 import Wallet from '../Wallet';
@@ -42,6 +43,29 @@ export default function Dashboard() {
               ) : (
                 <Ionicons
                   name="home-outline"
+                  color={'grey'}
+                  size={WINDOW_WIDTH * 0.06}
+                />
+              )}
+            </>
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Events"
+        component={Events}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <>
+              {focused ? (
+                <Ionicons
+                  name="list"
+                  color={COLORS.primary}
+                  size={WINDOW_WIDTH * 0.06}
+                />
+              ) : (
+                <Ionicons
+                  name="list-outline"
                   color={'grey'}
                   size={WINDOW_WIDTH * 0.06}
                 />

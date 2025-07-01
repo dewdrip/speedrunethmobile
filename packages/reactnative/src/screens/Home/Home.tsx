@@ -1,168 +1,356 @@
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import { formatEther } from 'ethers';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
-// @ts-ignore
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import { Button, Card, Divider, Text } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
+import { AddressInput, IntegerInput } from '../../components/eth-mobile';
+import {
+  useAccount,
+  useBalance,
+  useDeployedContractInfo,
+  useScaffoldContractRead,
+  useScaffoldContractWrite
+} from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
+import { getTokenPrice, multiplyTo1e18 } from '../../utils/eth-mobile';
+import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {};
+export default function Home() {
+  const [toAddress, setToAddress] = useState('');
+  const [tokensToSend, setTokensToSend] = useState('');
+  const [tokensToBuy, setTokensToBuy] = useState<string | bigint>('');
+  const [isApproved, setIsApproved] = useState(false);
+  const [tokensToSell, setTokensToSell] = useState<string>('');
 
-function HighlightedText({ children }: { children: string }) {
+  const toast = useToast();
+  const { address } = useAccount();
+
+  const { data: yourTokenSymbol } = useScaffoldContractRead({
+    contractName: 'YourToken',
+    functionName: 'symbol'
+  });
+
+  const { data: yourTokenBalance } = useScaffoldContractRead({
+    contractName: 'YourToken',
+    functionName: 'balanceOf',
+    args: [address],
+    watch: true
+  });
+
+  const { data: vendorContractData } = useDeployedContractInfo('Vendor');
+  const { balance: vendorEthBalance } = useBalance({
+    address: vendorContractData?.address || ''
+  });
+
+  const { write: buyTokens } = useScaffoldContractWrite({
+    contractName: 'Vendor',
+    functionName: 'buyTokens'
+  });
+
+  const { write: sellTokens } = useScaffoldContractWrite({
+    contractName: 'Vendor',
+    functionName: 'sellTokens'
+  });
+
+  const { write: approveTokens } = useScaffoldContractWrite({
+    contractName: 'YourToken',
+    functionName: 'approve'
+  });
+
+  const { write: transferTokens } = useScaffoldContractWrite({
+    contractName: 'YourToken',
+    functionName: 'transfer'
+  });
+
+  const { data: vendorTokenBalance } = useScaffoldContractRead({
+    contractName: 'YourToken',
+    functionName: 'balanceOf',
+    args: [vendorContractData?.address],
+    watch: true
+  });
+
+  const { data: tokensPerEth } = useScaffoldContractRead({
+    contractName: 'Vendor',
+    functionName: 'tokensPerEth'
+  });
+
+  const handleBuyTokens = async () => {
+    try {
+      const tokenPrice = getTokenPrice(tokensToBuy, Number(tokensPerEth) || 0);
+      await buyTokens({ value: tokenPrice });
+      setTokensToBuy('');
+      toast.show('Tokens purchased successfully!', {
+        type: 'success',
+        placement: 'top'
+      });
+    } catch (err) {
+      console.error('Error calling buyTokens function', err);
+      toast.show('Failed to buy tokens', { type: 'danger', placement: 'top' });
+    }
+  };
+
+  const handleTransferTokens = async () => {
+    try {
+      await transferTokens({
+        args: [toAddress, multiplyTo1e18(tokensToSend)]
+      });
+      setToAddress('');
+      setTokensToSend('');
+      toast.show('Tokens transferred successfully!', {
+        type: 'success',
+        placement: 'top'
+      });
+    } catch (err) {
+      console.error('Error calling transfer function', err);
+      toast.show('Failed to transfer tokens', {
+        type: 'danger',
+        placement: 'top'
+      });
+    }
+  };
+
+  const handleApproveTokens = async () => {
+    try {
+      await approveTokens({
+        args: [
+          vendorContractData?.address,
+          multiplyTo1e18(tokensToSell as string)
+        ]
+      });
+      setIsApproved(true);
+      toast.show('Tokens approved successfully!', {
+        type: 'success',
+        placement: 'top'
+      });
+    } catch (err) {
+      console.error('Error calling approve function', err);
+      toast.show('Failed to approve tokens', {
+        type: 'danger',
+        placement: 'top'
+      });
+    }
+  };
+
+  const handleSellTokens = async () => {
+    try {
+      await sellTokens({ args: [multiplyTo1e18(tokensToSell as string)] });
+      setIsApproved(false);
+      setTokensToSell('');
+      toast.show('Tokens sold successfully!', {
+        type: 'success',
+        placement: 'top'
+      });
+    } catch (err) {
+      console.error('Error calling sellTokens function', err);
+      toast.show('Failed to sell tokens', { type: 'danger', placement: 'top' });
+    }
+  };
+
   return (
-    <View
-      style={{ backgroundColor: COLORS.primaryLight, paddingHorizontal: 4 }}
-    >
-      <Text
-        style={{
-          textAlign: 'center',
-          fontSize: FONT_SIZE['md'],
-          ...globalStyles.text
-        }}
-      >
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-export default function Home({}: Props) {
-  const navigation = useNavigation();
-
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 10 }}
-    >
-      <View style={{ paddingVertical: 32, alignItems: 'center' }}>
-        <Text variant="headlineSmall" style={globalStyles.text}>
-          Welcome to
-        </Text>
-        <Text variant="displaySmall" style={globalStyles.textSemiBold}>
-          ETH Mobile
-        </Text>
-
-        <Text
-          style={{
-            marginTop: 16,
-            marginBottom: 4,
-            fontSize: FONT_SIZE['lg'],
-            ...globalStyles.text
-          }}
-        >
-          Get started by editing
-        </Text>
-        <HighlightedText>
-          packages/reactnative/src/screens/Dashboard/Tab/Home.tsx
-        </HighlightedText>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            marginTop: 16,
-            marginBottom: 4,
-            gap: 4,
-            maxWidth: '100%'
-          }}
-        >
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            Edit your smart contract
-          </Text>
-          <HighlightedText>YourContract.sol</HighlightedText>
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            in
-          </Text>
-        </View>
-        <HighlightedText>packages/hardhat/contracts</HighlightedText>
-      </View>
-
-      <View style={styles.featuresContainer}>
-        {/* Contract Debugger */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="bug-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Tinker with your smart contracts using the
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('DebugContracts')}
-              >
-                {' '}
-                DebugContracts{' '}
-              </Text>
-              tab
+    <ScrollView style={styles.container}>
+      {/* Token Balance Card */}
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge" style={styles.cardTitle}>
+            Your token balance:{' '}
+            <Text style={styles.balanceText}>
+              {parseFloat(formatEther(yourTokenBalance || 0n)).toFixed(4)}
+              <Text style={styles.tokenSymbol}> {yourTokenSymbol}</Text>
             </Text>
+          </Text>
+
+          <Divider style={styles.divider} />
+
+          <Text variant="bodyLarge" style={styles.vendorBalance}>
+            Vendor token balance:{' '}
+            <Text style={styles.balanceText}>
+              {Number(formatEther(vendorTokenBalance || 0n)).toFixed(4)}
+              <Text style={styles.tokenSymbol}> {yourTokenSymbol}</Text>
+            </Text>
+          </Text>
+
+          <Text variant="bodyLarge" style={styles.vendorBalance}>
+            Vendor ETH balance:{' '}
+            <Text style={styles.balanceText}>
+              {Number(formatEther(vendorEthBalance || 0n)).toFixed(4)}
+              <Text style={styles.tokenSymbol}> ETH</Text>
+            </Text>
+          </Text>
+        </Card.Content>
+      </Card>
+
+      {/* Buy Tokens Card */}
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge" style={styles.cardTitle}>
+            Buy tokens
+          </Text>
+          <Text variant="bodyMedium" style={styles.rateText}>
+            {tokensPerEth?.toString() || 0} tokens per ETH
+          </Text>
+
+          <View style={styles.inputContainer}>
+            <IntegerInput
+              placeholder="amount of tokens to buy"
+              value={tokensToBuy.toString()}
+              onChange={value => setTokensToBuy(value)}
+              disableMultiplyBy1e18
+            />
+          </View>
+
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={handleBuyTokens}
+            disabled={!tokensToBuy || Number(tokensToBuy) <= 0}
+          >
+            Buy Tokens
+          </Button>
+        </Card.Content>
+      </Card>
+
+      {/* Transfer Tokens Card */}
+      {!!yourTokenBalance && (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.cardTitle}>
+              Transfer tokens
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <AddressInput
+                placeholder="to address"
+                value={toAddress}
+                onChange={value => setToAddress(value)}
+              />
+              <IntegerInput
+                placeholder="amount of tokens to send"
+                value={tokensToSend}
+                onChange={value => setTokensToSend(value as string)}
+                disableMultiplyBy1e18
+              />
+            </View>
+
+            <Button
+              mode="contained"
+              style={styles.button}
+              onPress={handleTransferTokens}
+              disabled={
+                !toAddress || !tokensToSend || Number(tokensToSend) <= 0
+              }
+            >
+              Send Tokens
+            </Button>
           </Card.Content>
         </Card>
+      )}
 
-        {/* Wallet */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="wallet-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Manage your accounts, funds, and tokens in your
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('Wallet')}
-              >
-                {' '}
-                Wallet
-              </Text>
+      {/* Sell Tokens Card */}
+      {!!yourTokenBalance && (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.cardTitle}>
+              Sell tokens
             </Text>
+            <Text variant="bodyMedium" style={styles.rateText}>
+              {tokensPerEth?.toString() || 0} tokens per ETH
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <IntegerInput
+                placeholder="amount of tokens to sell"
+                value={tokensToSell}
+                onChange={value => setTokensToSell(value as string)}
+                disabled={isApproved}
+                disableMultiplyBy1e18
+              />
+            </View>
+
+            <View style={styles.buttonRow}>
+              <Button
+                mode="contained"
+                style={[styles.button, styles.halfButton]}
+                onPress={handleApproveTokens}
+                disabled={isApproved}
+              >
+                Approve Tokens
+              </Button>
+
+              <Button
+                mode="contained"
+                style={[styles.button, styles.halfButton]}
+                onPress={handleSellTokens}
+                disabled={!isApproved}
+              >
+                Sell Tokens
+              </Button>
+            </View>
           </Card.Content>
         </Card>
-      </View>
+      )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  featuresContainer: {
+  container: {
     flex: 1,
-    padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 20
   },
-  feature: {
-    paddingVertical: 32,
-    width: '90%',
+  card: {
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: COLORS.gray,
     borderRadius: 24,
-    backgroundColor: 'white',
-    gap: 24
+    backgroundColor: 'white'
   },
-  featureCaption: {
+  cardTitle: {
     textAlign: 'center',
-    width: WINDOW_WIDTH * 0.6,
-    fontSize: FONT_SIZE['lg'],
+    marginBottom: 8,
+    fontSize: FONT_SIZE.lg,
+    ...globalStyles.textMedium
+  },
+  balanceText: {
+    color: COLORS.primary,
+    ...globalStyles.textMedium
+  },
+  tokenSymbol: {
+    color: COLORS.primary,
+    ...globalStyles.textMedium
+  },
+  vendorBalance: {
+    textAlign: 'center',
+    marginTop: 4,
     ...globalStyles.text
   },
-  featureLink: {
-    textDecorationLine: 'underline',
-    fontSize: FONT_SIZE['lg'],
-    ...globalStyles.textSemiBold
+  divider: {
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.gray
+  },
+  rateText: {
+    textAlign: 'center',
+    marginBottom: 16,
+    ...globalStyles.text
+  },
+  inputContainer: {
+    marginBottom: 16
+  },
+  button: {
+    borderRadius: 24,
+    backgroundColor: COLORS.primaryLight,
+    marginTop: 8,
+    alignSelf: 'center'
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8
+  },
+  halfButton: {
+    flex: 1
   }
 });
