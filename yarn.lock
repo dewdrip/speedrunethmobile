@@ -2283,6 +2283,7 @@ __metadata:
     react-native-toast-notifications: 3.4.0
     react-native-url-polyfill: 2.0.0
     react-native-vector-icons: 10.2.0
+    react-native-video: ^6.16.0
     react-native-vision-camera: 4.6.3
     react-native-webview: 13.8.2
     react-redux: 9.1.0
@@ -13599,6 +13600,16 @@ __metadata:
     fa6-upgrade: bin/fa6-upgrade.sh
     generate-icon: bin/generate-icon.js
   checksum: fda930df4e63f12533268f5b339ebe4c77c691eae43503328466b3087ed868a06a4593fd246e75ac6b5ec955543eec35608c7922191bdcc3b3a94ed7f3575ef0
+  languageName: node
+  linkType: hard
+
+"react-native-video@npm:^6.16.0":
+  version: 6.16.0
+  resolution: "react-native-video@npm:6.16.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: edbe695abc34677eb2c6141998ac30cb37fc787539895d4e7d02cfeea0ed8780114ea568d51b87aef830bfb6322620795d07e790cae3745c5f29e7848f902613
   languageName: node
   linkType: hard
 
