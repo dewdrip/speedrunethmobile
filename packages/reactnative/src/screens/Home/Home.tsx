@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import Video, { VideoRef } from 'react-native-video';
 import {
   Address as AddressType,
   createTestClient,
@@ -23,24 +23,10 @@ import {
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
-import { Roll, RollEvents, Winner, WinnerEvents } from './modules';
+import { Dice, Roll, RollEvents, Winner, WinnerEvents } from './modules';
 
 const ROLL_ETH_VALUE = '0.002';
 const MAX_TABLE_ROWS = 10;
-
-const ROLL_VIDEOS: Record<string, any> = {
-  '0': require('../../assets/rolls/0.webm'),
-  '1': require('../../assets/rolls/1.webm'),
-  '2': require('../../assets/rolls/2.webm'),
-  '3': require('../../assets/rolls/3.webm'),
-  '4': require('../../assets/rolls/4.webm'),
-  '5': require('../../assets/rolls/5.webm'),
-  '6': require('../../assets/rolls/6.webm'),
-  '7': require('../../assets/rolls/7.webm'),
-  '8': require('../../assets/rolls/8.webm'),
-  '9': require('../../assets/rolls/9.webm'),
-  SPIN: require('../../assets/rolls/Spin.webm')
-};
 
 // Simple Amount display component
 const Amount = ({ amount, className }: { amount: number; className?: any }) => {
@@ -67,8 +53,6 @@ export default function Home() {
     [chainId]
   );
 
-  const videoRef = useRef<VideoRef>(null);
-
   const [rolled, setRolled] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
 
@@ -81,7 +65,8 @@ export default function Home() {
   });
   const { data: prize } = useScaffoldContractRead({
     contractName: 'DiceGame',
-    functionName: 'prize'
+    functionName: 'prize',
+    watch: true
   });
 
   const { data: rollsHistoryData, isLoading: rollsHistoryLoading } =
@@ -163,13 +148,6 @@ export default function Home() {
     functionName: 'riggedRoll'
   });
 
-  useEffect(() => {
-    if (videoRef.current && !isRolling) {
-      // show last frame
-      videoRef.current.seek(9999);
-    }
-  }, [isRolling]);
-
   const handleRollDice = async () => {
     if (!rolled) {
       setRolled(true);
@@ -205,6 +183,8 @@ export default function Home() {
       setIsRolling(false);
     }
   };
+
+  const isFocused = useIsFocused();
 
   return (
     <ScrollView style={styles.container}>
@@ -267,40 +247,14 @@ export default function Home() {
             Rigged Roll!
           </Button>
 
-          <View style={styles.videoContainer}>
-            {rolled ? (
-              isRolling ? (
-                <Video
-                  source={ROLL_VIDEOS['SPIN']}
-                  style={styles.video}
-                  resizeMode="contain"
-                  repeat
-                  playInBackground={false}
-                  playWhenInactive={false}
-                  controls={false}
-                />
-              ) : (
-                <Video
-                  source={ROLL_VIDEOS[rolls[0]?.roll || '0']}
-                  style={styles.video}
-                  resizeMode="contain"
-                  playInBackground={false}
-                  playWhenInactive={false}
-                  controls={false}
-                />
-              )
-            ) : (
-              <Video
-                ref={videoRef}
-                source={ROLL_VIDEOS[rolls[0]?.roll || '0']}
-                style={styles.video}
-                resizeMode="contain"
-                playInBackground={false}
-                playWhenInactive={false}
-                controls={false}
-              />
-            )}
-          </View>
+          {/* Dice Animation */}
+          {isFocused && (
+            <Dice
+              roll={rolls[0]?.roll || '0'}
+              isRolling={isRolling}
+              rolled={rolled}
+            />
+          )}
         </View>
       </View>
 
