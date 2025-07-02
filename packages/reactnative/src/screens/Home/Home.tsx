@@ -53,13 +53,13 @@ export default function Home() {
   const [rolls, setRolls] = useState<Roll[]>([]);
   const [winners, setWinners] = useState<Winner[]>([]);
 
-  const { id: chainId } = useNetwork();
+  const { id: chainId, provider } = useNetwork();
 
   const testClient = useMemo(
     () =>
       chainId === hardhat.id
         ? createTestClient({
-            chain: hardhat,
+            chain: { ...hardhat, rpcUrls: { default: { http: [provider] } } },
             mode: 'hardhat',
             transport: http()
           })
@@ -91,6 +91,20 @@ export default function Home() {
       fromBlock: 0n,
       watch: true
     });
+
+  useEffect(() => {
+    if (!testClient) return;
+
+    const interval = setInterval(async () => {
+      try {
+        await testClient.mine({ blocks: 1 });
+      } catch (error) {
+        console.error('Error mining block:', error);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [testClient]);
 
   useEffect(() => {
     if (
@@ -192,15 +206,6 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    console.log('rolled: ', rolled);
-    console.log('rolls: ', rolls);
-  }, [rolled, rolls]);
-
-  const DiceRolled = useMemo(() => {
-    return rolls[0]?.roll || '0';
-  }, [rolls]);
-
   return (
     <ScrollView style={styles.container}>
       {/* Center Column - Game Controls */}
@@ -266,7 +271,6 @@ export default function Home() {
             {rolled ? (
               isRolling ? (
                 <Video
-                  key="rolling"
                   source={ROLL_VIDEOS['SPIN']}
                   style={styles.video}
                   resizeMode="contain"
@@ -277,11 +281,9 @@ export default function Home() {
                 />
               ) : (
                 <Video
-                  key="rolled"
                   source={ROLL_VIDEOS[rolls[0]?.roll || '0']}
                   style={styles.video}
                   resizeMode="contain"
-                  repeat
                   playInBackground={false}
                   playWhenInactive={false}
                   controls={false}
@@ -290,7 +292,6 @@ export default function Home() {
             ) : (
               <Video
                 ref={videoRef}
-                key="last"
                 source={ROLL_VIDEOS[rolls[0]?.roll || '0']}
                 style={styles.video}
                 resizeMode="contain"
