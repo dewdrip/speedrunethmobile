@@ -117,8 +117,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FONT_SIZE.xl,
-    fontWeight: 'bold',
-    ...globalStyles.text,
+    ...globalStyles.textSemiBold,
     marginBottom: 8
   },
   formControl: {
@@ -126,7 +125,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FONT_SIZE.md,
-    ...globalStyles.text
+    ...globalStyles.textMedium
   },
   inputContainer: {
     alignItems: 'flex-end',
