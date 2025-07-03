@@ -1,29 +1,20 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
 import { formatEther } from 'ethers';
-import { useScaffoldContractRead, useScaffoldContractWrite } from '../../../hooks/eth-mobile';
+import React from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Button, DataTable, Text } from 'react-native-paper';
+import { Address } from '../../../components/eth-mobile';
+import {
+  useDeployedContractInfo,
+  useScaffoldContractRead,
+  useScaffoldContractWrite
+} from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
+import { calculatePositionRatio } from '../../../utils/helpers';
 import { FONT_SIZE } from '../../../utils/styles';
-import { truncateAddress } from '../../../utils/eth-mobile';
 
-type UserPositionProps = {
-  user: string;
-  connectedAddress: string;
-  ethPrice: number;
-};
-
-// Helper function to calculate position ratio
-const calculatePositionRatio = (
-  collateralAmount: number,
-  borrowedAmount: number,
-  ethPrice: number
-): number => {
-  if (borrowedAmount === 0) return 0;
-  const collateralValue = collateralAmount * ethPrice;
-  return (collateralValue / borrowedAmount) * 100;
-};
+const tokenName = 'CORN';
+const collateralRatio = 120;
 
 // Helper function to get ratio color
 const getRatioColor = (ratio: number): string => {
@@ -32,7 +23,17 @@ const getRatioColor = (ratio: number): string => {
   return COLORS.error;
 };
 
-const UserPosition = ({ user, connectedAddress, ethPrice }: UserPositionProps) => {
+type UserPositionProps = {
+  user: string;
+  ethPrice: number;
+  connectedAddress: string;
+};
+
+const UserPosition = ({
+  user,
+  ethPrice,
+  connectedAddress
+}: UserPositionProps) => {
   const { data: userCollateral } = useScaffoldContractRead({
     contractName: 'Lending',
     functionName: 's_userCollateral',
@@ -45,113 +46,162 @@ const UserPosition = ({ user, connectedAddress, ethPrice }: UserPositionProps) =
     args: [user]
   });
 
-  const { data: isLiquidatable } = useScaffoldContractRead({
-    contractName: 'Lending',
-    functionName: 'isLiquidatable',
-    args: [user]
+  const { data: basicLendingContract } = useDeployedContractInfo('Lending');
+
+  const { data: allowance } = useScaffoldContractRead({
+    contractName: 'Corn',
+    functionName: 'allowance',
+    args: [user, basicLendingContract?.address]
   });
 
-  const { write: liquidateContract } = useScaffoldContractWrite({
+  const { write: writeLendingContract } = useScaffoldContractWrite({
     contractName: 'Lending',
     functionName: 'liquidate'
   });
 
-  const collateralAmount = Number(formatEther(userCollateral || 0n));
-  const borrowedAmount = Number(formatEther(userBorrowed || 0n));
-  const ratio = calculatePositionRatio(collateralAmount, borrowedAmount, ethPrice);
+  const { write: writeCornContract } = useScaffoldContractWrite({
+    contractName: 'Corn',
+    functionName: 'approve'
+  });
 
-  const handleLiquidate = async () => {
+  const borrowedAmount = Number(formatEther(userBorrowed || 0n));
+  const ratio =
+    borrowedAmount === 0
+      ? 'N/A'
+      : calculatePositionRatio(
+          Number(formatEther(userCollateral || 0n)),
+          borrowedAmount,
+          ethPrice
+        ).toFixed(1);
+
+  const isPositionSafe = ratio === 'N/A' || Number(ratio) >= collateralRatio;
+
+  const liquidatePosition = async () => {
+    if (
+      allowance === undefined ||
+      userBorrowed === undefined ||
+      basicLendingContract === undefined
+    )
+      return;
     try {
-      await liquidateContract({
+      if (allowance < userBorrowed) {
+        await writeCornContract({
+          args: [basicLendingContract?.address, userBorrowed]
+        });
+      }
+      await writeLendingContract({
         args: [user]
       });
-    } catch (error) {
-      console.error('Error liquidating position:', error);
+
+      const borrowedValue = Number(formatEther(userBorrowed || 0n)) / ethPrice;
+      const totalCollateral = Number(formatEther(userCollateral || 0n));
+      const rewardValue =
+        borrowedValue * 1.1 > totalCollateral
+          ? totalCollateral.toFixed(2)
+          : (borrowedValue * 1.1).toFixed(2);
+      const shortAddress = user.slice(0, 6) + '...' + user.slice(-4);
+
+      console.log('Liquidation successful');
+      console.log(`You liquidated ${shortAddress}'s position.`);
+      console.log(
+        `You repaid ${Number(formatEther(userBorrowed)).toFixed(2)} ${tokenName} and received ${rewardValue} in ETH collateral.`
+      );
+    } catch (e) {
+      console.error('Error liquidating position:', e);
     }
   };
 
-  const canLiquidate = isLiquidatable && user !== connectedAddress;
+  const isConnectedUser = connectedAddress === user;
 
   return (
-    <View style={styles.row}>
-      <View style={styles.cell}>
-        <Text style={styles.addressText}>{truncateAddress(user)}</Text>
-      </View>
-      
-      <View style={styles.cell}>
-        <Text style={styles.valueText}>{collateralAmount.toFixed(4)} ETH</Text>
-      </View>
-      
-      <View style={styles.cell}>
-        <Text style={styles.valueText}>{borrowedAmount.toFixed(2)} CORN</Text>
-      </View>
-      
-      <View style={styles.cell}>
-        <Text style={[styles.ratioText, { color: getRatioColor(ratio) }]}>
-          {ratio === 0 ? 'N/A' : `${ratio.toFixed(2)}%`}
+    <DataTable.Row
+      style={[styles.row, isConnectedUser && styles.connectedUserRow]}
+    >
+      <DataTable.Cell style={styles.cell}>
+        <Address
+          address={user}
+          containerStyle={styles.addressContainer}
+          copyable={false}
+        />
+      </DataTable.Cell>
+
+      <DataTable.Cell style={styles.cell}>
+        <Text style={styles.cellText}>
+          {Number(formatEther(userCollateral || 0n)).toFixed(2)} ETH
         </Text>
-      </View>
-      
-      <View style={styles.cell}>
-        {canLiquidate ? (
-          <Button
-            mode="contained"
-            onPress={handleLiquidate}
-            style={styles.liquidateButton}
-            labelStyle={styles.liquidateButtonLabel}
-            buttonColor={COLORS.error}
-          >
-            Liquidate
-          </Button>
-        ) : (
-          <View style={styles.emptyCell} />
-        )}
-      </View>
-    </View>
+      </DataTable.Cell>
+
+      <DataTable.Cell style={styles.cell}>
+        <Text style={styles.cellText}>
+          {Number(formatEther(userBorrowed || 0n)).toFixed(2)} {tokenName}
+        </Text>
+      </DataTable.Cell>
+
+      <DataTable.Cell style={styles.cell}>
+        <Text
+          style={[
+            styles.ratioText,
+            {
+              color:
+                ratio === 'N/A' ? COLORS.gray : getRatioColor(Number(ratio))
+            }
+          ]}
+        >
+          {ratio === 'N/A' ? 'N/A' : `${ratio}%`}
+        </Text>
+      </DataTable.Cell>
+
+      <DataTable.Cell style={styles.cell}>
+        <Pressable
+          onPress={liquidatePosition}
+          disabled={isPositionSafe}
+          style={styles.liquidateButton}
+        >
+          <Text style={styles.liquidateButtonText}>Liquidate</Text>
+        </Pressable>
+      </DataTable.Cell>
+    </DataTable.Row>
   );
 };
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
-    paddingVertical: 12,
-    paddingHorizontal: 8
+    borderBottomColor: COLORS.lightGray
+  },
+  connectedUserRow: {
+    backgroundColor: 'white'
   },
   cell: {
-    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    paddingVertical: 8
   },
-  addressText: {
-    fontSize: FONT_SIZE.sm,
-    ...globalStyles.text,
-    textAlign: 'center'
+  addressContainer: {
+    transform: [{ scale: 0.75 }],
+    marginTop: 5,
+    marginLeft: -10
   },
-  valueText: {
+  cellText: {
     fontSize: FONT_SIZE.sm,
     ...globalStyles.text,
     textAlign: 'center'
   },
   ratioText: {
-    fontSize: FONT_SIZE.sm,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.md,
+    ...globalStyles.textSemiBold,
     textAlign: 'center'
   },
   liquidateButton: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4
+    borderRadius: 4,
+    minWidth: 80
   },
-  liquidateButtonLabel: {
+  liquidateButtonText: {
     fontSize: FONT_SIZE.sm,
-    color: 'white'
-  },
-  emptyCell: {
-    width: 60,
-    height: 20
+    ...globalStyles.textSemiBold,
+    color: COLORS.primary
   }
 });
 
-export default UserPosition; 
+export default UserPosition;

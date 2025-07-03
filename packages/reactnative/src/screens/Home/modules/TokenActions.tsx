@@ -1,10 +1,14 @@
+import { formatEther } from 'ethers';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Card, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { formatEther } from 'ethers';
-import { useAccount, useNetwork, useScaffoldContractRead } from '../../../hooks/eth-mobile';
+import {
+  useAccount,
+  useNetwork,
+  useScaffoldContractRead
+} from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
 import { FONT_SIZE } from '../../../utils/styles';
@@ -67,7 +71,7 @@ const TokenActions = () => {
           >
             Transfer
           </Button>
-          
+
           {isHardhatNetwork && (
             <Button
               mode="contained"
@@ -75,7 +79,11 @@ const TokenActions = () => {
               style={styles.button}
               labelStyle={styles.buttonLabel}
               icon={({ size, color }) => (
-                <Ionicons name="swap-horizontal-outline" size={size} color={color} />
+                <Ionicons
+                  name="swap-horizontal-outline"
+                  size={size}
+                  color={color}
+                />
               )}
             >
               Swap

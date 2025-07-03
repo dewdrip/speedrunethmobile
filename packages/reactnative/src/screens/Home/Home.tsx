@@ -4,6 +4,7 @@ import BorrowOperations from './modules/BorrowOperations';
 import CollateralOperations from './modules/CollateralOperations';
 import PriceActions from './modules/PriceActions';
 import TokenActions from './modules/TokenActions';
+import UserPositionsTable from './modules/UserPositionsTable';
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <CollateralOperations />
       <BorrowOperations />
       <TokenActions />
+      <UserPositionsTable />
     </ScrollView>
   );
 }
