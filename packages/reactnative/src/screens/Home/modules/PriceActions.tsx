@@ -1,7 +1,7 @@
 import { formatEther, parseEther } from 'ethers';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { IconButton, Text } from 'react-native-paper';
+import { Card, IconButton, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import {
@@ -17,7 +17,8 @@ const tokenName = 'CORN';
 const PriceActions = () => {
   const { data: price } = useScaffoldContractRead({
     contractName: 'CornDEX',
-    functionName: 'currentPrice'
+    functionName: 'currentPrice',
+    watch: true
   });
 
   const { write: writeContractAsync } = useScaffoldContractWrite({
@@ -58,13 +59,15 @@ const PriceActions = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
+    <Card style={styles.container}>
+      <Card.Content style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>{tokenName} Price</Text>
         </View>
-        <Text style={styles.priceText}>{renderPrice} ETH</Text>
-        <Text style={styles.priceText}>{renderETHPrice} CORN/ETH</Text>
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceText}>{renderPrice} ETH</Text>
+          <Text style={styles.priceText}>{renderETHPrice} CORN/ETH</Text>
+        </View>
         <View style={styles.buttonContainer}>
           <IconButton
             icon={() => (
@@ -87,32 +90,18 @@ const PriceActions = () => {
             style={styles.button}
           />
         </View>
-      </View>
-    </View>
+      </Card.Content>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
     backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: COLORS.gray,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
+    marginBottom: 8
   },
   content: {
-    width: 150,
-    paddingVertical: 20,
     alignItems: 'center',
     gap: 8
   },
@@ -120,12 +109,16 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   title: {
-    fontSize: FONT_SIZE.sm,
+    fontSize: FONT_SIZE.lg,
     fontWeight: 'bold',
     ...globalStyles.text
   },
+  priceContainer: {
+    flexDirection: 'row',
+    gap: 8
+  },
   priceText: {
-    fontSize: FONT_SIZE.sm,
+    fontSize: FONT_SIZE.md,
     ...globalStyles.text
   },
   buttonContainer: {
