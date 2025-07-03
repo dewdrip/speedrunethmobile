@@ -10,7 +10,6 @@ import {
   useScaffoldContractRead
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
-import { COLORS } from '../../../utils/constants';
 import { FONT_SIZE } from '../../../utils/styles';
 
 const tokenName = 'CORN';
@@ -22,7 +21,8 @@ const TokenActions = () => {
   const { data: cornBalance } = useScaffoldContractRead({
     contractName: 'Corn',
     functionName: 'balanceOf',
-    args: [address]
+    args: [address],
+    watch: true
   });
 
   const { data: cornPrice } = useScaffoldContractRead({

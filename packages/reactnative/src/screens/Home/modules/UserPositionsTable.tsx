@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: FONT_SIZE.md,
     ...globalStyles.textMedium,
-    color: COLORS.gray,
+    color: 'gray',
     textAlign: 'center'
   },
   skeleton: {
