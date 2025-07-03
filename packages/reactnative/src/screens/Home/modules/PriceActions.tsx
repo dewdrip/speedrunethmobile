@@ -17,7 +17,8 @@ const tokenName = 'CORN';
 const PriceActions = () => {
   const { data: price } = useScaffoldContractRead({
     contractName: 'CornDEX',
-    functionName: 'currentPrice'
+    functionName: 'currentPrice',
+    watch: true
   });
 
   const { write: writeContractAsync } = useScaffoldContractWrite({
@@ -26,7 +27,7 @@ const PriceActions = () => {
   });
 
   const priceOfOneCORN = price
-    ? parseEther((1 / Number(formatEther(price))).toString())
+    ? parseEther((1 / Number(formatEther(price))).toFixed(18))
     : undefined;
   const renderPrice =
     priceOfOneCORN === undefined ? (
