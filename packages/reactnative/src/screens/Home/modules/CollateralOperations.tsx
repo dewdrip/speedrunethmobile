@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT_SIZE.xl,
     fontWeight: 'bold',
-    ...globalStyles.text
+    ...globalStyles.text,
+    marginBottom: 8
   },
   formControl: {
     gap: 8

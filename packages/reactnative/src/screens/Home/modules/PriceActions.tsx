@@ -17,8 +17,7 @@ const tokenName = 'CORN';
 const PriceActions = () => {
   const { data: price } = useScaffoldContractRead({
     contractName: 'CornDEX',
-    functionName: 'currentPrice',
-    watch: true
+    functionName: 'currentPrice'
   });
 
   const { write: writeContractAsync } = useScaffoldContractWrite({
