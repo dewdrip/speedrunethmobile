@@ -9,8 +9,8 @@ import {
   useBalance,
   useDeployedContractInfo,
   useERC20Balance,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import { COLORS } from '../../../utils/constants';
 import { parseBalance } from '../../../utils/eth-mobile';
@@ -23,8 +23,12 @@ export default function SwapForm() {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const account = useAccount();
-  const { data: dexContract } = useDeployedContractInfo('DEX');
-  const { data: balloonContract } = useDeployedContractInfo('Balloons');
+  const { data: dexContract } = useDeployedContractInfo({
+    contractName: 'DEX'
+  });
+  const { data: balloonContract } = useDeployedContractInfo({
+    contractName: 'Balloons'
+  });
 
   // token balances
   const { balance: ethBalance } = useBalance({
@@ -49,26 +53,21 @@ export default function SwapForm() {
     watch: true
   });
 
-  const { readContract: getPrice } = useScaffoldContractRead({
+  const { readContract: getPrice } = useScaffoldReadContract({
     contractName: 'DEX',
     functionName: 'price',
     enable: false
   });
 
-  const { write: ethToToken } = useScaffoldContractWrite({
-    contractName: 'DEX',
-    functionName: 'ethToToken'
-  });
+  const { writeContractAsync: writeDexContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'DEX'
+    });
 
-  const { write: tokenToEth } = useScaffoldContractWrite({
-    contractName: 'DEX',
-    functionName: 'tokenToEth'
-  });
-
-  const { write: approve } = useScaffoldContractWrite({
-    contractName: 'Balloons',
-    functionName: 'approve'
-  });
+  const { writeContractAsync: writeBalloonsContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'Balloons'
+    });
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -124,17 +123,24 @@ export default function SwapForm() {
         if (buyAmount === '') return;
 
         setIsLoading(true);
-        await approve({
+        await writeBalloonsContractAsync({
+          functionName: 'approve',
           args: [dexContract?.address, parseEther(buyAmount)]
         });
 
         toast.show('Token Approval Successful!', { type: 'success' });
 
-        await tokenToEth({ args: [parseEther(buyAmount)] });
+        await writeDexContractAsync({
+          functionName: 'tokenToEth',
+          args: [parseEther(buyAmount)]
+        });
       } else {
         if (sellAmount === '') return;
 
-        await ethToToken({ value: parseEther(sellAmount) });
+        await writeDexContractAsync({
+          functionName: 'ethToToken',
+          value: parseEther(sellAmount)
+        });
       }
 
       toast.show('Swap Successful!', { type: 'success' });
@@ -177,7 +183,7 @@ export default function SwapForm() {
         <AmountInput
           title={isFlipped ? 'Sell' : 'Buy'}
           value={buyAmount}
-          token="Balloon"
+          token="BAL"
           balance={
             balloonBalance !== null ? parseBalance(balloonBalance) : null
           }

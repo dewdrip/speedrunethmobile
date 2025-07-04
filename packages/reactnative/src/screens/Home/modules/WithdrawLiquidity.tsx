@@ -10,8 +10,8 @@ import {
   useDeployedContractInfo,
   useERC20Balance,
   useNetwork,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import { COLORS } from '../../../utils/constants';
 import { parseBalance } from '../../../utils/eth-mobile';
@@ -25,18 +25,23 @@ export default function WithdrawLiquidity() {
   const network = useNetwork();
   const account = useAccount();
   const { data: liquidity, refatch: refetchLiquidity } =
-    useScaffoldContractRead({
+    useScaffoldReadContract({
       contractName: 'DEX',
       functionName: 'liquidity',
-      args: [account.address]
+      args: [account.address],
+      watch: true
     });
   const { data: totalLiquidity, refatch: refetchTotalLiquidity } =
-    useScaffoldContractRead({
+    useScaffoldReadContract({
       contractName: 'DEX',
       functionName: 'totalLiquidity'
     });
-  const { data: dexContract } = useDeployedContractInfo('DEX');
-  const { data: balloonContract } = useDeployedContractInfo('Balloons');
+  const { data: dexContract } = useDeployedContractInfo({
+    contractName: 'DEX'
+  });
+  const { data: balloonContract } = useDeployedContractInfo({
+    contractName: 'Balloons'
+  });
 
   const { balance: ethReserve } = useBalance({
     // @ts-ignore
@@ -49,10 +54,10 @@ export default function WithdrawLiquidity() {
     watch: true
   });
 
-  const { write: withdraw } = useScaffoldContractWrite({
-    contractName: 'DEX',
-    functionName: 'withdraw'
-  });
+  const { writeContractAsync: writeDexContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'DEX'
+    });
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,7 +91,10 @@ export default function WithdrawLiquidity() {
 
       setIsLoading(true);
 
-      await withdraw({ args: [parseEther(withdrawAmount)] });
+      await writeDexContractAsync({
+        functionName: 'withdraw',
+        args: [parseEther(withdrawAmount)]
+      });
 
       toast.show('Withdrawal Successful!', { type: 'success' });
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import {
@@ -10,8 +10,12 @@ import { parseBalance } from '../../../utils/eth-mobile';
 import { FONT_SIZE } from '../../../utils/styles';
 
 export default function Liquidity() {
-  const { data: dexContract } = useDeployedContractInfo('DEX');
-  const { data: balloonContract } = useDeployedContractInfo('Balloons');
+  const { data: dexContract } = useDeployedContractInfo({
+    contractName: 'DEX'
+  });
+  const { data: balloonContract } = useDeployedContractInfo({
+    contractName: 'Balloons'
+  });
 
   const { balance: dexETHBalance } = useBalance({
     // @ts-ignore
@@ -24,9 +28,6 @@ export default function Liquidity() {
     watch: true
   });
 
-  useEffect(() => {
-    console.log('balloonContract: ', balloonContract);
-  }, [balloonContract]);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Liquidity</Text>

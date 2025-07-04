@@ -9,7 +9,7 @@ import {
   useBalance,
   useDeployedContractInfo,
   useERC20Balance,
-  useScaffoldContractWrite
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import { COLORS } from '../../../utils/constants';
 import { parseBalance } from '../../../utils/eth-mobile';
@@ -17,8 +17,12 @@ import { FONT_SIZE } from '../../../utils/styles';
 
 export default function ProvideLiquidity() {
   const account = useAccount();
-  const { data: dexContract } = useDeployedContractInfo('DEX');
-  const { data: balloonContract } = useDeployedContractInfo('Balloons');
+  const { data: dexContract } = useDeployedContractInfo({
+    contractName: 'DEX'
+  });
+  const { data: balloonContract } = useDeployedContractInfo({
+    contractName: 'Balloons'
+  });
 
   const { balance: ethBalance } = useBalance({
     address: account.address,
@@ -43,15 +47,15 @@ export default function ProvideLiquidity() {
   const [ethAmount, setEthAmount] = useState('');
   const [balloonAmount, setBalloonAmount] = useState<bigint | null>();
 
-  const { write: deposit } = useScaffoldContractWrite({
-    contractName: 'DEX',
-    functionName: 'deposit'
-  });
+  const { writeContractAsync: writeDexContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'DEX'
+    });
 
-  const { write: approve } = useScaffoldContractWrite({
-    contractName: 'Balloons',
-    functionName: 'approve'
-  });
+  const { writeContractAsync: writeBalloonsContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'Balloons'
+    });
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -87,13 +91,17 @@ export default function ProvideLiquidity() {
 
       setIsLoading(true);
 
-      await approve({
+      await writeBalloonsContractAsync({
+        functionName: 'approve',
         args: [dexContract?.address, balloonAmount + 1n]
       });
 
       toast.show('Token Approval Successful!', { type: 'success' });
 
-      await deposit({ value: parseEther(ethAmount) });
+      await writeDexContractAsync({
+        functionName: 'deposit',
+        value: parseEther(ethAmount)
+      });
 
       toast.show('Deposit Successful!', { type: 'success' });
 

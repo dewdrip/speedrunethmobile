@@ -10,7 +10,9 @@ import SwapForm from './modules/SwapForm';
 import WithdrawLiquidity from './modules/WithdrawLiquidity';
 
 export default function Home() {
-  const { data: dexContract } = useDeployedContractInfo('DEX');
+  const { data: dexContract } = useDeployedContractInfo({
+    contractName: 'DEX'
+  });
 
   return (
     <ScrollView style={styles.container}>
