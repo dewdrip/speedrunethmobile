@@ -1,0 +1,143 @@
+{
+  "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "image",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "attributes",
+          "type": "string"
+        }
+      ],
+      "name": "generateSVGTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "external_url",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "image",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "attributes",
+          "type": "string"
+        }
+      ],
+      "name": "generateSVGTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "image",
+          "type": "string"
+        }
+      ],
+      "name": "generateSVGTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x8ca8d7b3ac7d92082e57098f0eaf542cbef4f18c59b0ca8321cd87fd064325c4",
+  "receipt": {
+    "to": null,
+    "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "contractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "transactionIndex": 0,
+    "gasUsed": "493021",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x28dec9545d22fb4ef99925c093a5c3b85b2704a180e69c0b8ad7f39299410e85",
+    "transactionHash": "0x8ca8d7b3ac7d92082e57098f0eaf542cbef4f18c59b0ca8321cd87fd064325c4",
+    "logs": [],
+    "blockNumber": 1,
+    "cumulativeGasUsed": "493021",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "f7c322bb55226d6d888297f97025c99b",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.28+commit.7893614a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"image\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"attributes\",\"type\":\"string\"}],\"name\":\"generateSVGTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"external_url\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"image\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"attributes\",\"type\":\"string\"}],\"name\":\"generateSVGTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"image\",\"type\":\"string\"}],\"name\":\"generateSVGTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/libraries/utils/TokenURIGen.sol\":\"TokenURIGen\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"base64-sol/base64.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/// @title Base64\\n/// @author Brecht Devos - <brecht@loopring.org>\\n/// @notice Provides a function for encoding some bytes in base64\\nlibrary Base64 {\\n    string internal constant TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';\\n\\n    function encode(bytes memory data) internal pure returns (string memory) {\\n        if (data.length == 0) return '';\\n        \\n        // load the table into memory\\n        string memory table = TABLE;\\n\\n        // multiply by 4/3 rounded up\\n        uint256 encodedLen = 4 * ((data.length + 2) / 3);\\n\\n        // add some extra buffer at the end required for the writing\\n        string memory result = new string(encodedLen + 32);\\n\\n        assembly {\\n            // set the actual output length\\n            mstore(result, encodedLen)\\n            \\n            // prepare the lookup table\\n            let tablePtr := add(table, 1)\\n            \\n            // input ptr\\n            let dataPtr := data\\n            let endPtr := add(dataPtr, mload(data))\\n            \\n            // result ptr, jump over length\\n            let resultPtr := add(result, 32)\\n            \\n            // run over the input, 3 bytes at a time\\n            for {} lt(dataPtr, endPtr) {}\\n            {\\n               dataPtr := add(dataPtr, 3)\\n               \\n               // read 3 bytes\\n               let input := mload(dataPtr)\\n               \\n               // write 4 characters\\n               mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr(18, input), 0x3F)))))\\n               resultPtr := add(resultPtr, 1)\\n               mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr(12, input), 0x3F)))))\\n               resultPtr := add(resultPtr, 1)\\n               mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr( 6, input), 0x3F)))))\\n               resultPtr := add(resultPtr, 1)\\n               mstore(resultPtr, shl(248, mload(add(tablePtr, and(        input,  0x3F)))))\\n               resultPtr := add(resultPtr, 1)\\n            }\\n            \\n            // padding with '='\\n            switch mod(mload(data), 3)\\n            case 1 { mstore(sub(resultPtr, 2), shl(240, 0x3d3d)) }\\n            case 2 { mstore(sub(resultPtr, 1), shl(248, 0x3d)) }\\n        }\\n        \\n        return result;\\n    }\\n}\\n\",\"keccak256\":\"0x0c8ad17afea99676d4dbab1857f52a7660b67602a79d03abd0a4c742074bbeb3\",\"license\":\"MIT\"},\"contracts/libraries/utils/TokenURIGen.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.18;\\n\\nimport { Base64 } from \\\"base64-sol/base64.sol\\\";\\n\\nlibrary TokenURIGen {\\n    function generateSVGTokenURI(\\n        string calldata name,\\n        string calldata description,\\n        string calldata image\\n    ) external pure returns (string memory) {\\n        return\\n            string(\\n                abi.encodePacked(\\n                    \\\"data:application/json;base64,\\\",\\n                    Base64.encode(\\n                        bytes(\\n                            abi.encodePacked(\\n                                '{\\\"name\\\": \\\"',\\n                                name,\\n                                '\\\", \\\"description\\\": \\\"',\\n                                description,\\n                                '\\\", \\\"image\\\": \\\"data:image/svg+xml;base64,',\\n                                image,\\n                                '\\\"}'\\n                            )\\n                        )\\n                    )\\n                )\\n            );\\n    }\\n\\n    function generateSVGTokenURI(\\n        string calldata name,\\n        string calldata description,\\n        string calldata image,\\n        string calldata attributes\\n    ) external pure returns (string memory) {\\n        return\\n            string(\\n                abi.encodePacked(\\n                    \\\"data:application/json;base64,\\\",\\n                    Base64.encode(\\n                        bytes(\\n                            abi.encodePacked(\\n                                '{\\\"name\\\": \\\"',\\n                                name,\\n                                '\\\", \\\"description\\\": \\\"',\\n                                description,\\n                                '\\\", \\\"image\\\": \\\"data:image/svg+xml;base64,',\\n                                image,\\n                                '\\\", \\\"attributes\\\": ',\\n                                attributes,\\n                                \\\"}\\\"\\n                            )\\n                        )\\n                    )\\n                )\\n            );\\n    }\\n\\n    function generateSVGTokenURI(\\n        string calldata name,\\n        string calldata description,\\n        string calldata external_url,\\n        string calldata image,\\n        string calldata attributes\\n    ) external pure returns (string memory) {\\n        return\\n            string(\\n                abi.encodePacked(\\n                    \\\"data:application/json;base64,\\\",\\n                    Base64.encode(\\n                        bytes(\\n                            abi.encodePacked(\\n                                '{\\\"name\\\": \\\"',\\n                                name,\\n                                '\\\", \\\"description\\\": \\\"',\\n                                description,\\n                                '\\\", \\\"external_url\\\": \\\"',\\n                                external_url,\\n                                '\\\", \\\"image\\\": \\\"data:image/svg+xml;base64,',\\n                                image,\\n                                '\\\", \\\"attributes\\\": ',\\n                                attributes,\\n                                \\\"}\\\"\\n                            )\\n                        )\\n                    )\\n                )\\n            );\\n    }\\n}\\n\",\"keccak256\":\"0xc335553d0ea2887bb676b74da29818c333c9cec3b444e43a05a09633029dfb2d\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608080604052346019576107f4908161001f823930815050f35b600080fdfe6080604052600436101561001257600080fd5b60003560e01c806305fcedd514610047578063abb0e038146100425763dc29263e1461003d57600080fd5b610232565b610174565b60803660031901126100f3576004356001600160401b0381116100f3576100729036906004016100f8565b6024356001600160401b0381116100f3576100919036906004016100f8565b9190926044356001600160401b0381116100f3576100b39036906004016100f8565b90606435946001600160401b0386116100f3576100ef966100db6100e39736906004016100f8565b96909561040c565b60405191829182610148565b0390f35b600080fd5b9181601f840112156100f3578235916001600160401b0383116100f357602083818601950101116100f357565b60005b8381106101385750506000910152565b8181015183820152602001610128565b604091602082526101688151809281602086015260208686019101610125565b601f01601f1916010190565b60a03660031901126100f3576004356001600160401b0381116100f35761019f9036906004016100f8565b6024356001600160401b0381116100f3576101be9036906004016100f8565b9190926044356001600160401b0381116100f3576101e09036906004016100f8565b906064356001600160401b0381116100f3576102009036906004016100f8565b929091608435966001600160401b0388116100f3576100ef9861022a6100e39936906004016100f8565b98909761050a565b60603660031901126100f3576004356001600160401b0381116100f35761025d9036906004016100f8565b6024356001600160401b0381116100f35761027c9036906004016100f8565b604493919335926001600160401b0384116100f35761032960026100e39461032e946100ef98602a61030e60136102ba6103649c36906004016100f8565b9586949195818c6040519d8e9b8c6020693d913730b6b2911d101160b11b910152868d01378a019172111610113232b9b1b934b83a34b7b7111d101160691b85840152603d83013701010160008152610380565b9182370161227d60f01b815203601d198101845201826103cf565b6106ca565b6040517f646174613a6170706c69636174696f6e2f6a736f6e3b6261736536342c0000006020820152928391603d8301906103f5565b03601f1981018352826103cf565b908092918237016000815290565b7f222c2022696d616765223a2022646174613a696d6167652f7376672b786d6c3b81526618985cd94d8d0b60ca1b602082015260270190565b634e487b7160e01b600052604160045260246000fd5b90601f801991011681019081106001600160401b038211176103f057604052565b6103b9565b9061040860209282815194859201610125565b0190565b959492839197949281896040519a8b9a693d913730b6b2911d101160b11b60208d0152602a8c013789019172111610113232b9b1b934b83a34b7b7111d101160691b602a840152603d83013701602a016013016000815261046c90610380565b9182377001116101130ba3a3934b13aba32b9911d1607d1b91019081526011015b9061049792610372565b607d60f81b815260010103601f19810182526104b390826103cf565b6104bc906106ca565b6040517f646174613a6170706c69636174696f6e2f6a736f6e3b6261736536342c0000006020820152908190603d82016104f5916103f5565b03601f198101825261050790826103cf565b90565b979693929098959491818a6040519b8c9b8c693d913730b6b2911d101160b11b9060200152602a8d01378a019172111610113232b9b1b934b83a34b7b7111d101160691b602a840152603d83013701602a01731116101132bc3a32b93730b62fbab936111d101160611b60138201526027019061058692610372565b61058f90610380565b9061059992610372565b7001116101130ba3a3934b13aba32b9911d1607d1b815260110161048d565b6001600160401b0381116103f057601f01601f191660200190565b604051906105e26020836103cf565b60008252565b604051906105f76060836103cf565b604082527f6768696a6b6c6d6e6f707172737475767778797a303132333435363738392b2f6040837f4142434445464748494a4b4c4d4e4f505152535455565758595a61626364656660208201520152565b634e487b7160e01b600052601160045260246000fd5b906002820180921161066d57565b610649565b906020820180921161066d57565b600281901b91906001600160fe1b0381160361066d57565b906106a2826105b8565b6106af60405191826103cf565b82815280926106c0601f19916105b8565b0190602036910137565b8051156107b5576106d96105e8565b6106f56106f06106e9845161065f565b6003900490565b610680565b9161070761070284610672565b610698565b9283528091815182019060208501935b8281106107595750505060039051068060011461074857600214610739575090565b603d60f81b6000199091015290565b50613d3d60f01b6001199091015290565b60036004919592939501916001603f845182828260121c168801015160f81b8452828282600c1c168801015160f81b8385015282828260061c168801015160f81b6002850152168501015160f81b600382015201939190610717565b506105076105d356fea264697066735822122066180665089f49c19ff1c7fbc0a867247819634c934931f1e8f6f41b91e1ddee64736f6c634300081c0033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c806305fcedd514610047578063abb0e038146100425763dc29263e1461003d57600080fd5b610232565b610174565b60803660031901126100f3576004356001600160401b0381116100f3576100729036906004016100f8565b6024356001600160401b0381116100f3576100919036906004016100f8565b9190926044356001600160401b0381116100f3576100b39036906004016100f8565b90606435946001600160401b0386116100f3576100ef966100db6100e39736906004016100f8565b96909561040c565b60405191829182610148565b0390f35b600080fd5b9181601f840112156100f3578235916001600160401b0383116100f357602083818601950101116100f357565b60005b8381106101385750506000910152565b8181015183820152602001610128565b604091602082526101688151809281602086015260208686019101610125565b601f01601f1916010190565b60a03660031901126100f3576004356001600160401b0381116100f35761019f9036906004016100f8565b6024356001600160401b0381116100f3576101be9036906004016100f8565b9190926044356001600160401b0381116100f3576101e09036906004016100f8565b906064356001600160401b0381116100f3576102009036906004016100f8565b929091608435966001600160401b0388116100f3576100ef9861022a6100e39936906004016100f8565b98909761050a565b60603660031901126100f3576004356001600160401b0381116100f35761025d9036906004016100f8565b6024356001600160401b0381116100f35761027c9036906004016100f8565b604493919335926001600160401b0384116100f35761032960026100e39461032e946100ef98602a61030e60136102ba6103649c36906004016100f8565b9586949195818c6040519d8e9b8c6020693d913730b6b2911d101160b11b910152868d01378a019172111610113232b9b1b934b83a34b7b7111d101160691b85840152603d83013701010160008152610380565b9182370161227d60f01b815203601d198101845201826103cf565b6106ca565b6040517f646174613a6170706c69636174696f6e2f6a736f6e3b6261736536342c0000006020820152928391603d8301906103f5565b03601f1981018352826103cf565b908092918237016000815290565b7f222c2022696d616765223a2022646174613a696d6167652f7376672b786d6c3b81526618985cd94d8d0b60ca1b602082015260270190565b634e487b7160e01b600052604160045260246000fd5b90601f801991011681019081106001600160401b038211176103f057604052565b6103b9565b9061040860209282815194859201610125565b0190565b959492839197949281896040519a8b9a693d913730b6b2911d101160b11b60208d0152602a8c013789019172111610113232b9b1b934b83a34b7b7111d101160691b602a840152603d83013701602a016013016000815261046c90610380565b9182377001116101130ba3a3934b13aba32b9911d1607d1b91019081526011015b9061049792610372565b607d60f81b815260010103601f19810182526104b390826103cf565b6104bc906106ca565b6040517f646174613a6170706c69636174696f6e2f6a736f6e3b6261736536342c0000006020820152908190603d82016104f5916103f5565b03601f198101825261050790826103cf565b90565b979693929098959491818a6040519b8c9b8c693d913730b6b2911d101160b11b9060200152602a8d01378a019172111610113232b9b1b934b83a34b7b7111d101160691b602a840152603d83013701602a01731116101132bc3a32b93730b62fbab936111d101160611b60138201526027019061058692610372565b61058f90610380565b9061059992610372565b7001116101130ba3a3934b13aba32b9911d1607d1b815260110161048d565b6001600160401b0381116103f057601f01601f191660200190565b604051906105e26020836103cf565b60008252565b604051906105f76060836103cf565b604082527f6768696a6b6c6d6e6f707172737475767778797a303132333435363738392b2f6040837f4142434445464748494a4b4c4d4e4f505152535455565758595a61626364656660208201520152565b634e487b7160e01b600052601160045260246000fd5b906002820180921161066d57565b610649565b906020820180921161066d57565b600281901b91906001600160fe1b0381160361066d57565b906106a2826105b8565b6106af60405191826103cf565b82815280926106c0601f19916105b8565b0190602036910137565b8051156107b5576106d96105e8565b6106f56106f06106e9845161065f565b6003900490565b610680565b9161070761070284610672565b610698565b9283528091815182019060208501935b8281106107595750505060039051068060011461074857600214610739575090565b603d60f81b6000199091015290565b50613d3d60f01b6001199091015290565b60036004919592939501916001603f845182828260121c168801015160f81b8452828282600c1c168801015160f81b8385015282828260061c168801015160f81b6002850152168501015160f81b600382015201939190610717565b506105076105d356fea264697066735822122066180665089f49c19ff1c7fbc0a867247819634c934931f1e8f6f41b91e1ddee64736f6c634300081c0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
