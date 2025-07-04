@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount, useNetwork } from '.';
 import { Account } from '../../store/reducers/Wallet';
+import { getParsedError } from '../../utils/eth-mobile';
 
-interface UseContractReadConfig {
+interface UseReadContractConfig {
   abi?: InterfaceAbi;
   address?: string;
   functionName?: string;
@@ -23,7 +24,7 @@ interface ReadContractConfig {
 
 type ReadContractResult = any | any[] | null;
 
-export function useContractRead({
+export function useReadContract({
   abi,
   address,
   functionName,
@@ -31,7 +32,7 @@ export function useContractRead({
   enabled = true,
   watch = false,
   onError
-}: Partial<UseContractReadConfig> = {}) {
+}: Partial<UseReadContractConfig> = {}) {
   const network = useNetwork();
   const connectedAccount = useAccount();
   const wallet = useSelector((state: any) => state.wallet);
@@ -71,10 +72,10 @@ export function useContractRead({
 
       return result;
     } catch (error) {
-      setError(error);
+      setError(getParsedError(error));
 
       if (onError) {
-        onError(error);
+        onError(getParsedError(error));
       }
     } finally {
       setIsLoading(false);
@@ -105,7 +106,7 @@ export function useContractRead({
 
       return result;
     } catch (error) {
-      console.error(error);
+      console.error(getParsedError(error));
     } finally {
       setIsLoading(false);
     }

@@ -2,7 +2,7 @@ import { formatEther } from 'ethers';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
-import { useAccount, useScaffoldContractRead } from '../../../hooks/eth-mobile';
+import { useAccount, useScaffoldReadContract } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { FONT_SIZE } from '../../../utils/styles';
 
@@ -11,7 +11,7 @@ const tokenName = 'CORN';
 const TokenActions = () => {
   const { address } = useAccount();
 
-  const { data: cornBalance } = useScaffoldContractRead({
+  const { data: cornBalance } = useScaffoldReadContract({
     contractName: 'Corn',
     functionName: 'balanceOf',
     args: [address],

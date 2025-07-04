@@ -4,8 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import { Card, DataTable, Text } from 'react-native-paper';
 import {
   useAccount,
-  useScaffoldContractRead,
-  useScaffoldEventHistory
+  useScaffoldEventHistory,
+  useScaffoldReadContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -26,7 +26,7 @@ const UserPositionsTable = () => {
     receiptData: false
   });
 
-  const { data: ethPrice } = useScaffoldContractRead({
+  const { data: ethPrice } = useScaffoldReadContract({
     contractName: 'CornDEX',
     functionName: 'currentPrice'
   });

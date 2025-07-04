@@ -1,12 +1,12 @@
 import { formatEther } from 'ethers';
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Button, DataTable, Text } from 'react-native-paper';
+import { Pressable, StyleSheet } from 'react-native';
+import { DataTable, Text } from 'react-native-paper';
 import { Address } from '../../../components/eth-mobile';
 import {
   useDeployedContractInfo,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -34,34 +34,34 @@ const UserPosition = ({
   ethPrice,
   connectedAddress
 }: UserPositionProps) => {
-  const { data: userCollateral } = useScaffoldContractRead({
+  const { data: userCollateral } = useScaffoldReadContract({
     contractName: 'Lending',
     functionName: 's_userCollateral',
     args: [user]
   });
 
-  const { data: userBorrowed } = useScaffoldContractRead({
+  const { data: userBorrowed } = useScaffoldReadContract({
     contractName: 'Lending',
     functionName: 's_userBorrowed',
     args: [user]
   });
 
-  const { data: basicLendingContract } = useDeployedContractInfo('Lending');
+  const { data: basicLendingContract } = useDeployedContractInfo({
+    contractName: 'Lending'
+  });
 
-  const { data: allowance } = useScaffoldContractRead({
+  const { data: allowance } = useScaffoldReadContract({
     contractName: 'Corn',
     functionName: 'allowance',
     args: [user, basicLendingContract?.address]
   });
 
-  const { write: writeLendingContract } = useScaffoldContractWrite({
-    contractName: 'Lending',
-    functionName: 'liquidate'
+  const { writeContract: writeLendingContract } = useScaffoldWriteContract({
+    contractName: 'Lending'
   });
 
-  const { write: writeCornContract } = useScaffoldContractWrite({
-    contractName: 'Corn',
-    functionName: 'approve'
+  const { writeContract: writeCornContract } = useScaffoldWriteContract({
+    contractName: 'Corn'
   });
 
   const borrowedAmount = Number(formatEther(userBorrowed || 0n));
@@ -86,10 +86,12 @@ const UserPosition = ({
     try {
       if (allowance < userBorrowed) {
         await writeCornContract({
+          functionName: 'approve',
           args: [basicLendingContract?.address, userBorrowed]
         });
       }
       await writeLendingContract({
+        functionName: 'liquidate',
         args: [user]
       });
 

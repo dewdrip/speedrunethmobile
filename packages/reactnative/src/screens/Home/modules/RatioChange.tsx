@@ -2,7 +2,7 @@ import { formatEther } from 'ethers';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useScaffoldContractRead } from '../../../hooks/eth-mobile';
+import { useScaffoldReadContract } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import {
   calculatePositionRatio,
@@ -17,13 +17,13 @@ type UserPositionProps = {
 };
 
 const RatioChange = ({ user, ethPrice, inputAmount }: UserPositionProps) => {
-  const { data: userCollateral } = useScaffoldContractRead({
+  const { data: userCollateral } = useScaffoldReadContract({
     contractName: 'Lending',
     functionName: 's_userCollateral',
     args: [user]
   });
 
-  const { data: userBorrowed } = useScaffoldContractRead({
+  const { data: userBorrowed } = useScaffoldReadContract({
     contractName: 'Lending',
     functionName: 's_userBorrowed',
     args: [user]

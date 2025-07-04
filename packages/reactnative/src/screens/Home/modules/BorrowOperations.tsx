@@ -6,8 +6,8 @@ import { IntegerInput } from '../../../components/eth-mobile';
 import {
   useAccount,
   useDeployedContractInfo,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -22,29 +22,26 @@ const BorrowOperations = () => {
 
   const { address } = useAccount();
 
-  const { data: ethPrice } = useScaffoldContractRead({
+  const { data: ethPrice } = useScaffoldReadContract({
     contractName: 'CornDEX',
     functionName: 'currentPrice'
   });
 
-  const { data: basicLendingContract } = useDeployedContractInfo('Lending');
-
-  const { write: writeLendingContract } = useScaffoldContractWrite({
-    contractName: 'Lending',
-    functionName: 'borrowCorn'
+  const { data: basicLendingContract } = useDeployedContractInfo({
+    contractName: 'Lending'
   });
 
-  const { write: writeRepayContract } = useScaffoldContractWrite({
-    contractName: 'Lending',
-    functionName: 'repayCorn'
-  });
+  const { writeContractAsync: writeLendingContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'Lending'
+    });
 
-  const { write: writeCornContract } = useScaffoldContractWrite({
-    contractName: 'Corn',
-    functionName: 'approve'
-  });
+  const { writeContractAsync: writeCornContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'Corn'
+    });
 
-  const { data: allowance } = useScaffoldContractRead({
+  const { data: allowance } = useScaffoldReadContract({
     contractName: 'Corn',
     functionName: 'allowance',
     args: [address, basicLendingContract?.address]
@@ -60,7 +57,8 @@ const BorrowOperations = () => {
 
   const handleBorrow = async () => {
     try {
-      await writeLendingContract({
+      await writeLendingContractAsync({
+        functionName: 'borrowCorn',
         args: [borrowAmount ? parseEther(borrowAmount) : 0n]
       });
       setBorrowAmount('');
@@ -80,12 +78,14 @@ const BorrowOperations = () => {
       const repayAmountWei = repayAmount ? parseEther(repayAmount) : 0n;
       if (allowance < repayAmountWei) {
         console.log('Approving corn contract');
-        await writeCornContract({
+        await writeCornContractAsync({
+          functionName: 'approve',
           args: [basicLendingContract?.address, repayAmountWei]
         });
       }
       console.log('Repaying corn');
-      await writeRepayContract({
+      await writeLendingContractAsync({
+        functionName: 'repayCorn',
         args: [repayAmountWei]
       });
       setRepayAmount('');

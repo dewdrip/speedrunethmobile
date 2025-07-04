@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Card, Text } from 'react-native-paper';
 import { IntegerInput } from '../../../components/eth-mobile';
-import { useScaffoldContractWrite } from '../../../hooks/eth-mobile';
+import { useScaffoldWriteContract } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
 import { FONT_SIZE } from '../../../utils/styles';
@@ -12,14 +12,8 @@ const CollateralOperations = () => {
   const [collateralAmount, setCollateralAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
 
-  const { write: writeLendingContract } = useScaffoldContractWrite({
-    contractName: 'Lending',
-    functionName: 'addCollateral'
-  });
-
-  const { write: writeWithdrawContract } = useScaffoldContractWrite({
-    contractName: 'Lending',
-    functionName: 'withdrawCollateral'
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: 'Lending'
   });
 
   const handleCollateralAmountChange = (value: string | bigint) => {
@@ -32,7 +26,8 @@ const CollateralOperations = () => {
 
   const handleAddCollateral = async () => {
     try {
-      await writeLendingContract({
+      await writeContractAsync({
+        functionName: 'addCollateral',
         value: collateralAmount ? parseEther(collateralAmount) : 0n
       });
       setCollateralAmount('');
@@ -43,7 +38,8 @@ const CollateralOperations = () => {
 
   const handleWithdrawCollateral = async () => {
     try {
-      await writeWithdrawContract({
+      await writeContractAsync({
+        functionName: 'withdrawCollateral',
         args: [withdrawAmount ? parseEther(withdrawAmount) : 0n]
       });
       setWithdrawAmount('');

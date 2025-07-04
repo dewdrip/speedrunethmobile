@@ -5,8 +5,8 @@ import { Card, IconButton, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import {
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -15,15 +15,14 @@ import { FONT_SIZE } from '../../../utils/styles';
 const tokenName = 'CORN';
 
 const PriceActions = () => {
-  const { data: price } = useScaffoldContractRead({
+  const { data: price } = useScaffoldReadContract({
     contractName: 'CornDEX',
     functionName: 'currentPrice',
     watch: true
   });
 
-  const { write: writeContractAsync } = useScaffoldContractWrite({
-    contractName: 'MovePrice',
-    functionName: 'movePrice'
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: 'MovePrice'
   });
 
   const priceOfOneCORN = price
@@ -51,6 +50,7 @@ const PriceActions = () => {
 
     try {
       await writeContractAsync({
+        functionName: 'movePrice',
         args: [amountToSell]
       });
     } catch (e) {
