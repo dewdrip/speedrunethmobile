@@ -2181,7 +2181,7 @@ __metadata:
     "@nomicfoundation/hardhat-ethers": ^3.0.5
     "@nomicfoundation/hardhat-network-helpers": ^1.0.6
     "@nomicfoundation/hardhat-verify": ^2.0.3
-    "@openzeppelin/contracts": ^4.8.1
+    "@openzeppelin/contracts": 4.9.5
     "@typechain/ethers-v6": ^0.5.1
     "@typechain/hardhat": ^9.1.0
     "@types/eslint": ^8
@@ -3564,10 +3564,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.8.1":
-  version: 4.9.6
-  resolution: "@openzeppelin/contracts@npm:4.9.6"
-  checksum: 274b6e968268294f12d5ca4f0278f6e6357792c8bb4d76664f83dbdc325f780541538a127e6a6e97e4f018088b42f65952014dec9c745c0fa25081f43ef9c4bf
+"@openzeppelin/contracts@npm:4.9.5":
+  version: 4.9.5
+  resolution: "@openzeppelin/contracts@npm:4.9.5"
+  checksum: 2cddeb08c006a8f99c5cc40cc80aecb449fd941cd1a92ebda315d77f48c4b4d487798a1254bffbc3ec811b390365d14665e92dbb2dd8f45aacef479d69d94574
   languageName: node
   linkType: hard
 
