@@ -1,168 +1,202 @@
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
-// @ts-ignore
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { ethers, InterfaceAbi } from 'ethers';
+import React, { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Text } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
+import CustomButton from '../../components/buttons/CustomButton';
+import { CopyableText } from '../../components/eth-mobile';
+import SnowmanList from '../../components/SnowmanList';
+import {
+  useAccount,
+  useDeployedContractInfo,
+  useNetwork,
+  useScaffoldContractWrite
+} from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
+import { truncateAddress } from '../../utils/eth-mobile';
+import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {};
-
-function HighlightedText({ children }: { children: string }) {
-  return (
-    <View
-      style={{ backgroundColor: COLORS.primaryLight, paddingHorizontal: 4 }}
-    >
-      <Text
-        style={{
-          textAlign: 'center',
-          fontSize: FONT_SIZE['md'],
-          ...globalStyles.text
-        }}
-      >
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-export default function Home({}: Props) {
+export default function Home() {
+  const toast = useToast();
+  const account = useAccount();
+  const network = useNetwork();
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
 
+  const { data: snowmanContract, isLoading: isLoadingSnowmanContract } =
+    useDeployedContractInfo('Snowman');
+
+  const { write: mintSnowman } = useScaffoldContractWrite({
+    contractName: 'Snowman',
+    functionName: 'mint',
+    value: ethers.parseEther('0.02'),
+    gasLimit: BigInt('500000')
+  });
+
+  const [balance, setBalance] = useState(0);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMinting, setIsMinting] = useState(false);
+
+  const mint = async () => {
+    try {
+      setIsMinting(true);
+      await mintSnowman();
+
+      setBalance(balance + 1);
+      toast.show('Minted One(1) Snowman☃️', { type: 'success' });
+    } catch (error) {
+      toast.show(JSON.stringify(error), { type: 'danger' });
+      console.log('Minting Error: ', error);
+    } finally {
+      setIsMinting(false);
+    }
+  };
+
+  const getSnowmanBalance = async () => {
+    try {
+      if (isLoadingSnowmanContract) return;
+      if (!snowmanContract) {
+        toast.show('Loading resources');
+        return;
+      }
+
+      setIsLoadingBalance(true);
+
+      const provider = new ethers.JsonRpcProvider(network.provider);
+
+      const snowman = new ethers.Contract(
+        snowmanContract.address,
+        snowmanContract.abi as InterfaceAbi,
+        provider
+      );
+      const balance = await snowman.balanceOf(account.address);
+      setBalance(Number(balance));
+    } catch (error) {
+      console.error(error);
+      return;
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
+
+  const refreshBalance = async () => {
+    setIsRefreshing(true);
+    await getSnowmanBalance();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    if (!isFocused) return;
+    getSnowmanBalance();
+  }, [account, network, isLoadingSnowmanContract, isFocused]);
+
+  if (!isFocused) return;
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 10 }}
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={false}
+          onRefresh={refreshBalance}
+          colors={[COLORS.primary]}
+          tintColor={COLORS.primary}
+        />
+      }
     >
-      <View style={{ paddingVertical: 32, alignItems: 'center' }}>
-        <Text variant="headlineSmall" style={globalStyles.text}>
-          Welcome to
-        </Text>
-        <Text variant="displaySmall" style={globalStyles.textSemiBold}>
-          ETH Mobile
+      <View style={styles.surface}>
+        <Text style={styles.lightText}>Do you wanna build a</Text>
+        <Text style={styles.boldText}>Snowman☃️</Text>
+        {!!snowmanContract && (
+          <CopyableText
+            displayText={truncateAddress(snowmanContract.address)}
+            value={snowmanContract.address}
+            containerStyle={styles.addressContainer}
+            textStyle={styles.addressText}
+            iconStyle={{ color: COLORS.primary }}
+          />
+        )}
+
+        <Text style={styles.centerText}>
+          Mint a unique Snowman☃️ for{' '}
+          <Text style={{ color: COLORS.primary }}>0.02 ETH</Text>
         </Text>
 
-        <Text
-          style={{
-            marginTop: 16,
-            marginBottom: 4,
-            fontSize: FONT_SIZE['lg'],
-            ...globalStyles.text
-          }}
-        >
-          Get started by editing
-        </Text>
-        <HighlightedText>
-          packages/reactnative/src/screens/Dashboard/Tab/Home.tsx
-        </HighlightedText>
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            text="Mint"
+            onPress={mint}
+            style={styles.button}
+            loading={isMinting}
+          />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            marginTop: 16,
-            marginBottom: 4,
-            gap: 4,
-            maxWidth: '100%'
-          }}
-        >
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            Edit your smart contract
-          </Text>
-          <HighlightedText>YourContract.sol</HighlightedText>
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            in
-          </Text>
+          <CustomButton
+            text="Accessories"
+            type="outline"
+            onPress={() => navigation.navigate('Accessories' as never)}
+            style={styles.button}
+          />
         </View>
-        <HighlightedText>packages/hardhat/contracts</HighlightedText>
       </View>
 
-      <View style={styles.featuresContainer}>
-        {/* Contract Debugger */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="bug-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Tinker with your smart contracts using the
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('DebugContracts')}
-              >
-                {' '}
-                DebugContracts{' '}
-              </Text>
-              tab
-            </Text>
-          </Card.Content>
-        </Card>
-
-        {/* Wallet */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="wallet-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Manage your accounts, funds, and tokens in your
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('Wallet')}
-              >
-                {' '}
-                Wallet
-              </Text>
-            </Text>
-          </Card.Content>
-        </Card>
-      </View>
+      {isLoadingBalance && !isRefreshing ? (
+        <ActivityIndicator color={COLORS.primary} />
+      ) : (
+        <SnowmanList balance={balance} />
+      )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  featuresContainer: {
+  container: {
     flex: 1,
-    padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20
-  },
-  feature: {
-    paddingVertical: 32,
-    width: '90%',
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: 24,
     backgroundColor: 'white',
-    gap: 24
+    paddingHorizontal: 10
   },
-  featureCaption: {
+  surface: {
+    padding: 32,
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+  lightText: {
+    ...globalStyles.text,
+    fontSize: FONT_SIZE.md
+  },
+  boldText: {
+    ...globalStyles.textMedium,
+    fontSize: FONT_SIZE.xl,
+    marginLeft: 15
+  },
+  addressContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 2,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 24
+  },
+  addressText: {
+    fontSize: FONT_SIZE['md'],
+    ...globalStyles.textMedium,
+    marginBottom: -2,
+    color: COLORS.primary
+  },
+  centerText: {
     textAlign: 'center',
-    width: WINDOW_WIDTH * 0.6,
-    fontSize: FONT_SIZE['lg'],
-    ...globalStyles.text
+    marginTop: 16,
+    ...globalStyles.text,
+    fontSize: FONT_SIZE.md,
+    maxWidth: '70%'
   },
-  featureLink: {
-    textDecorationLine: 'underline',
-    fontSize: FONT_SIZE['lg'],
-    ...globalStyles.textSemiBold
+  button: {
+    width: '50%',
+    marginTop: 10
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: 10
   }
 });
