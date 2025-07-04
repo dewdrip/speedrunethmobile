@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployFunction } from 'hardhat-deploy/types';
+import { Contract } from 'ethers';
 
 /**
  * Deploys a contract named "YourCollectible" using the deployer account and
@@ -8,7 +8,9 @@ import { Contract } from "ethers";
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployYourCollectible: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployYourCollectible: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -22,22 +24,25 @@ const deployYourCollectible: DeployFunction = async function (hre: HardhatRuntim
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("YourCollectible", {
+  await deploy('YourCollectible', {
     from: deployer,
     // Contract constructor arguments
     args: [],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
+    autoMine: true
   });
 
   // Get the deployed contract to interact with it after deploying.
-  const yourCollectible = await hre.ethers.getContract<Contract>("YourCollectible", deployer);
+  const yourCollectible = await hre.ethers.getContract<Contract>(
+    'YourCollectible',
+    deployer
+  );
 };
 
 export default deployYourCollectible;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourCollectible
-deployYourCollectible.tags = ["YourCollectible"];
+deployYourCollectible.tags = ['YourCollectible'];

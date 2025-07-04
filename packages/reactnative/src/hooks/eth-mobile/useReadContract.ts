@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount, useNetwork } from '.';
 import { Account } from '../../store/reducers/Wallet';
+import { getParsedError } from '../../utils/eth-mobile';
 
-interface UseContractReadConfig {
+interface UseReadContractConfig {
   abi?: InterfaceAbi;
   address?: string;
   functionName?: string;
   args?: any[];
   enabled?: boolean;
+  watch?: boolean;
   onError?: (error: any) => void;
 }
 
@@ -20,23 +22,26 @@ interface ReadContractConfig {
   args?: any[];
 }
 
-export function useContractRead({
+type ReadContractResult = any | any[] | null;
+
+export function useReadContract({
   abi,
   address,
   functionName,
   args,
   enabled = true,
+  watch = false,
   onError
-}: Partial<UseContractReadConfig> = {}) {
+}: Partial<UseReadContractConfig> = {}) {
   const network = useNetwork();
   const connectedAccount = useAccount();
   const wallet = useSelector((state: any) => state.wallet);
 
-  const [data, setData] = useState<any | null>(null);
+  const [data, setData] = useState<ReadContractResult>(null);
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<any>(null);
 
-  async function fetchData() {
+  async function fetchData(): Promise<ReadContractResult> {
     if (!abi || !address || !functionName) {
       console.warn(
         'Missing required parameters: abi, address, or functionName'
@@ -67,10 +72,10 @@ export function useContractRead({
 
       return result;
     } catch (error) {
-      setError(error);
+      setError(getParsedError(error));
 
       if (onError) {
-        onError(error);
+        onError(getParsedError(error));
       }
     } finally {
       setIsLoading(false);
@@ -101,17 +106,30 @@ export function useContractRead({
 
       return result;
     } catch (error) {
-      console.error(error);
+      console.error(getParsedError(error));
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    if (enabled) {
-      fetchData();
+    if (!enabled) return;
+
+    const provider = new JsonRpcProvider(network.provider);
+
+    provider.off('block');
+
+    fetchData();
+
+    if (watch) {
+      provider.on('block', blockNumber => {
+        fetchData();
+      });
     }
-  }, [enabled]);
+    return () => {
+      provider.off('block');
+    };
+  }, [enabled, watch, network]);
 
   return {
     data,

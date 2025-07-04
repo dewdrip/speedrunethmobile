@@ -6,8 +6,8 @@ import CustomButton from '../../components/buttons/CustomButton';
 import MyHoldings from '../../components/MyHoldings';
 import {
   useAccount,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import useJSONUploader from '../../hooks/useJSONUploader';
 import globalStyles from '../../styles/globalStyles';
@@ -16,12 +16,11 @@ import nftsMetadata from '../../utils/simpleNFT/nftsMetadata';
 export default function Home() {
   const { address: connectedAddress } = useAccount();
 
-  const { write: mintItem } = useScaffoldContractWrite({
-    contractName: 'YourCollectible',
-    functionName: 'mintItem'
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: 'YourCollectible'
   });
 
-  const { data: tokenIdCounter } = useScaffoldContractRead({
+  const { data: tokenIdCounter } = useScaffoldReadContract({
     contractName: 'YourCollectible',
     functionName: 'tokenIdCounter',
     watch: true
@@ -50,8 +49,14 @@ export default function Home() {
         placement: 'top'
       });
 
-      await mintItem({
+      await writeContractAsync({
+        functionName: 'mintItem',
         args: [connectedAddress, uploadedItem?.ipfsHash]
+      });
+
+      toast.show('NFT minted', {
+        type: 'success',
+        placement: 'top'
       });
     } catch (error) {
       toast.show('Error minting NFT', {

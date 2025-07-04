@@ -5,7 +5,7 @@ import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
   useScaffoldContract,
-  useScaffoldContractRead
+  useScaffoldReadContract
 } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
@@ -30,7 +30,7 @@ export default function MyHoldings() {
     contractName: 'YourCollectible'
   });
 
-  const { data: myTotalBalance } = useScaffoldContractRead({
+  const { data: myTotalBalance } = useScaffoldReadContract({
     contractName: 'YourCollectible',
     functionName: 'balanceOf',
     args: [connectedAddress],

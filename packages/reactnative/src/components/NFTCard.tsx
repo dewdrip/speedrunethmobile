@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import { useScaffoldContractWrite } from '../hooks/eth-mobile';
+import { useScaffoldWriteContract } from '../hooks/eth-mobile';
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
 import { WINDOW_WIDTH } from '../utils/styles';
@@ -17,9 +17,8 @@ interface NFTCardProps {
 export function NFTCard({ nft }: NFTCardProps) {
   const [transferToAddress, setTransferToAddress] = useState('');
   const toast = useToast();
-  const { write: transfer } = useScaffoldContractWrite({
-    contractName: 'YourCollectible',
-    functionName: 'transferFrom'
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: 'YourCollectible'
   });
 
   const [isTransferring, setIsTransferring] = useState(false);
@@ -27,7 +26,8 @@ export function NFTCard({ nft }: NFTCardProps) {
   const transferNFT = async () => {
     try {
       setIsTransferring(true);
-      await transfer({
+      await writeContractAsync({
+        functionName: 'transferFrom',
         args: [nft.owner, transferToAddress, BigInt(nft.id.toString())]
       });
       setTransferToAddress('');
