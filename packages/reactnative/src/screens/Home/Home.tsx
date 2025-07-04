@@ -1,7 +1,8 @@
 import { formatEther, parseEther } from 'ethers';
 import React from 'react';
-import { ScrollView, StyleSheet, TextStyle, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
 import CustomButton from '../../components/buttons/CustomButton';
 import { Address } from '../../components/eth-mobile';
 import {
@@ -9,12 +10,13 @@ import {
   useBalance,
   useDeployedContractInfo,
   useNetwork,
-  useScaffoldContractRead,
-  useScaffoldContractWrite,
-  useScaffoldEventHistory
+  useScaffoldEventHistory,
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { FONT_SIZE } from '../../utils/styles';
+import ETHToPrice from './modules/ETHToPrice';
 
 // Simple time formatting function
 const formatTimeLeft = (seconds: bigint | undefined): string => {
@@ -35,37 +37,14 @@ const formatTimeLeft = (seconds: bigint | undefined): string => {
   }
 };
 
-// ETH Price component
-const ETHToPrice = ({
-  value,
-  style
-}: {
-  value: string | undefined;
-  style?: TextStyle;
-}) => {
-  const network = useNetwork();
-
-  if (!value) {
-    return (
-      <Text style={[globalStyles.text, style]}>
-        {value || '0'} {network.currencySymbol}
-      </Text>
-    );
-  }
-
-  return (
-    <Text style={[globalStyles.text, style]}>
-      {value} {network.currencySymbol}
-    </Text>
-  );
-};
-
 export default function Home() {
   const { address: connectedAddress } = useAccount();
-  const { data: StakerContract } = useDeployedContractInfo('Staker');
-  const { data: ExampleExternalContact } = useDeployedContractInfo(
-    'ExampleExternalContract'
-  );
+  const { data: StakerContract } = useDeployedContractInfo({
+    contractName: 'Staker'
+  });
+  const { data: ExampleExternalContact } = useDeployedContractInfo({
+    contractName: 'ExampleExternalContract'
+  });
   const network = useNetwork();
 
   const { balance: stakerContractBalance } = useBalance({
@@ -78,23 +57,23 @@ export default function Home() {
   });
 
   // Contract Read Actions
-  const { data: threshold } = useScaffoldContractRead({
+  const { data: threshold } = useScaffoldReadContract({
     contractName: 'Staker',
     functionName: 'threshold',
     watch: true
   });
-  const { data: timeLeft } = useScaffoldContractRead({
+  const { data: timeLeft } = useScaffoldReadContract({
     contractName: 'Staker',
     functionName: 'timeLeft',
     watch: true
   });
-  const { data: myStake } = useScaffoldContractRead({
+  const { data: myStake } = useScaffoldReadContract({
     contractName: 'Staker',
     functionName: 'balances',
     args: [connectedAddress],
     watch: true
   });
-  const { data: isStakingCompleted } = useScaffoldContractRead({
+  const { data: isStakingCompleted } = useScaffoldReadContract({
     contractName: 'ExampleExternalContract',
     functionName: 'completed',
     watch: true
@@ -113,42 +92,64 @@ export default function Home() {
   const myStakeValue = getFirstValue(myStake);
   const isCompletedValue = getFirstValue(isStakingCompleted);
 
-  const { write: execute } = useScaffoldContractWrite({
-    contractName: 'Staker',
-    functionName: 'execute'
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: 'Staker'
   });
 
-  const { write: withdraw } = useScaffoldContractWrite({
-    contractName: 'Staker',
-    functionName: 'withdraw'
-  });
-
-  const { write: stake } = useScaffoldContractWrite({
-    contractName: 'Staker',
-    functionName: 'stake'
-  });
+  const toast = useToast();
 
   const handleExecute = async () => {
     try {
-      await execute();
+      await writeContractAsync({
+        functionName: 'execute'
+      });
+      toast.show('Successfully completed staking', {
+        type: 'success',
+        placement: 'top'
+      });
     } catch (err) {
       console.error('Error calling execute function: ', err);
+      toast.show(err as string, {
+        type: 'danger',
+        placement: 'top'
+      });
     }
   };
 
   const handleWithdraw = async () => {
     try {
-      await withdraw();
+      await writeContractAsync({
+        functionName: 'withdraw'
+      });
+      toast.show('Successfully withdrawn', {
+        type: 'success',
+        placement: 'top'
+      });
     } catch (err) {
       console.error('Error calling withdraw function: ', err);
+      toast.show(err as string, {
+        type: 'danger',
+        placement: 'top'
+      });
     }
   };
 
   const handleStake = async () => {
     try {
-      await stake({ value: parseEther('0.5') });
+      await writeContractAsync({
+        functionName: 'stake',
+        value: parseEther('0.5')
+      });
+      toast.show('Successfully staked', {
+        type: 'success',
+        placement: 'top'
+      });
     } catch (err) {
       console.error('Error calling stake function: ', err);
+      toast.show(err as string, {
+        type: 'danger',
+        placement: 'top'
+      });
     }
   };
 
@@ -190,7 +191,7 @@ export default function Home() {
         <View style={styles.headerSection}>
           <Text style={styles.title}>Staker Contract</Text>
           <Address
-            address={StakerContract?.address}
+            address={StakerContract?.address || ''}
             containerStyle={styles.addressContainer}
             textStyle={styles.addressText}
           />

@@ -1,5 +1,5 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployFunction } from 'hardhat-deploy/types';
 
 /**
  * Deploys a contract named "Staker" using the deployer account and
@@ -7,7 +7,9 @@ import { DeployFunction } from "hardhat-deploy/types";
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployStaker: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployStaker: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -20,19 +22,19 @@ const deployStaker: DeployFunction = async function (hre: HardhatRuntimeEnvironm
   */
   const { deployer } = await hre.getNamedAccounts();
   const { deploy, get } = hre.deployments;
-  const exampleExternalContract = await get("ExampleExternalContract");
+  const exampleExternalContract = await get('ExampleExternalContract');
 
-  await deploy("Staker", {
+  await deploy('Staker', {
     from: deployer,
     // Contract constructor arguments
     args: [exampleExternalContract.address],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
+    autoMine: true
   });
 };
 
 export default deployStaker;
 
-deployStaker.tags = ["Staker"];
+deployStaker.tags = ['Staker'];

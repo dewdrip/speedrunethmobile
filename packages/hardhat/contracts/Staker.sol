@@ -4,13 +4,6 @@ pragma solidity 0.8.20; //Do not change the solidity version as it negatively im
 import "hardhat/console.sol";
 import "./ExampleExternalContract.sol";
 
-error Staker__ZeroValue();
-error Staker__DeadlineNotExceeded();
-error Staker__NotOpenForWithdraw();
-error Staker__TransferFailed();
-error Staker__DeadlineExceeded();
-error Staker__StakingCompleted();
-
 contract Staker {
     uint256 public constant threshold = 1 ether;
     ExampleExternalContract public exampleExternalContract;
@@ -18,6 +11,13 @@ contract Staker {
     bool public openForWithdraw = false;
 
     mapping(address => uint256) public balances;
+
+    error Staker__ZeroValue();
+    error Staker__DeadlineNotExceeded();
+    error Staker__NotOpenForWithdraw();
+    error Staker__TransferFailed();
+    error Staker__DeadlineExceeded();
+    error Staker__StakingCompleted();
 
     event Stake(address indexed user, uint256 indexed amount);
 
