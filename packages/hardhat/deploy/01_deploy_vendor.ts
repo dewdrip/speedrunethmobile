@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployFunction } from 'hardhat-deploy/types';
+import { Contract } from 'ethers';
 // import { Contract } from "ethers";
 
 /**
@@ -10,7 +10,9 @@ import { Contract } from "ethers";
  * @param hre HardhatRuntimeEnvironment object.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const deployVendor: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployVendor: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -24,27 +26,30 @@ const deployVendor: DeployFunction = async function (hre: HardhatRuntimeEnvironm
   // // Deploy Vendor
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
-  const yourToken = await hre.ethers.getContract<Contract>("YourToken", deployer);
+  const yourToken = await hre.ethers.getContract<Contract>(
+    'YourToken',
+    deployer
+  );
   const yourTokenAddress = await yourToken.getAddress();
-  await deploy("Vendor", {
+  await deploy('Vendor', {
     from: deployer,
     // Contract constructor arguments
     args: [yourTokenAddress],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
+    autoMine: true
   });
-  const vendor = await hre.ethers.getContract<Contract>("Vendor", deployer);
+  const vendor = await hre.ethers.getContract<Contract>('Vendor', deployer);
   const vendorAddress = await vendor.getAddress();
   // // Transfer tokens to Vendor
-  await yourToken.transfer(vendorAddress, hre.ethers.parseEther("1000"));
+  await yourToken.transfer(vendorAddress, hre.ethers.parseEther('1000'));
   // // Transfer contract ownership to your frontend address
-  await vendor.transferOwnership("0xF51CD0d607c82db2B70B678554c52C266a9D49B6");
+  await vendor.transferOwnership('0xF51CD0d607c82db2B70B678554c52C266a9D49B6');
 };
 
 export default deployVendor;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags Vendor
-deployVendor.tags = ["Vendor"];
+deployVendor.tags = ['Vendor'];

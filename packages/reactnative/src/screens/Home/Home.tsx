@@ -8,8 +8,8 @@ import {
   useAccount,
   useBalance,
   useDeployedContractInfo,
-  useScaffoldContractRead,
-  useScaffoldContractWrite
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -26,51 +26,42 @@ export default function Home() {
   const toast = useToast();
   const { address } = useAccount();
 
-  const { data: yourTokenSymbol } = useScaffoldContractRead({
+  const { data: yourTokenSymbol } = useScaffoldReadContract({
     contractName: 'YourToken',
     functionName: 'symbol'
   });
 
-  const { data: yourTokenBalance } = useScaffoldContractRead({
+  const { data: yourTokenBalance } = useScaffoldReadContract({
     contractName: 'YourToken',
     functionName: 'balanceOf',
     args: [address],
     watch: true
   });
 
-  const { data: vendorContractData } = useDeployedContractInfo('Vendor');
+  const { data: vendorContractData } = useDeployedContractInfo({
+    contractName: 'Vendor'
+  });
   const { balance: vendorEthBalance } = useBalance({
-    address: vendorContractData?.address || ''
+    address: vendorContractData?.address || '',
+    watch: true
   });
 
-  const { write: buyTokens } = useScaffoldContractWrite({
-    contractName: 'Vendor',
-    functionName: 'buyTokens'
+  const { writeContractAsync: writeVendorAsync } = useScaffoldWriteContract({
+    contractName: 'Vendor'
   });
 
-  const { write: sellTokens } = useScaffoldContractWrite({
-    contractName: 'Vendor',
-    functionName: 'sellTokens'
+  const { writeContractAsync: writeYourTokenAsync } = useScaffoldWriteContract({
+    contractName: 'YourToken'
   });
 
-  const { write: approveTokens } = useScaffoldContractWrite({
-    contractName: 'YourToken',
-    functionName: 'approve'
-  });
-
-  const { write: transferTokens } = useScaffoldContractWrite({
-    contractName: 'YourToken',
-    functionName: 'transfer'
-  });
-
-  const { data: vendorTokenBalance } = useScaffoldContractRead({
+  const { data: vendorTokenBalance } = useScaffoldReadContract({
     contractName: 'YourToken',
     functionName: 'balanceOf',
     args: [vendorContractData?.address],
     watch: true
   });
 
-  const { data: tokensPerEth } = useScaffoldContractRead({
+  const { data: tokensPerEth } = useScaffoldReadContract({
     contractName: 'Vendor',
     functionName: 'tokensPerEth'
   });
@@ -78,7 +69,10 @@ export default function Home() {
   const handleBuyTokens = async () => {
     try {
       const tokenPrice = getTokenPrice(tokensToBuy, Number(tokensPerEth) || 0);
-      await buyTokens({ value: tokenPrice });
+      await writeVendorAsync({
+        functionName: 'buyTokens',
+        value: tokenPrice
+      });
       setTokensToBuy('');
       toast.show('Tokens purchased successfully!', {
         type: 'success',
@@ -92,7 +86,8 @@ export default function Home() {
 
   const handleTransferTokens = async () => {
     try {
-      await transferTokens({
+      await writeYourTokenAsync({
+        functionName: 'transfer',
         args: [toAddress, multiplyTo1e18(tokensToSend)]
       });
       setToAddress('');
@@ -112,7 +107,8 @@ export default function Home() {
 
   const handleApproveTokens = async () => {
     try {
-      await approveTokens({
+      await writeYourTokenAsync({
+        functionName: 'approve',
         args: [
           vendorContractData?.address,
           multiplyTo1e18(tokensToSell as string)
@@ -134,7 +130,10 @@ export default function Home() {
 
   const handleSellTokens = async () => {
     try {
-      await sellTokens({ args: [multiplyTo1e18(tokensToSell as string)] });
+      await writeVendorAsync({
+        functionName: 'sellTokens',
+        args: [multiplyTo1e18(tokensToSell as string)]
+      });
       setIsApproved(false);
       setTokensToSell('');
       toast.show('Tokens sold successfully!', {

@@ -1,5 +1,5 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployFunction } from 'hardhat-deploy/types';
 // import { Contract } from "ethers";
 
 /**
@@ -8,7 +8,9 @@ import { DeployFunction } from "hardhat-deploy/types";
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployYourToken: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployYourToken: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -22,14 +24,14 @@ const deployYourToken: DeployFunction = async function (hre: HardhatRuntimeEnvir
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("YourToken", {
+  await deploy('YourToken', {
     from: deployer,
     // Contract constructor arguments
     args: [],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
+    autoMine: true
   });
 
   // Get the deployed contract
@@ -40,4 +42,4 @@ export default deployYourToken;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourToken
-deployYourToken.tags = ["YourToken"];
+deployYourToken.tags = ['YourToken'];

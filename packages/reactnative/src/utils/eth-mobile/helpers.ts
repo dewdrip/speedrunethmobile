@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import moment from 'moment';
 
-export function truncateAddress(address: string, chars = 4): string {
-  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
+export function truncateAddress(address: string) {
+  return `${address.slice(0, 5)}...${address.slice(address.length - 4, address.length)}`;
 }
 
 /**

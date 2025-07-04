@@ -211,9 +211,9 @@ export const useScaffoldEventHistory = <
   });
   const lastFetchedBlock = useRef<bigint>(fromBlock);
 
-  const { data: deployedContractData } = useDeployedContractInfo(
-    contractName as string
-  );
+  const { data: deployedContractData } = useDeployedContractInfo({
+    contractName: contractName as string
+  });
 
   // Create provider
   const provider = new JsonRpcProvider(network.provider);
@@ -308,8 +308,6 @@ export const useScaffoldEventHistory = <
       provider.on('block', blockNumber => {
         fetchEvents();
       });
-    } else {
-      provider.off('block');
     }
 
     return () => {

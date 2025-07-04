@@ -30,7 +30,7 @@ const FeatureCard = ({ title, icon, component }: Feature) => {
   return (
     <Card
       style={styles.featureCard}
-      onPress={() => (navigation as any).navigate(component)}
+      onPress={() => navigation.navigate(component)}
     >
       <Card.Content style={styles.featureContent}>
         <Ionicons name={icon} color="grey" size={WINDOW_WIDTH * 0.09} />
