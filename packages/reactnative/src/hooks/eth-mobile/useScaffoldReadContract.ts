@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount, useDeployedContractInfo, useNetwork } from '.';
 import { Account } from '../../store/reducers/Wallet';
+import { getParsedError } from '../../utils/eth-mobile';
 
 type Props = {
   contractName: string;
@@ -28,7 +29,7 @@ type ReadContractResult = any | any[] | null;
  * @param config.enable - enable the contract read (Optional)
  * @param config.watch - watch the contract read (Optional)
  */
-export function useScaffoldContractRead({
+export function useScaffoldReadContract({
   contractName,
   functionName,
   args,
@@ -38,7 +39,9 @@ export function useScaffoldContractRead({
   const {
     data: deployedContractData,
     isLoading: isLoadingDeployedContractData
-  } = useDeployedContractInfo(contractName);
+  } = useDeployedContractInfo({
+    contractName
+  });
   const network = useNetwork();
   const connectedAccount = useAccount();
   const wallet = useSelector((state: any) => state.wallet);
@@ -75,7 +78,7 @@ export function useScaffoldContractRead({
       setData(result);
       return result;
     } catch (error) {
-      setError(error);
+      setError(getParsedError(error));
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +108,7 @@ export function useScaffoldContractRead({
 
       return result;
     } catch (error) {
-      console.error(error);
+      console.error(getParsedError(error));
     } finally {
       setIsLoading(false);
     }

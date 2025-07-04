@@ -11,7 +11,7 @@ import {
   useAccount,
   useDeployedContractInfo,
   useNetwork,
-  useScaffoldContractWrite
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -26,12 +26,12 @@ export default function Home() {
   const navigation = useNavigation();
 
   const { data: snowmanContract, isLoading: isLoadingSnowmanContract } =
-    useDeployedContractInfo('Snowman');
+    useDeployedContractInfo({
+      contractName: 'Snowman'
+    });
 
-  const { write: mintSnowman } = useScaffoldContractWrite({
+  const { writeContractAsync } = useScaffoldWriteContract({
     contractName: 'Snowman',
-    functionName: 'mint',
-    value: ethers.parseEther('0.02'),
     gasLimit: BigInt('500000')
   });
 
@@ -43,7 +43,10 @@ export default function Home() {
   const mint = async () => {
     try {
       setIsMinting(true);
-      await mintSnowman();
+      await writeContractAsync({
+        functionName: 'mint',
+        value: ethers.parseEther('0.02')
+      });
 
       setBalance(balance + 1);
       toast.show('Minted One(1) Snowman☃️', { type: 'success' });

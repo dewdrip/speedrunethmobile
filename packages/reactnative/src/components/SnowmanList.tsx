@@ -20,7 +20,9 @@ export default function SnowmanList({ balance }: Props) {
   const network = useNetwork();
 
   const { data: snowmanContract, isLoading: isLoadingSnowmanContract } =
-    useDeployedContractInfo('Snowman');
+    useDeployedContractInfo({
+      contractName: 'Snowman'
+    });
 
   useEffect(() => {
     if (isLoadingSnowmanContract) return;

@@ -8,9 +8,9 @@ import { useToast } from 'react-native-toast-notifications';
 import CustomButton from '../../components/buttons/CustomButton';
 import Header from '../../components/Header';
 import {
-  useContractRead,
   useDeployedContractInfo,
-  useScaffoldContractWrite
+  useReadContract,
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import { COLORS } from '../../utils/constants';
 import { WINDOW_WIDTH } from '../../utils/styles';
@@ -32,15 +32,22 @@ export default function Closet() {
   const [isComposing, setIsComposing] = useState(false);
   const [hasAccessory, setHasAccessory] = useState(false);
 
-  const { data: snowmanContract } = useDeployedContractInfo('Snowman');
-  const { data: beltContract } = useDeployedContractInfo('Belt');
-  const { data: hatContract } = useDeployedContractInfo('Hat');
-  const { data: scarfContract } = useDeployedContractInfo('Scarf');
+  const { data: snowmanContract } = useDeployedContractInfo({
+    contractName: 'Snowman'
+  });
+  const { data: beltContract } = useDeployedContractInfo({
+    contractName: 'Belt'
+  });
+  const { data: hatContract } = useDeployedContractInfo({
+    contractName: 'Hat'
+  });
+  const { data: scarfContract } = useDeployedContractInfo({
+    contractName: 'Scarf'
+  });
 
-  const { readContract } = useContractRead();
-  const { write: removeAllAccessories } = useScaffoldContractWrite({
+  const { readContract } = useReadContract();
+  const { writeContractAsync } = useScaffoldWriteContract({
     contractName: 'Snowman',
-    functionName: 'removeAllAccessories',
     gasLimit: 500000n
   });
 
@@ -109,7 +116,8 @@ export default function Closet() {
     setIsComposing(true);
 
     try {
-      await removeAllAccessories({
+      await writeContractAsync({
+        functionName: 'removeAllAccessories',
         args: [tokenId]
       });
 

@@ -22,7 +22,9 @@ export default function Snowman({ id }: Props) {
   const network = useNetwork();
 
   const { data: snowmanContract, isLoading: isLoadingSnowmanContract } =
-    useDeployedContractInfo('Snowman');
+    useDeployedContractInfo({
+      contractName: 'Snowman'
+    });
 
   const getDetails = async () => {
     if (!snowmanContract) return;

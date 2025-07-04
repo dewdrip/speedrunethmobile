@@ -15,9 +15,9 @@ import { useToast } from 'react-native-toast-notifications';
 import CustomButton from '../../../components/buttons/CustomButton';
 import {
   useAccount,
-  useContractRead,
-  useContractWrite,
-  useDeployedContractInfo
+  useDeployedContractInfo,
+  useReadContract,
+  useWriteContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -35,15 +35,16 @@ export default function Accessory({ name }: Props) {
 
   const { address: connectedAccount } = useAccount();
 
-  const { data: accessoryContract } = useDeployedContractInfo(name);
+  const { data: accessoryContract } = useDeployedContractInfo({
+    contractName: name
+  });
 
   const toast = useToast();
 
-  const { readContract } = useContractRead();
-  const { write } = useContractWrite({
+  const { readContract } = useReadContract();
+  const { writeContractAsync } = useWriteContract({
     abi: accessoryContract?.abi as Abi,
     address: accessoryContract?.address as string,
-    functionName: 'mint',
     gasLimit: 500000n
   });
 
@@ -52,7 +53,8 @@ export default function Accessory({ name }: Props) {
 
     setIsMinting(true);
     try {
-      await write({
+      await writeContractAsync({
+        functionName: 'mint',
         value: ethers.parseEther('0.01')
       });
 

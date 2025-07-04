@@ -9,9 +9,9 @@ import { useToast } from 'react-native-toast-notifications';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import {
   useAccount,
-  useContractRead,
   useDeployedContractInfo,
-  useScaffoldContractWrite
+  useReadContract,
+  useScaffoldWriteContract
 } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
@@ -39,21 +39,25 @@ export default function Accessory({
 
   const { address: connectedAccount } = useAccount();
 
-  const { data: accessoryContract } = useDeployedContractInfo(name);
-  const { data: snowmanContract } = useDeployedContractInfo('Snowman');
-
-  const { readContract } = useContractRead();
-  const { write } = useScaffoldContractWrite({
-    contractName: name,
-    functionName: 'safeTransferFrom',
-    gasLimit: 500000n
+  const { data: accessoryContract } = useDeployedContractInfo({
+    contractName: name
+  });
+  const { data: snowmanContract } = useDeployedContractInfo({
+    contractName: 'Snowman'
   });
 
-  const { write: removeAccessory } = useScaffoldContractWrite({
-    contractName: 'Snowman',
-    functionName: 'removeAccessory',
-    gasLimit: 500000n
-  });
+  const { readContract } = useReadContract();
+  const { writeContractAsync: writeAccessoryContractAsync } =
+    useScaffoldWriteContract({
+      contractName: name,
+      gasLimit: 500000n
+    });
+
+  const { writeContractAsync: writeSnowmanContractAsync } =
+    useScaffoldWriteContract({
+      contractName: 'Snowman',
+      gasLimit: 500000n
+    });
 
   const toast = useToast();
 
@@ -140,7 +144,8 @@ export default function Accessory({
     setIsComposing(true);
 
     try {
-      await removeAccessory({
+      await writeSnowmanContractAsync({
+        functionName: 'removeAccessory',
         args: [accessoryContract.address, snowman.id]
       });
 
@@ -175,7 +180,8 @@ export default function Accessory({
       });
 
       if (hasAccessory) {
-        await removeAccessory({
+        await writeSnowmanContractAsync({
+          functionName: 'removeAccessory',
           args: [accessoryContract.address, snowman.id]
         });
         toast.show(`Removed ${name} from Snowman`, { type: 'success' });
@@ -186,7 +192,8 @@ export default function Accessory({
         [snowman.id]
       );
 
-      await write({
+      await writeAccessoryContractAsync({
+        functionName: 'safeTransferFrom',
         args: [connectedAccount, snowman.address, tokenId, encodedSnowmanId]
       });
 
