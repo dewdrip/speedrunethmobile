@@ -6,7 +6,7 @@ import { Button, Text } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import { TransactionReceipt } from 'viem';
 import { IntegerInput } from '../../../components/eth-mobile';
-import { useContractWrite } from '../../../hooks/eth-mobile';
+import { useWriteContract } from '../../../hooks/eth-mobile';
 import globalStyles from '../../../styles/globalStyles';
 import { COLORS } from '../../../utils/constants';
 import { FONT_SIZE } from '../../../utils/styles';
@@ -38,16 +38,18 @@ export default function WriteOnlyFunctionForm({
   const [txReceipt, setTxReceipt] = useState<TransactionReceipt | undefined>();
   const { openModal } = useModal();
 
-  const { isLoading, write } = useContractWrite({
+  const { isLoading, writeContractAsync } = useWriteContract({
     address: contractAddress,
-    functionName: abiFunction.name,
-    abi: abi,
-    args: getParsedContractFunctionArgs(form)
+    abi: abi
   });
 
   const handleWrite = async () => {
     try {
-      const receipt = await write({ value: BigInt(txValue || 0) });
+      const receipt = await writeContractAsync({
+        functionName: abiFunction.name,
+        args: getParsedContractFunctionArgs(form),
+        value: BigInt(txValue || 0)
+      });
       setTxReceipt(receipt);
       onChange();
     } catch (error) {

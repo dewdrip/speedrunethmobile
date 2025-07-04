@@ -16,9 +16,9 @@ import {
   useBalance,
   useDeployedContractInfo,
   useNetwork,
-  useScaffoldContractRead,
-  useScaffoldContractWrite,
-  useScaffoldEventHistory
+  useScaffoldEventHistory,
+  useScaffoldReadContract,
+  useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
@@ -58,12 +58,14 @@ export default function Home() {
 
   const toast = useToast();
 
-  const { data: riggedRollContract } = useDeployedContractInfo('RiggedRoll');
+  const { data: riggedRollContract } = useDeployedContractInfo({
+    contractName: 'RiggedRoll'
+  });
   const { balance: riggedRollBalance } = useBalance({
     address: riggedRollContract?.address as string,
     watch: true
   });
-  const { data: prize } = useScaffoldContractRead({
+  const { data: prize } = useScaffoldReadContract({
     contractName: 'DiceGame',
     functionName: 'prize',
     watch: true
@@ -138,15 +140,15 @@ export default function Home() {
     }
   }, [winnerHistoryData, winnerHistoryLoading, winners.length]);
 
-  const { write: writeDiceGameAsync } = useScaffoldContractWrite({
-    contractName: 'DiceGame',
-    functionName: 'rollTheDice'
+  const { writeContractAsync: writeDiceGameAsync } = useScaffoldWriteContract({
+    contractName: 'DiceGame'
   });
 
-  const { write: writeRiggedRollAsync } = useScaffoldContractWrite({
-    contractName: 'RiggedRoll',
-    functionName: 'riggedRoll'
-  });
+  const { writeContractAsync: writeRiggedRollAsync } = useScaffoldWriteContract(
+    {
+      contractName: 'RiggedRoll'
+    }
+  );
 
   const handleRollDice = async () => {
     if (!rolled) {
@@ -155,6 +157,7 @@ export default function Home() {
     setIsRolling(true);
     try {
       await writeDiceGameAsync({
+        functionName: 'rollTheDice',
         value: parseEther(ROLL_ETH_VALUE)
       });
       toast.show('Rolling the dice!', { type: 'success' });
@@ -173,7 +176,9 @@ export default function Home() {
     }
     setIsRolling(true);
     try {
-      await writeRiggedRollAsync();
+      await writeRiggedRollAsync({
+        functionName: 'riggedRoll'
+      });
       toast.show('Rigged roll initiated!', { type: 'success' });
     } catch (err) {
       console.error('Error calling riggedRoll function', err);

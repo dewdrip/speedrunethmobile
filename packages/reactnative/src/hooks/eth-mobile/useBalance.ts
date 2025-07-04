@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useNetwork } from '.';
+import { getParsedError } from '../../utils/eth-mobile';
 
 interface UseBalanceConfig {
   address: string;
@@ -13,13 +14,13 @@ interface UseBalanceConfig {
  * @param config.address - account address
  * @param config.watch - watch for balance changes
  */
-export function useBalance({ address, watch = true }: UseBalanceConfig) {
+export function useBalance({ address, watch = false }: UseBalanceConfig) {
   const network = useNetwork();
 
   const [balance, setBalance] = useState<bigint | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function getBalance() {
     setIsLoading(true);
@@ -34,7 +35,7 @@ export function useBalance({ address, watch = true }: UseBalanceConfig) {
         setError(null);
       }
     } catch (error) {
-      setError(error);
+      setError(getParsedError(error));
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 import { Address, erc20Abi } from 'viem';
-import { useAccount, useContractRead, useNetwork } from '.';
+import { useAccount, useNetwork, useReadContract } from '.';
+import { getParsedError } from '../../utils/eth-mobile';
 
 /**
  * Hook to retrieve the balance of a specified ERC20 token for a user.
@@ -9,18 +10,20 @@ import { useAccount, useContractRead, useNetwork } from '.';
  * @param {Object} options - Optional parameters.
  * @param {Address} options.token - The ERC20 token contract address.
  * @param {Address} options.userAddress - The address of the user to fetch the token balance for.
- * @returns {Object} - An object containing loading state, error, balance, and the `getERC20Balance` function.
+ * @param {boolean} options.watch - Whether to watch for balance changes.
+ * @returns {Object} - An object containing loading state, error, balance, and the `getBalance` function.
  */
 interface UseERC20BalanceOptions {
   token?: Address;
   userAddress?: Address;
+  watch?: boolean;
 }
 
 interface UseERC20BalanceResult {
   isLoading: boolean;
-  error: Error | null;
+  error: string | null;
   balance: bigint | null;
-  getERC20Balance: (
+  getBalance: (
     token?: Address,
     userAddress?: Address
   ) => Promise<bigint | undefined>;
@@ -28,15 +31,16 @@ interface UseERC20BalanceResult {
 
 export function useERC20Balance({
   token: defaultToken,
-  userAddress: defaultUserAddress
+  userAddress: defaultUserAddress,
+  watch = false
 }: UseERC20BalanceOptions = {}): UseERC20BalanceResult {
   const { address: connectedAddress } = useAccount();
   const network = useNetwork();
-  const { readContract } = useContractRead();
+  const { readContract } = useReadContract();
 
   const [balance, setBalance] = useState<bigint | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Fetch the token balance for a specified user and token.
@@ -45,7 +49,7 @@ export function useERC20Balance({
    * @param {Address} userAddress - The user's address. Defaults to the provided `userAddress` or the connected address.
    * @returns {Promise<bigint>} - The token balance of the user.
    */
-  const getERC20Balance = useCallback(
+  const getBalance = useCallback(
     async (
       token: Address = defaultToken!,
       userAddress: Address = defaultUserAddress ||
@@ -72,9 +76,8 @@ export function useERC20Balance({
         const balanceBigInt = balance as bigint;
         setBalance(balanceBigInt);
         return balanceBigInt;
-      } catch (err) {
-        const error = err as Error;
-        setError(error);
+      } catch (error) {
+        setError(getParsedError(error));
         setBalance(null);
       } finally {
         setIsLoading(false);
@@ -90,24 +93,26 @@ export function useERC20Balance({
     provider.off('block');
 
     if (defaultToken) {
-      getERC20Balance();
+      getBalance();
     }
 
-    provider.on('block', blockNumber => {
-      if (defaultToken) {
-        getERC20Balance();
-      }
-    });
+    if (watch) {
+      provider.on('block', blockNumber => {
+        if (defaultToken) {
+          getBalance();
+        }
+      });
+    }
 
     return () => {
       provider.off('block');
     };
-  }, [defaultToken, defaultUserAddress, connectedAddress, getERC20Balance]);
+  }, [defaultToken, defaultUserAddress, connectedAddress, watch]);
 
   return {
     isLoading,
     error,
     balance,
-    getERC20Balance
+    getBalance
   };
 }
