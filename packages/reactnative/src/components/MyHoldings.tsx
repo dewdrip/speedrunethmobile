@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
@@ -10,7 +12,7 @@ import {
 import globalStyles from '../styles/globalStyles';
 import { COLORS } from '../utils/constants';
 import { NFTMetaData } from '../utils/simpleNFT/nftsMetadata';
-import { FONT_SIZE } from '../utils/styles';
+import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../utils/styles';
 import { NFTCard } from './NFTCard';
 
 export interface Collectible extends Partial<NFTMetaData> {
@@ -86,6 +88,8 @@ export default function MyHoldings() {
     updateMyCollectibles();
   }, [myTotalBalance, yourCollectibleContract, connectedAddress]);
 
+  const ref = React.useRef<ICarouselInstance>(null);
+  const progress = useSharedValue<number>(0);
   return (
     <>
       {allCollectiblesLoading && (
@@ -99,11 +103,18 @@ export default function MyHoldings() {
           <Text style={styles.noNFTsText}>No NFTs found</Text>
         </View>
       ) : (
-        <View style={styles.nftContainer}>
-          {myAllCollectibles.map(nft => (
-            <NFTCard key={nft.id} nft={nft} />
-          ))}
-        </View>
+        <Carousel
+          width={WINDOW_WIDTH}
+          height={WINDOW_HEIGHT * 0.7}
+          data={myAllCollectibles}
+          renderItem={({ item }) => <NFTCard nft={item} />}
+          ref={ref}
+          onProgressChange={progress}
+          mode="parallax"
+          loop={false}
+          pagingEnabled={true}
+          snapEnabled={true}
+        />
       )}
     </>
   );
@@ -113,24 +124,17 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 16
   },
   noNFTsContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 16
   },
   noNFTsText: {
     ...globalStyles.textSemiBold,
     fontSize: FONT_SIZE.lg
-  },
-  nftContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.background,
-    padding: 10
   }
 });

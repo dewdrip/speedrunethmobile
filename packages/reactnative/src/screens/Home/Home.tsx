@@ -59,7 +59,7 @@ export default function Home() {
         placement: 'top'
       });
     } catch (error) {
-      toast.show('Error minting NFT', {
+      toast.show(error as string, {
         type: 'danger',
         placement: 'top'
       });
@@ -68,10 +68,8 @@ export default function Home() {
   };
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 10 }}
-    >
-      <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
         <Text variant="headlineLarge" style={globalStyles.text}>
           My NFTs
         </Text>
@@ -89,8 +87,16 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
+  },
+  header: {
+    paddingTop: 32,
+    alignItems: 'center'
+  },
   mintButton: {
     marginTop: 16,
-    width: 170
+    width: 130
   }
 });

@@ -120,14 +120,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: WINDOW_WIDTH * 0.8,
-    marginVertical: 8
+    width: WINDOW_WIDTH * 0.95
   },
   imageContainer: {
     position: 'relative'
   },
   image: {
-    height: 240,
+    height: 300,
     width: '100%',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12
