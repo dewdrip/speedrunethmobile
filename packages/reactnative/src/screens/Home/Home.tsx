@@ -23,6 +23,11 @@ export default function Home() {
   const [isApproved, setIsApproved] = useState(false);
   const [tokensToSell, setTokensToSell] = useState<string>('');
 
+  const [isBuyingTokens, setIsBuyingTokens] = useState(false);
+  const [isTransferringTokens, setIsTransferringTokens] = useState(false);
+  const [isApprovingTokens, setIsApprovingTokens] = useState(false);
+  const [isSellingTokens, setIsSellingTokens] = useState(false);
+
   const toast = useToast();
   const { address } = useAccount();
 
@@ -69,6 +74,7 @@ export default function Home() {
   const handleBuyTokens = async () => {
     try {
       const tokenPrice = getTokenPrice(tokensToBuy, Number(tokensPerEth) || 0);
+      setIsBuyingTokens(true);
       await writeVendorAsync({
         functionName: 'buyTokens',
         value: tokenPrice
@@ -81,11 +87,14 @@ export default function Home() {
     } catch (err) {
       console.error('Error calling buyTokens function', err);
       toast.show('Failed to buy tokens', { type: 'danger', placement: 'top' });
+    } finally {
+      setIsBuyingTokens(false);
     }
   };
 
   const handleTransferTokens = async () => {
     try {
+      setIsTransferringTokens(true);
       await writeYourTokenAsync({
         functionName: 'transfer',
         args: [toAddress, multiplyTo1e18(tokensToSend)]
@@ -102,11 +111,14 @@ export default function Home() {
         type: 'danger',
         placement: 'top'
       });
+    } finally {
+      setIsTransferringTokens(false);
     }
   };
 
   const handleApproveTokens = async () => {
     try {
+      setIsApprovingTokens(true);
       await writeYourTokenAsync({
         functionName: 'approve',
         args: [
@@ -125,11 +137,14 @@ export default function Home() {
         type: 'danger',
         placement: 'top'
       });
+    } finally {
+      setIsApprovingTokens(false);
     }
   };
 
   const handleSellTokens = async () => {
     try {
+      setIsSellingTokens(true);
       await writeVendorAsync({
         functionName: 'sellTokens',
         args: [multiplyTo1e18(tokensToSell as string)]
@@ -143,6 +158,8 @@ export default function Home() {
     } catch (err) {
       console.error('Error calling sellTokens function', err);
       toast.show('Failed to sell tokens', { type: 'danger', placement: 'top' });
+    } finally {
+      setIsSellingTokens(false);
     }
   };
 
@@ -202,7 +219,10 @@ export default function Home() {
             mode="contained"
             style={styles.button}
             onPress={handleBuyTokens}
-            disabled={!tokensToBuy || Number(tokensToBuy) <= 0}
+            disabled={
+              !tokensToBuy || Number(tokensToBuy) <= 0 || isBuyingTokens
+            }
+            loading={isBuyingTokens}
           >
             Buy Tokens
           </Button>
@@ -236,8 +256,12 @@ export default function Home() {
               style={styles.button}
               onPress={handleTransferTokens}
               disabled={
-                !toAddress || !tokensToSend || Number(tokensToSend) <= 0
+                !toAddress ||
+                !tokensToSend ||
+                Number(tokensToSend) <= 0 ||
+                isTransferringTokens
               }
+              loading={isTransferringTokens}
             >
               Send Tokens
             </Button>
@@ -261,7 +285,7 @@ export default function Home() {
                 placeholder="amount of tokens to sell"
                 value={tokensToSell}
                 onChange={value => setTokensToSell(value as string)}
-                disabled={isApproved}
+                disabled={isApproved || isApprovingTokens}
                 disableMultiplyBy1e18
               />
             </View>
@@ -271,7 +295,8 @@ export default function Home() {
                 mode="contained"
                 style={[styles.button, styles.halfButton]}
                 onPress={handleApproveTokens}
-                disabled={isApproved}
+                disabled={isApproved || isApprovingTokens}
+                loading={isApprovingTokens}
               >
                 Approve Tokens
               </Button>
@@ -280,7 +305,8 @@ export default function Home() {
                 mode="contained"
                 style={[styles.button, styles.halfButton]}
                 onPress={handleSellTokens}
-                disabled={!isApproved}
+                disabled={!isApproved || isSellingTokens}
+                loading={isSellingTokens}
               >
                 Sell Tokens
               </Button>
