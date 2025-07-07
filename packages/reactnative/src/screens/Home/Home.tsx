@@ -185,9 +185,7 @@ export default function Home() {
         </View>
       )}
 
-      <View
-        style={[styles.mainCard, !isCompletedValue && styles.mainCardNoSuccess]}
-      >
+      <View style={styles.mainCard}>
         <View style={styles.headerSection}>
           <Text style={styles.title}>Staker Contract</Text>
           <Address
@@ -308,7 +306,7 @@ const styles = StyleSheet.create({
     padding: 24,
     width: '100%',
     maxWidth: 400,
-    marginTop: 48,
+    marginTop: 24,
     alignItems: 'center',
     gap: 8
   },
@@ -332,20 +330,10 @@ const styles = StyleSheet.create({
     ...globalStyles.text
   },
   mainCard: {
-    backgroundColor: 'white',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderRadius: 12,
-    padding: 24,
+    paddingHorizontal: 24,
     width: '100%',
-    maxWidth: 400,
     alignItems: 'center',
     gap: 32
-  },
-  mainCardNoSuccess: {
-    marginTop: 96
   },
   headerSection: {
     alignItems: 'center',
