@@ -121,11 +121,14 @@ export default function Closet() {
         args: [tokenId]
       });
 
-      toast.show('Removed all accessories from Snowman', { type: 'success' });
+      toast.show('Removed all accessories from Snowman', {
+        type: 'success',
+        placement: 'top'
+      });
       refresh();
     } catch (error) {
       console.log(error);
-      toast.show(JSON.stringify(error), { type: 'danger' });
+      toast.show(JSON.stringify(error), { type: 'danger', placement: 'top' });
     } finally {
       setIsComposing(false);
     }

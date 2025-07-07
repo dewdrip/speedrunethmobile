@@ -49,9 +49,12 @@ export default function Home() {
       });
 
       setBalance(balance + 1);
-      toast.show('Minted One(1) Snowman☃️', { type: 'success' });
+      toast.show('Minted One(1) Snowman☃️', {
+        type: 'success',
+        placement: 'top'
+      });
     } catch (error) {
-      toast.show(JSON.stringify(error), { type: 'danger' });
+      toast.show(JSON.stringify(error), { type: 'danger', placement: 'top' });
       console.log('Minting Error: ', error);
     } finally {
       setIsMinting(false);
@@ -62,7 +65,7 @@ export default function Home() {
     try {
       if (isLoadingSnowmanContract) return;
       if (!snowmanContract) {
-        toast.show('Loading resources');
+        toast.show('Loading resources', { placement: 'top' });
         return;
       }
 

@@ -149,11 +149,14 @@ export default function Accessory({
         args: [accessoryContract.address, snowman.id]
       });
 
-      toast.show(`Removed ${name} from Snowman`, { type: 'success' });
+      toast.show(`Removed ${name} from Snowman`, {
+        type: 'success',
+        placement: 'top'
+      });
       _refreshState();
     } catch (error) {
       console.log(error);
-      toast.show(JSON.stringify(error), { type: 'danger' });
+      toast.show(JSON.stringify(error), { type: 'danger', placement: 'top' });
     } finally {
       setIsComposing(false);
     }
@@ -184,7 +187,10 @@ export default function Accessory({
           functionName: 'removeAccessory',
           args: [accessoryContract.address, snowman.id]
         });
-        toast.show(`Removed ${name} from Snowman`, { type: 'success' });
+        toast.show(`Removed ${name} from Snowman`, {
+          type: 'success',
+          placement: 'top'
+        });
       }
 
       const encodedSnowmanId = ethers.AbiCoder.defaultAbiCoder().encode(
@@ -197,12 +203,15 @@ export default function Accessory({
         args: [connectedAccount, snowman.address, tokenId, encodedSnowmanId]
       });
 
-      toast.show(`Added ${name} to Snowman`, { type: 'success' });
+      toast.show(`Added ${name} to Snowman`, {
+        type: 'success',
+        placement: 'top'
+      });
 
       _refreshState();
     } catch (error) {
       console.log(error);
-      toast.show(JSON.stringify(error), { type: 'danger' });
+      toast.show(JSON.stringify(error), { type: 'danger', placement: 'top' });
     } finally {
       setIsComposing(false);
     }

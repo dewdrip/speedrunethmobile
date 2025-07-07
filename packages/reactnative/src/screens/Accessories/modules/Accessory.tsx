@@ -59,14 +59,16 @@ export default function Accessory({ name }: Props) {
       });
 
       toast.show(`Minted One Accessory`, {
-        type: 'success'
+        type: 'success',
+        placement: 'top'
       });
 
       await getAccessories();
     } catch (error) {
       console.error(error);
       toast.show(`Error Minting Accessory`, {
-        type: 'danger'
+        type: 'danger',
+        placement: 'top'
       });
     }
     setIsMinting(false);
