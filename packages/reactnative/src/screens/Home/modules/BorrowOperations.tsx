@@ -207,12 +207,12 @@ const styles = StyleSheet.create({
     gap: 4
   },
   button: {
-    borderRadius: 20,
-    backgroundColor: COLORS.primary
+    borderRadius: 24,
+    backgroundColor: COLORS.primaryLight,
+    marginTop: 4
   },
   buttonLabel: {
-    fontSize: FONT_SIZE.sm,
-    color: 'white'
+    ...globalStyles.textMedium
   }
 });
 

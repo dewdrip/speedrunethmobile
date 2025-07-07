@@ -73,7 +73,7 @@ const PriceActions = () => {
             icon={() => (
               <Ionicons name="remove" size={FONT_SIZE.xl} color="white" />
             )}
-            mode="contained"
+            mode="outlined"
             containerColor={COLORS.primary}
             size={24}
             onPress={() => handleClick(false)}
@@ -83,7 +83,7 @@ const PriceActions = () => {
             icon={() => (
               <Ionicons name="add" size={FONT_SIZE.xl} color="white" />
             )}
-            mode="contained"
+            mode="outlined"
             containerColor={COLORS.primary}
             size={24}
             onPress={() => handleClick(true)}
@@ -126,7 +126,8 @@ const styles = StyleSheet.create({
     gap: 8
   },
   button: {
-    margin: 0
+    margin: 0,
+    borderWidth: 0
   },
   skeleton: {
     width: 40,
