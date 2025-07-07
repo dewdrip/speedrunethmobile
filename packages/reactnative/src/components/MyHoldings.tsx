@@ -73,7 +73,8 @@ export default function MyHoldings() {
         });
       } catch (e) {
         toast.show('Error fetching all collectibles', {
-          type: 'danger'
+          type: 'danger',
+          placement: 'top'
         });
         setAllCollectiblesLoading(false);
         console.log(e);

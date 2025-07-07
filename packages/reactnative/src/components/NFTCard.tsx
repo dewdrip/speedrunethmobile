@@ -33,7 +33,8 @@ export function NFTCard({ nft }: NFTCardProps) {
       setTransferToAddress('');
     } catch (error) {
       toast.show('Error transferring NFT', {
-        type: 'danger'
+        type: 'danger',
+        placement: 'top'
       });
       console.error('Error transferring NFT: ', error);
     } finally {
