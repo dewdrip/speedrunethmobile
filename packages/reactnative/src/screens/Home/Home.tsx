@@ -217,11 +217,7 @@ export default function Home() {
 
           <Button
             mode="contained"
-            style={[
-              styles.button,
-              (!tokensToBuy || Number(tokensToBuy) <= 0) &&
-                styles.disabledButton
-            ]}
+            style={styles.button}
             onPress={handleBuyTokens}
             disabled={
               isBuyingTokens || !tokensToBuy || Number(tokensToBuy) <= 0
@@ -257,11 +253,7 @@ export default function Home() {
 
             <Button
               mode="contained"
-              style={[
-                styles.button,
-                (!toAddress || !tokensToSend || Number(tokensToSend) <= 0) &&
-                  styles.disabledButton
-              ]}
+              style={styles.button}
               onPress={handleTransferTokens}
               disabled={
                 isTransferringTokens ||
@@ -304,7 +296,7 @@ export default function Home() {
                 style={[
                   styles.button,
                   styles.halfButton,
-                  (isApproved || tokensToSell === '') && styles.disabledButton
+                  isApproved && styles.disabledButton
                 ]}
                 onPress={handleApproveTokens}
                 disabled={isApproved || tokensToSell === ''}
