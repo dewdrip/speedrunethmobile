@@ -223,6 +223,7 @@ export default function Home() {
               isBuyingTokens || !tokensToBuy || Number(tokensToBuy) <= 0
             }
             loading={isBuyingTokens}
+            labelStyle={styles.buttonLabel}
           >
             Buy Tokens
           </Button>
@@ -262,6 +263,7 @@ export default function Home() {
                 Number(tokensToSend) <= 0
               }
               loading={isTransferringTokens}
+              labelStyle={styles.buttonLabel}
             >
               Send Tokens
             </Button>
@@ -301,6 +303,7 @@ export default function Home() {
                 onPress={handleApproveTokens}
                 disabled={isApproved || tokensToSell === ''}
                 loading={isApprovingTokens}
+                labelStyle={styles.buttonLabel}
               >
                 Approve Tokens
               </Button>
@@ -315,6 +318,7 @@ export default function Home() {
                 onPress={handleSellTokens}
                 disabled={!isApproved}
                 loading={isSellingTokens}
+                labelStyle={styles.buttonLabel}
               >
                 Sell Tokens
               </Button>
@@ -377,6 +381,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryLight,
     marginTop: 8,
     alignSelf: 'center'
+  },
+  buttonLabel: {
+    ...globalStyles.textMedium
   },
   buttonRow: {
     flexDirection: 'row',
