@@ -2,7 +2,7 @@ import base64 from 'base-64';
 import { ethers, InterfaceAbi } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator, Button, Card } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { useToast } from 'react-native-toast-notifications';
 // @ts-ignore
@@ -247,12 +247,14 @@ export default function Accessory({
         </View>
 
         {hasAccessory && (
-          <Pressable
-            style={styles.removeButton}
+          <Button
+            mode="contained"
             onPress={removeAccessoryFromSnowman}
+            style={styles.removeButton}
+            labelStyle={styles.removeButtonText}
           >
-            <Text style={styles.removeButtonText}>Remove {name}</Text>
-          </Pressable>
+            Remove {name}
+          </Button>
         )}
       </View>
 
@@ -267,14 +269,15 @@ export default function Accessory({
           {accessories?.map(accessory => (
             <Pressable
               key={accessory.id}
-              style={styles.accessory}
               onPress={() => addToSnowman(Number(accessory.id))}
             >
-              <SvgXml
-                xml={accessory.image}
-                width={WINDOW_WIDTH * 0.4}
-                height={WINDOW_WIDTH * 0.4}
-              />
+              <Card style={styles.accessory}>
+                <SvgXml
+                  xml={accessory.image}
+                  width={WINDOW_WIDTH * 0.4}
+                  height={WINDOW_WIDTH * 0.4}
+                />
+              </Card>
             </Pressable>
           ))}
         </ScrollView>
@@ -290,8 +293,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: -5
+    alignItems: 'center'
   },
   titleContainer: {
     flexDirection: 'row',
@@ -300,26 +302,24 @@ const styles = StyleSheet.create({
   },
   accessoriesContainer: {
     gap: 10,
-    marginTop: 10
+    marginTop: 15
   },
   accessory: {
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: 10
+    backgroundColor: 'white',
+    paddingRight: 5
   },
   title: {
     fontSize: FONT_SIZE.lg,
-    ...globalStyles.textSemiBold
+    ...globalStyles.textMedium
   },
   removeButton: {
-    backgroundColor: COLORS.error,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8
+    alignSelf: 'flex-end',
+    borderRadius: 24,
+    backgroundColor: COLORS.lightRed
   },
   removeButtonText: {
-    color: 'white',
-    fontSize: FONT_SIZE.sm,
-    ...globalStyles.textMedium
+    ...globalStyles.textMedium,
+    color: COLORS.error,
+    fontSize: FONT_SIZE.md
   }
 });

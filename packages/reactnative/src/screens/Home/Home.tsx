@@ -159,8 +159,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingHorizontal: 10
+    backgroundColor: 'white'
   },
   surface: {
     padding: 32,

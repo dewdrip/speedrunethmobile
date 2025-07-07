@@ -1,6 +1,6 @@
 import { Contract, InterfaceAbi, JsonRpcProvider } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
@@ -27,10 +27,10 @@ export default function SnowmanList({ balance }: Props) {
       contractName: 'Snowman'
     });
 
-  useEffect(() => {
+  const getSnowmen = async () => {
     if (isLoadingSnowmanContract) return;
 
-    (async () => {
+    try {
       setIsLoading(true);
       setSnowmanBalance(balance);
 
@@ -54,9 +54,17 @@ export default function SnowmanList({ balance }: Props) {
           console.error(error);
         }
       }
+
       setSnowmen(tokenIds.reverse());
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsLoading(false);
-    })();
+    }
+  };
+
+  useEffect(() => {
+    getSnowmen();
   }, [balance, isLoadingSnowmanContract]);
 
   const renderSnowmanList = () => {
@@ -86,12 +94,12 @@ export default function SnowmanList({ balance }: Props) {
   const progress = useSharedValue<number>(0);
 
   return (
-    <View>
+    <>
       <Text variant="titleLarge" style={styles.totalCount}>
         You own {snowmanBalance} Snowman☃️
       </Text>
       {renderSnowmanList()}
-    </View>
+    </>
   );
 }
 

@@ -3,6 +3,7 @@ import base64 from 'base-64';
 import { InterfaceAbi } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Button } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { useToast } from 'react-native-toast-notifications';
 import CustomButton from '../../components/buttons/CustomButton';
@@ -12,8 +13,9 @@ import {
   useReadContract,
   useScaffoldWriteContract
 } from '../../hooks/eth-mobile';
+import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
-import { WINDOW_WIDTH } from '../../utils/styles';
+import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Accessory from './modules/Accessory';
 
 interface Metadata {
@@ -125,6 +127,7 @@ export default function Closet() {
         type: 'success',
         placement: 'top'
       });
+      setHasAccessory(false);
       refresh();
     } catch (error) {
       console.log(error);
@@ -158,13 +161,16 @@ export default function Closet() {
       </View>
 
       {hasAccessory && (
-        <CustomButton
-          text="Strip"
+        <Button
+          mode="contained"
           onPress={strip}
+          style={styles.stripButton}
+          labelStyle={styles.stripButtonText}
           disabled={isComposing}
           loading={isComposing}
-          style={styles.stripButton}
-        />
+        >
+          Strip
+        </Button>
       )}
 
       <Accessory
@@ -202,8 +208,16 @@ const styles = StyleSheet.create({
     height: WINDOW_WIDTH * 0.6
   },
   stripButton: {
-    width: '95%',
+    width: '30%',
     alignSelf: 'center',
-    backgroundColor: COLORS.error
+    backgroundColor: COLORS.lightRed,
+    paddingVertical: 5,
+    borderRadius: 24,
+    marginBottom: 10
+  },
+  stripButtonText: {
+    ...globalStyles.textMedium,
+    color: COLORS.error,
+    fontSize: FONT_SIZE.lg
   }
 });
