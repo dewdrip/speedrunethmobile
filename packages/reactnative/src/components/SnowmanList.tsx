@@ -1,7 +1,7 @@
 import { Contract, InterfaceAbi, JsonRpcProvider } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 import {
@@ -9,7 +9,9 @@ import {
   useDeployedContractInfo,
   useNetwork
 } from '../hooks/eth-mobile';
-import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../utils/styles';
+import globalStyles from '../styles/globalStyles';
+import { COLORS } from '../utils/constants';
+import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../utils/styles';
 import Snowman from './Snowman';
 
 type Props = { balance: number };
@@ -18,6 +20,7 @@ export default function SnowmanList({ balance }: Props) {
   const [snowmanBalance, setSnowmanBalance] = useState(balance);
   const [snowmen, setSnowmen] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const account = useAccount();
   const network = useNetwork();
@@ -32,6 +35,7 @@ export default function SnowmanList({ balance }: Props) {
 
     try {
       setIsLoading(true);
+      setHasError(false);
       setSnowmanBalance(balance);
 
       const provider = new JsonRpcProvider(network.provider);
@@ -58,6 +62,7 @@ export default function SnowmanList({ balance }: Props) {
       setSnowmen(tokenIds.reverse());
     } catch (error) {
       console.error(error);
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +73,30 @@ export default function SnowmanList({ balance }: Props) {
   }, [balance, isLoadingSnowmanContract]);
 
   const renderSnowmanList = () => {
-    if (!snowmen && isLoading) return;
+    if (hasError) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text variant="bodyLarge" style={styles.errorText}>
+            Failed to load your Snowmen
+          </Text>
+          <Button
+            mode="contained"
+            onPress={getSnowmen}
+            style={styles.retryButton}
+            labelStyle={styles.retryButtonText}
+          >
+            Retry
+          </Button>
+        </View>
+      );
+    }
+
+    if (!snowmen && isLoading)
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      );
 
     if (!snowmen || snowmen.length === 0) return;
 
@@ -110,5 +138,42 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 10
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20
+  },
+  errorText: {
+    textAlign: 'center',
+    marginBottom: 20,
+    ...globalStyles.textMedium,
+    fontSize: FONT_SIZE.lg,
+    color: 'gray'
+  },
+  retryButton: {
+    borderRadius: 24,
+    backgroundColor: COLORS.primary
+  },
+  retryButtonText: {
+    fontSize: FONT_SIZE.lg,
+    color: 'white',
+    ...globalStyles.textMedium
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  emptyText: {
+    textAlign: 'center'
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });
