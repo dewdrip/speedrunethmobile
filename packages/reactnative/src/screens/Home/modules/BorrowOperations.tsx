@@ -19,6 +19,8 @@ const tokenName = 'CORN';
 const BorrowOperations = () => {
   const [borrowAmount, setBorrowAmount] = useState('');
   const [repayAmount, setRepayAmount] = useState('');
+  const [isBorrowing, setIsBorrowing] = useState(false);
+  const [isRepaying, setIsRepaying] = useState(false);
 
   const { address } = useAccount();
 
@@ -57,6 +59,7 @@ const BorrowOperations = () => {
 
   const handleBorrow = async () => {
     try {
+      setIsBorrowing(true);
       await writeLendingContractAsync({
         functionName: 'borrowCorn',
         args: [borrowAmount ? parseEther(borrowAmount) : 0n]
@@ -64,6 +67,8 @@ const BorrowOperations = () => {
       setBorrowAmount('');
     } catch (error) {
       console.error('Error borrowing corn:', error);
+    } finally {
+      setIsBorrowing(false);
     }
   };
 
@@ -75,6 +80,7 @@ const BorrowOperations = () => {
     )
       return;
     try {
+      setIsRepaying(true);
       const repayAmountWei = repayAmount ? parseEther(repayAmount) : 0n;
       if (allowance < repayAmountWei) {
         console.log('Approving corn contract');
@@ -91,6 +97,8 @@ const BorrowOperations = () => {
       setRepayAmount('');
     } catch (error) {
       console.error('Error repaying corn:', error);
+    } finally {
+      setIsRepaying(false);
     }
   };
 
@@ -122,7 +130,8 @@ const BorrowOperations = () => {
             <Button
               mode="contained"
               onPress={handleBorrow}
-              disabled={!borrowAmount}
+              disabled={!borrowAmount || isBorrowing}
+              loading={isBorrowing}
               style={styles.button}
               labelStyle={styles.buttonLabel}
             >
@@ -152,7 +161,8 @@ const BorrowOperations = () => {
             <Button
               mode="contained"
               onPress={handleRepay}
-              disabled={!repayAmount}
+              disabled={!repayAmount || isRepaying}
+              loading={isRepaying}
               style={styles.button}
               labelStyle={styles.buttonLabel}
             >

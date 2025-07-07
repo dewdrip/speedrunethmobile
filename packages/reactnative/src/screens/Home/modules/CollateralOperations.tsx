@@ -11,6 +11,8 @@ import { FONT_SIZE } from '../../../utils/styles';
 const CollateralOperations = () => {
   const [collateralAmount, setCollateralAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [isAddingCollateral, setIsAddingCollateral] = useState(false);
+  const [isWithdrawingCollateral, setIsWithdrawingCollateral] = useState(false);
 
   const { writeContractAsync } = useScaffoldWriteContract({
     contractName: 'Lending'
@@ -26,6 +28,7 @@ const CollateralOperations = () => {
 
   const handleAddCollateral = async () => {
     try {
+      setIsAddingCollateral(true);
       await writeContractAsync({
         functionName: 'addCollateral',
         value: collateralAmount ? parseEther(collateralAmount) : 0n
@@ -33,11 +36,14 @@ const CollateralOperations = () => {
       setCollateralAmount('');
     } catch (error) {
       console.error('Error adding collateral:', error);
+    } finally {
+      setIsAddingCollateral(false);
     }
   };
 
   const handleWithdrawCollateral = async () => {
     try {
+      setIsWithdrawingCollateral(true);
       await writeContractAsync({
         functionName: 'withdrawCollateral',
         args: [withdrawAmount ? parseEther(withdrawAmount) : 0n]
@@ -45,6 +51,8 @@ const CollateralOperations = () => {
       setWithdrawAmount('');
     } catch (error) {
       console.error('Error withdrawing collateral:', error);
+    } finally {
+      setIsWithdrawingCollateral(false);
     }
   };
 
@@ -67,7 +75,8 @@ const CollateralOperations = () => {
             <Button
               mode="contained"
               onPress={handleAddCollateral}
-              disabled={!collateralAmount}
+              disabled={!collateralAmount || isAddingCollateral}
+              loading={isAddingCollateral}
               style={styles.button}
               labelStyle={styles.buttonLabel}
             >
@@ -88,7 +97,8 @@ const CollateralOperations = () => {
             <Button
               mode="contained"
               onPress={handleWithdrawCollateral}
-              disabled={!withdrawAmount}
+              disabled={!withdrawAmount || isWithdrawingCollateral}
+              loading={isWithdrawingCollateral}
               style={styles.button}
               labelStyle={styles.buttonLabel}
             >

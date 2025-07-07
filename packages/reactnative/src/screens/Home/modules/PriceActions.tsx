@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     gap: 8
   },
   priceText: {
-    fontSize: FONT_SIZE.md,
+    fontSize: FONT_SIZE.lg,
     ...globalStyles.text
   },
   buttonContainer: {
