@@ -96,14 +96,17 @@ export default function ProvideLiquidity() {
         args: [dexContract?.address, balloonAmount + 1n]
       });
 
-      toast.show('Token Approval Successful!', { type: 'success' });
+      toast.show('Token Approval Successful!', {
+        type: 'success',
+        placement: 'top'
+      });
 
       await writeDexContractAsync({
         functionName: 'deposit',
         value: parseEther(ethAmount)
       });
 
-      toast.show('Deposit Successful!', { type: 'success' });
+      toast.show('Deposit Successful!', { type: 'success', placement: 'top' });
 
       setEthAmount('');
       setBalloonAmount(null);

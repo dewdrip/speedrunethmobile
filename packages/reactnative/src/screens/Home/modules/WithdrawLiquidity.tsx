@@ -96,7 +96,10 @@ export default function WithdrawLiquidity() {
         args: [parseEther(withdrawAmount)]
       });
 
-      toast.show('Withdrawal Successful!', { type: 'success' });
+      toast.show('Withdrawal Successful!', {
+        type: 'success',
+        placement: 'top'
+      });
 
       await refetchLiquidity();
       await refetchTotalLiquidity();

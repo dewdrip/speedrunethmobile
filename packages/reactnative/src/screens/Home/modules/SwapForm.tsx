@@ -128,7 +128,10 @@ export default function SwapForm() {
           args: [dexContract?.address, parseEther(buyAmount)]
         });
 
-        toast.show('Token Approval Successful!', { type: 'success' });
+        toast.show('Token Approval Successful!', {
+          type: 'success',
+          placement: 'top'
+        });
 
         await writeDexContractAsync({
           functionName: 'tokenToEth',
@@ -143,7 +146,7 @@ export default function SwapForm() {
         });
       }
 
-      toast.show('Swap Successful!', { type: 'success' });
+      toast.show('Swap Successful!', { type: 'success', placement: 'top' });
 
       setSellAmount('');
       setBuyAmount('');
