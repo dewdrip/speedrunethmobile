@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
+import globalStyles from '../../../styles/globalStyles';
 import { FONT_SIZE } from '../../../utils/styles';
 
 type Props = {
@@ -21,7 +22,7 @@ export default function AmountInput({
   onChange
 }: Props) {
   return (
-    <View style={styles.container}>
+    <View>
       <Text style={styles.title}>{title}</Text>
 
       <View style={styles.inputContainer}>
@@ -32,7 +33,7 @@ export default function AmountInput({
           outlineStyle={{ borderWidth: 0 }}
           outlineColor="transparent"
           activeOutlineColor="transparent"
-          placeholderTextColor="#ccc"
+          placeholderTextColor={isDisabled ? '#ccc' : '#888'}
           cursorColor="#ccc"
           placeholder="0"
           onChangeText={onChange}
@@ -49,18 +50,10 @@ export default function AmountInput({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '90%',
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 20,
-    padding: 10,
-    alignSelf: 'center'
-  },
   title: {
     fontSize: FONT_SIZE['lg'],
-    fontWeight: 'bold',
-    color: 'grey'
+    color: 'grey',
+    ...globalStyles.textMedium
   },
   inputContainer: {
     flexDirection: 'row',
@@ -80,11 +73,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 3,
     fontSize: FONT_SIZE['xl'],
-    fontWeight: 'bold',
-    color: 'grey'
+    color: 'grey',
+    ...globalStyles.textMedium
   },
   balance: {
     textAlign: 'right',
-    fontSize: FONT_SIZE['md']
+    fontSize: FONT_SIZE['md'],
+    ...globalStyles.textMedium
   }
 });

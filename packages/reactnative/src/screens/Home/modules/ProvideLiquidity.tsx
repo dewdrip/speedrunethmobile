@@ -2,7 +2,7 @@ import { Address } from 'abitype';
 import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Card, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
@@ -114,68 +114,66 @@ export default function ProvideLiquidity() {
     }
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Provide Liquidity</Text>
+    <Card style={styles.container}>
+      <Card.Content>
+        <Text style={styles.title}>Provide Liquidity</Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={ethAmount}
-          mode="outlined"
-          style={styles.inputField}
-          outlineColor="transparent"
-          activeOutlineColor="transparent"
-          placeholderTextColor="#ccc"
-          cursorColor="#ccc"
-          placeholder="0"
-          onChangeText={handleEthAmountChange}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={ethAmount}
+            mode="outlined"
+            style={styles.inputField}
+            outlineColor="transparent"
+            activeOutlineColor="transparent"
+            placeholderTextColor="#ccc"
+            cursorColor="#ccc"
+            placeholder="0"
+            onChangeText={handleEthAmountChange}
+          />
 
-        <Pressable onPress={depositLiquidity} style={styles.button}>
-          {isLoading ? (
-            <ActivityIndicator
-              color="white"
-              style={{ paddingHorizontal: 18 }}
-            />
-          ) : (
-            <Text style={styles.buttonLabel}>Provide</Text>
-          )}
-        </Pressable>
-      </View>
+          <Pressable onPress={depositLiquidity} style={styles.button}>
+            {isLoading ? (
+              <ActivityIndicator
+                color="white"
+                style={{ paddingHorizontal: 18 }}
+              />
+            ) : (
+              <Text style={styles.buttonLabel}>Provide</Text>
+            )}
+          </Pressable>
+        </View>
 
-      <Text style={styles.balance}>
-        {ethBalance !== null ? parseBalance(ethBalance) : null} ETH
-      </Text>
-
-      <View style={[styles.inputContainer, { marginTop: 10 }]}>
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 35,
-            color: balloonAmount ? 'black' : '#ccc'
-          }}
-        >
-          {balloonAmount ? parseBalance(balloonAmount) : 0}
+        <Text style={styles.balance}>
+          {ethBalance !== null ? parseBalance(ethBalance) : null} ETH
         </Text>
 
-        <Text style={styles.pairTokenLabel}>BAL</Text>
-      </View>
+        <View style={[styles.inputContainer, { marginTop: 10 }]}>
+          <Text
+            style={{
+              flex: 1,
+              fontSize: 35,
+              color: balloonAmount ? 'black' : '#ccc'
+            }}
+          >
+            {balloonAmount ? parseBalance(balloonAmount) : 0}
+          </Text>
 
-      <Text style={styles.balance}>
-        {balloonBalance !== null ? parseBalance(balloonBalance) : null} BAL
-      </Text>
-    </View>
+          <Text style={styles.pairTokenLabel}>BAL</Text>
+        </View>
+
+        <Text style={styles.balance}>
+          {balloonBalance !== null ? parseBalance(balloonBalance) : null} BAL
+        </Text>
+      </Card.Content>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     width: '90%',
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 20,
-    padding: 10,
-    alignSelf: 'center',
-    marginTop: 10
+    borderRadius: 12,
+    backgroundColor: 'white'
   },
   title: {
     fontSize: FONT_SIZE['lg'],

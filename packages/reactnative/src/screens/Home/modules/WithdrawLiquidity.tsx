@@ -2,7 +2,7 @@ import { Address } from 'abitype';
 import { JsonRpcProvider, parseEther } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Card, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
@@ -132,76 +132,74 @@ export default function WithdrawLiquidity() {
   }, [network]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Withdraw Liquidity</Text>
+    <Card style={styles.container}>
+      <Card.Content>
+        <Text style={styles.title}>Withdraw Liquidity</Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={withdrawAmount}
-          mode="outlined"
-          style={styles.inputField}
-          outlineColor="transparent"
-          activeOutlineColor="transparent"
-          placeholderTextColor="#ccc"
-          cursorColor="#ccc"
-          placeholder="0"
-          onChangeText={handleInputChange}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={withdrawAmount}
+            mode="outlined"
+            style={styles.inputField}
+            outlineColor="transparent"
+            activeOutlineColor="transparent"
+            placeholderTextColor="#ccc"
+            cursorColor="#ccc"
+            placeholder="0"
+            onChangeText={handleInputChange}
+          />
 
-        <Pressable onPress={withdrawLiquidity} style={styles.button}>
-          {isLoading ? (
-            <ActivityIndicator
-              color="white"
-              style={{ paddingHorizontal: 24 }}
-            />
-          ) : (
-            <Text style={styles.buttonLabel}>Withdraw</Text>
-          )}
-        </Pressable>
-      </View>
-
-      <Text style={styles.balance}>
-        {liquidity && parseBalance(liquidity)} LP
-      </Text>
-
-      <View style={styles.outputContainer}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: 'bold', color: 'grey' }}>ETH</Text>
-          <Text
-            style={[
-              styles.outputAmount,
-              { color: ethAmount ? 'black' : '#ccc' }
-            ]}
-          >
-            {ethAmount || 0}
-          </Text>
+          <Pressable onPress={withdrawLiquidity} style={styles.button}>
+            {isLoading ? (
+              <ActivityIndicator
+                color="white"
+                style={{ paddingHorizontal: 24 }}
+              />
+            ) : (
+              <Text style={styles.buttonLabel}>Withdraw</Text>
+            )}
+          </Pressable>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: 'bold', color: 'grey' }}>BAL</Text>
-          <Text
-            style={[
-              styles.outputAmount,
-              { color: balloonAmount ? 'black' : '#ccc' }
-            ]}
-          >
-            {balloonAmount || 0}
-          </Text>
+        <Text style={styles.balance}>
+          {liquidity && parseBalance(liquidity)} LP
+        </Text>
+
+        <View style={styles.outputContainer}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontWeight: 'bold', color: 'grey' }}>ETH</Text>
+            <Text
+              style={[
+                styles.outputAmount,
+                { color: ethAmount ? 'black' : '#ccc' }
+              ]}
+            >
+              {ethAmount || 0}
+            </Text>
+          </View>
+
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontWeight: 'bold', color: 'grey' }}>BAL</Text>
+            <Text
+              style={[
+                styles.outputAmount,
+                { color: balloonAmount ? 'black' : '#ccc' }
+              ]}
+            >
+              {balloonAmount || 0}
+            </Text>
+          </View>
         </View>
-      </View>
-    </View>
+      </Card.Content>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     width: '90%',
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 20,
-    padding: 10,
-    alignSelf: 'center',
-    marginTop: 10
+    borderRadius: 12,
+    backgroundColor: 'white'
   },
   title: {
     fontSize: FONT_SIZE['lg'],

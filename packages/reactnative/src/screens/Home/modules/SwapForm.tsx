@@ -2,7 +2,7 @@ import { Address } from 'abitype';
 import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, IconButton } from 'react-native-paper';
+import { Button, Card, IconButton } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
 import {
   useAccount,
@@ -156,41 +156,44 @@ export default function SwapForm() {
 
   return (
     <View style={styles.container}>
-      <View
-        style={
+      <Card
+        style={[
+          styles.card,
           isFlipped
             ? { flexDirection: 'column-reverse' }
             : { flexDirection: 'column' }
-        }
+        ]}
       >
-        <AmountInput
-          title={isFlipped ? 'Buy' : 'Sell'}
-          value={sellAmount}
-          token="ETH"
-          balance={ethBalance !== null ? parseBalance(ethBalance) : null}
-          onChange={handleInputChange}
-          isDisabled={isFlipped}
-        />
+        <Card.Content>
+          <AmountInput
+            title={isFlipped ? 'Buy' : 'Sell'}
+            value={sellAmount}
+            token="ETH"
+            balance={ethBalance !== null ? parseBalance(ethBalance) : null}
+            onChange={handleInputChange}
+            isDisabled={isFlipped}
+          />
 
-        <IconButton
-          icon="arrow-down"
-          size={24}
-          iconColor="white"
-          onPress={handleFlip}
-          style={styles.switchButton}
-        />
+          <IconButton
+            icon="arrow-down"
+            size={24}
+            iconColor="white"
+            onPress={handleFlip}
+            style={styles.switchButton}
+          />
 
-        <AmountInput
-          title={isFlipped ? 'Sell' : 'Buy'}
-          value={buyAmount}
-          token="BAL"
-          balance={
-            balloonBalance !== null ? parseBalance(balloonBalance) : null
-          }
-          onChange={handleInputChange}
-          isDisabled={!isFlipped}
-        />
-      </View>
+          <AmountInput
+            title={isFlipped ? 'Sell' : 'Buy'}
+            value={buyAmount}
+            token="BAL"
+            balance={
+              balloonBalance !== null ? parseBalance(balloonBalance) : null
+            }
+            onChange={handleInputChange}
+            isDisabled={!isFlipped}
+          />
+        </Card.Content>
+      </Card>
       <Button
         mode="contained"
         onPress={swap}
@@ -206,8 +209,14 @@ export default function SwapForm() {
 
 const styles = StyleSheet.create({
   container: {
+    width: '90%',
+    borderRadius: 12,
+    backgroundColor: 'white'
+  },
+  card: {
     width: '100%',
-    marginVertical: 10
+    borderRadius: 12,
+    backgroundColor: 'white'
   },
   switchButton: {
     alignSelf: 'center',
@@ -215,13 +224,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 3,
     borderColor: 'white',
-    marginTop: -18,
-    marginBottom: -18,
     zIndex: 10
   },
   button: {
     marginTop: 20,
-    width: '90%',
+    width: '100%',
     alignSelf: 'center',
     paddingVertical: 5,
     backgroundColor: COLORS.primary

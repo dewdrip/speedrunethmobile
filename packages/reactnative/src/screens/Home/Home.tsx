@@ -15,22 +15,23 @@ export default function Home() {
   });
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={{ padding: 8, paddingVertical: 32, alignItems: 'center' }}>
-        <Text variant="headlineMedium" style={styles.title}>
-          DEX Contract
-        </Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <Text variant="headlineMedium" style={styles.title}>
+        DEX Contract
+      </Text>
 
-        <Address
-          address={dexContract?.address ?? ''}
-          containerStyle={styles.addressContainer}
-        />
+      <Address
+        address={dexContract?.address ?? ''}
+        containerStyle={styles.addressContainer}
+      />
 
-        <Liquidity />
-        <SwapForm />
-        <ProvideLiquidity />
-        <WithdrawLiquidity />
-      </View>
+      <Liquidity />
+      <SwapForm />
+      <ProvideLiquidity />
+      <WithdrawLiquidity />
     </ScrollView>
   );
 }
@@ -39,6 +40,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white'
+  },
+  contentContainer: {
+    padding: 8,
+    paddingVertical: 32,
+    alignItems: 'center',
+    gap: 16
   },
   title: {
     ...globalStyles.textMedium
