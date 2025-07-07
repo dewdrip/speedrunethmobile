@@ -45,7 +45,9 @@ export default function Amount({
 
   const switchCurrency = () => {
     if (!dollarRate) {
-      toast.show('Loading exchange rate');
+      toast.show('Loading exchange rate', {
+        placement: 'top'
+      });
 
       if (!isFetchingDollarRate) {
         fetchDollarRate();

@@ -279,7 +279,7 @@ export default function Home() {
 
       {/* Sell Tokens Card */}
       {!!yourTokenBalance && (
-        <Card style={styles.card}>
+        <Card style={[styles.card, { marginBottom: 30 }]}>
           <Card.Content>
             <Text variant="titleLarge" style={styles.cardTitle}>
               Sell tokens
