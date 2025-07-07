@@ -2275,6 +2275,7 @@ __metadata:
     react-native-quick-base64: 2.1.2
     react-native-quick-crypto: 0.7.9
     react-native-reanimated: ^3.16.7
+    react-native-reanimated-carousel: ^4.0.2
     react-native-safe-area-context: ^5.1.0
     react-native-screens: ^4.5.0
     react-native-share: 10.1.0
@@ -13483,6 +13484,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 36700ff430b3e04e8462a9e082e222aaf030343f2c5020aebac88a02a3d3a94e09bdd1a9436a0fe906056b8f0817685a5c371f436349a0c01ae8a169fa07b980
+  languageName: node
+  linkType: hard
+
+"react-native-reanimated-carousel@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "react-native-reanimated-carousel@npm:4.0.2"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-native: ">=0.70.3"
+    react-native-gesture-handler: ">=2.9.0"
+    react-native-reanimated: ">=3.0.0"
+  checksum: 1f3d0434410a9e365420d2aa029d7af087a7dee6edd9be62019cbb3e14b13bb25a5ea4790fcc9a158208b027a3e7203ff02e62184753e6c3cb692392f8dcfdf4
   languageName: node
   linkType: hard
 
