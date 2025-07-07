@@ -217,10 +217,14 @@ export default function Home() {
 
           <Button
             mode="contained"
-            style={styles.button}
+            style={[
+              styles.button,
+              (!tokensToBuy || Number(tokensToBuy) <= 0) &&
+                styles.disabledButton
+            ]}
             onPress={handleBuyTokens}
             disabled={
-              !tokensToBuy || Number(tokensToBuy) <= 0 || isBuyingTokens
+              isBuyingTokens || !tokensToBuy || Number(tokensToBuy) <= 0
             }
             loading={isBuyingTokens}
           >
@@ -253,13 +257,17 @@ export default function Home() {
 
             <Button
               mode="contained"
-              style={styles.button}
+              style={[
+                styles.button,
+                (!toAddress || !tokensToSend || Number(tokensToSend) <= 0) &&
+                  styles.disabledButton
+              ]}
               onPress={handleTransferTokens}
               disabled={
+                isTransferringTokens ||
                 !toAddress ||
                 !tokensToSend ||
-                Number(tokensToSend) <= 0 ||
-                isTransferringTokens
+                Number(tokensToSend) <= 0
               }
               loading={isTransferringTokens}
             >
@@ -293,9 +301,13 @@ export default function Home() {
             <View style={styles.buttonRow}>
               <Button
                 mode="contained"
-                style={[styles.button, styles.halfButton]}
+                style={[
+                  styles.button,
+                  styles.halfButton,
+                  (isApproved || tokensToSell === '') && styles.disabledButton
+                ]}
                 onPress={handleApproveTokens}
-                disabled={isApproved || isApprovingTokens}
+                disabled={isApproved || tokensToSell === ''}
                 loading={isApprovingTokens}
               >
                 Approve Tokens
@@ -303,9 +315,13 @@ export default function Home() {
 
               <Button
                 mode="contained"
-                style={[styles.button, styles.halfButton]}
+                style={[
+                  styles.button,
+                  styles.halfButton,
+                  !isApproved && styles.disabledButton
+                ]}
                 onPress={handleSellTokens}
-                disabled={!isApproved || isSellingTokens}
+                disabled={!isApproved}
                 loading={isSellingTokens}
               >
                 Sell Tokens
@@ -377,5 +393,9 @@ const styles = StyleSheet.create({
   },
   halfButton: {
     flex: 1
+  },
+  disabledButton: {
+    backgroundColor: '#E0E0E0',
+    opacity: 0.6
   }
 });
