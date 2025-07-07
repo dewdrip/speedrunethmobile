@@ -9,7 +9,7 @@ import {
   Text,
   View
 } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator, Button, Card } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { useToast } from 'react-native-toast-notifications';
 import CustomButton from '../../../components/buttons/CustomButton';
@@ -158,12 +158,15 @@ export default function Accessory({ name }: Props) {
     >
       <View style={styles.header}>
         <Text style={styles.balance}>Balance: {balance}</Text>
-        <CustomButton
-          text="Mint"
+        <Button
+          mode="contained"
           onPress={mint}
           style={styles.button}
+          labelStyle={styles.buttonLabel}
           loading={isMinting}
-        />
+        >
+          Mint
+        </Button>
       </View>
 
       {isLoading ? (
@@ -171,13 +174,13 @@ export default function Accessory({ name }: Props) {
       ) : (
         <View style={styles.accessoriesContainer}>
           {accessories?.map(accessory => (
-            <View key={accessory.id} style={styles.accessory}>
+            <Card key={accessory.id} style={styles.accessory}>
               <SvgXml
                 xml={accessory.image}
                 width={WINDOW_WIDTH * 0.4}
                 height={WINDOW_WIDTH * 0.4}
               />
-            </View>
+            </Card>
           ))}
         </View>
       )}
@@ -202,10 +205,15 @@ const styles = StyleSheet.create({
     ...globalStyles.textSemiBold,
     marginBottom: -5
   },
+  buttonLabel: {
+    ...globalStyles.textMedium,
+    color: 'white',
+    fontSize: FONT_SIZE.md
+  },
   button: {
-    width: '30%',
-    marginTop: 10,
-    alignSelf: 'flex-end'
+    marginTop: 5,
+    alignSelf: 'flex-end',
+    borderRadius: 24
   },
   accessoriesContainer: {
     flexDirection: 'row',
@@ -215,8 +223,7 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   accessory: {
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: 10
+    backgroundColor: 'white',
+    paddingRight: 5
   }
 });

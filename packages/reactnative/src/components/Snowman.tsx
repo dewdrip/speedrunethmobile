@@ -80,8 +80,8 @@ export default function Snowman({ id }: Props) {
     >
       <SvgXml
         xml={metadata.image}
-        width={WINDOW_WIDTH * 0.4}
-        height={WINDOW_WIDTH * 0.4}
+        width={WINDOW_WIDTH * 0.95}
+        height={WINDOW_WIDTH * 0.95}
       />
       <View style={styles.id}>
         <Text variant="bodyLarge" style={{ fontWeight: '500' }}>
@@ -95,8 +95,8 @@ export default function Snowman({ id }: Props) {
 const styles = StyleSheet.create({
   id: {
     position: 'absolute',
-    top: 7,
-    left: 2,
+    top: 35,
+    left: 7,
     backgroundColor: COLORS.primaryLight,
     paddingHorizontal: 8,
     borderRadius: 4

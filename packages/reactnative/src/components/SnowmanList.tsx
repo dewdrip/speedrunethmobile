@@ -1,12 +1,15 @@
 import { Contract, InterfaceAbi, JsonRpcProvider } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useSharedValue } from 'react-native-reanimated';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 import {
   useAccount,
   useDeployedContractInfo,
   useNetwork
 } from '../hooks/eth-mobile';
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../utils/styles';
 import Snowman from './Snowman';
 
 type Props = { balance: number };
@@ -51,7 +54,7 @@ export default function SnowmanList({ balance }: Props) {
           console.error(error);
         }
       }
-      setSnowmen(tokenIds);
+      setSnowmen(tokenIds.reverse());
       setIsLoading(false);
     })();
   }, [balance, isLoadingSnowmanContract]);
@@ -61,27 +64,38 @@ export default function SnowmanList({ balance }: Props) {
 
     if (!snowmen || snowmen.length === 0) return;
 
-    return snowmen.map(snowman => (
-      <Snowman key={snowman.id} id={Number(snowman.id)} />
-    ));
+    return (
+      <Carousel
+        width={WINDOW_WIDTH}
+        height={WINDOW_HEIGHT * 0.7}
+        data={snowmen}
+        renderItem={({ item }) => (
+          <Snowman key={item.id} id={Number(item.id)} />
+        )}
+        ref={ref}
+        onProgressChange={progress}
+        mode="parallax"
+        loop={false}
+        pagingEnabled={true}
+        snapEnabled={true}
+      />
+    );
   };
 
+  const ref = React.useRef<ICarouselInstance>(null);
+  const progress = useSharedValue<number>(0);
+
   return (
-    <View style={styles.container}>
+    <View>
       <Text variant="titleLarge" style={styles.totalCount}>
         You own {snowmanBalance} Snowman☃️
       </Text>
-      <ScrollView contentContainerStyle={styles.snowmanContainer}>
-        {renderSnowmanList()}
-      </ScrollView>
+      {renderSnowmanList()}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 10
-  },
   totalCount: { textAlign: 'center' },
   snowmanContainer: {
     flexDirection: 'row',
