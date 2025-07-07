@@ -89,7 +89,8 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    paddingVertical: 16
   },
   header: {
     paddingTop: 32,
