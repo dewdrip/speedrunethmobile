@@ -1,7 +1,7 @@
 # 🔏 Decentralized Staking
 
 <p align="center">
-<img src="https://valentinecodes.github.io/speedrunethmobile/assets/challenge-1-decentralized-staking.png" alt="Simple NFT" width="300">
+<img src="https://valentinecodes.github.io/speedrunethmobile/assets/challenge-1-decentralized-staking.png" alt="Decentralized Staking" width="300">
 </p>
 
 This is an app where users can coordinate a group funding effort. If the users cooperate, the money is collected in a second smart contract. If they defect, the worst that can happen is everyone gets their money back. The users only have to trust the code.
