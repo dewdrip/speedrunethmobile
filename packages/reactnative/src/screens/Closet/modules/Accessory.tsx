@@ -227,8 +227,6 @@ export default function Accessory({
     checkAccessory();
   };
 
-  if (accessories?.length === 0) return null;
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -260,7 +258,7 @@ export default function Accessory({
 
       {isLoading ? (
         <ActivityIndicator color={COLORS.primary} />
-      ) : (
+      ) : accessories && accessories.length > 0 ? (
         <ScrollView
           contentContainerStyle={styles.accessoriesContainer}
           showsHorizontalScrollIndicator={false}
@@ -281,6 +279,10 @@ export default function Accessory({
             </Pressable>
           ))}
         </ScrollView>
+      ) : (
+        <Text style={styles.noAccessoriesText}>
+          No {name.toLowerCase()}s in your closet
+        </Text>
       )}
     </View>
   );
@@ -321,5 +323,12 @@ const styles = StyleSheet.create({
     ...globalStyles.textMedium,
     color: COLORS.error,
     fontSize: FONT_SIZE.md
+  },
+  noAccessoriesText: {
+    ...globalStyles.textMedium,
+    color: 'gray',
+    fontSize: FONT_SIZE.xl,
+    textAlign: 'center',
+    paddingVertical: 20
   }
 });
