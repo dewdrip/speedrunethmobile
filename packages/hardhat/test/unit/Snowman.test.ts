@@ -24,7 +24,7 @@ describe('Snowman☃️', () => {
     owner = signers[0];
     valentine = signers[1];
 
-    await deployments.fixture(['Snowman', 'Hat', 'Scarf', 'Belt']);
+    await deployments.fixture(['Snowman']);
 
     snowman = await ethers.getContract('Snowman', valentine);
     hat = await ethers.getContract('Hat', valentine);

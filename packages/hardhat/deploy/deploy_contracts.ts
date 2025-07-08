@@ -108,13 +108,6 @@ const deploySnowman: DeployFunction = async function (
     },
     autoMine: true
   });
-
-  const snowman = await hre.ethers.getContract<Snowman>('Snowman', deployer);
-
-  const accessories = [hat.address, scarf.address, belt.address];
-  const positions = [1, 0, 0];
-
-  await snowman.addAccessories(accessories, positions);
 };
 
 export default deploySnowman;
