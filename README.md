@@ -1,7 +1,7 @@
 # 🤖 Token Vendor
 
 <p align="center">
-<img src="https://valentinecodes.github.io/speedrunethmobile/assets/challenge-2-token-vendor.png" alt="Simple NFT" width="300">
+<img src="https://valentinecodes.github.io/speedrunethmobile/assets/challenge-2-token-vendor.png" alt="Token Vendor" width="300">
 </p>
 
 This is an app that lets users purchase your ERC20 token, transfer it, and sell it back to the vendor.
