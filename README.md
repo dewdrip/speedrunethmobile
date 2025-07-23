@@ -1,116 +1,52 @@
-# 📲 Mobile dApps On-Chain! 🚀
+# 🚀 SpeedRun Ethereum with ETH Mobile + Bounties! 💰
 
-✍️ **ETH Mobile** is an open-source toolkit for building mobile decentralized applications (dApps) on Ethereum and other EVM-compatible blockchains. It simplifies mobile dApp development with fast, secure and customizable pre-built components to create, deploy and interact with smart contracts.
+[SpeedRun Ethereum](https://speedrunethereum.com) is a series of challenges designed to teach and test your skills in Ethereum smart contract development. Each challenge focuses on a different aspect of building decentralized applications (dApps) on Ethereum.
 
-[Watch me mint a Snowman NFT!☃️](https://youtu.be/CaJTnRtLOK8)
+[ETH Mobile](https://ethmobile.io) brings these challenges to mobile devices, transforming each SpeedRun Ethereum challenge into a fully functional mobile dApp. This allows users to interact with Ethereum smart contracts directly from their phones, providing a seamless and accessible experience.
 
-⚙️ **Tech Stack**: Built with React Native, Hardhat, Ethers, and TypeScript to streamline mobile dApp development.
+## The Challenges
 
-### Key Features
+Each challenge is implemented in a separate branch in this repository:
 
-- 🧑‍💻 **Contract Debugger**: Inspect smart contract details such as address, balance, variables, and functions. It also allows real-time interaction with contracts, making development more efficient.
+1. [Challenge 0](https://github.com/dewdrip/speedrunethmobile/tree/challenge-0-simple-nft): This is a simple app that lets users mint and transfer NFTs.
 
-![Contract Debugger](https://dewdrip.github.io/eth-mobile/assets/debugger.png)
+2. [Challenge 1](https://github.com/dewdrip/eth-mobile/tree/challenge-1-decentralized-staking): This is an app where users can coordinate a group funding effort. If the users cooperate, the money is collected in a second smart contract. If they defect, the worst that can happen is everyone gets their money back. The users only have to trust the code.
 
-- 💳 **In-Built Wallet**: A secure mobile crypto wallet for managing funds, signing transactions, and interacting with multiple EVM-compatible chains.
+3. [Challenge 2](https://github.com/dewdrip/speedrunethmobile/tree/challenge-2-token-vendor): This is an app that lets users purchase your ERC20 token, transfer it, and sell it back to the vendor.
 
-![Wallet](https://dewdrip.github.io/eth-mobile/assets/wallet.png)
+4. [Challenge 4](https://github.com/dewdrip/speedrunethmobile/tree/challenge-4-dex): This is an app that allows users to seamlessly trade ERC20 BALLOONS ($BAL) with ETH in a decentralized manner. Users will be able to view their token balances, provide or withdraw liquidity, and buy or sell their tokens according to a price formula!
 
-- ✅ **Contract Hot Reload**: Automatically updates the mobile frontend to reflect changes made to smart contracts during development.
-- 🪝 **Custom Hooks**: A collection of React hooks with TypeScript autocompletion, simplifying contract interaction in your mobile app.
-- 🧱 **Web3 Components**: Pre-built components for quickly building mobile dApp frontends.
+5. [Challenge 5](https://github.com/dewdrip/speedrunethmobile/tree/challenge-5-over-collateralized-lending): This is an app that allows anyone to take out a loan in CORN while making sure it is always backed by it's value in ETH.
 
-## Requirements
+6. [Challenge 9](https://github.com/dewdrip/speedrunethmobile/tree/challenge-9-svg-nft): This is an app which lets users purchase uniquely generated SVG Images with “random” properties on-chain.
 
-Before you begin, you need to install the following tools:
+## Bounties! 💰
 
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
-- [React Native](https://reactnative.dev/docs/environment-setup?guide=native&platform=android)
-- [Yeet CLI](https://npmjs.com/package/yeet-cli)
+We're rewarding builders who complete the **3 missing challenges(Dice Game, Prediction Market & MultiSig)** and come out on top. Build these with ETH Mobile, and submit your builds as Pull Requests, merging into the respective challenge branches. Here's how! 👇
 
-## Quickstart
+We follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr)
 
-To get started, follow the steps below:
+1. Fork the repo
+2. Clone the project
+3. Create a new branch with a descriptive name - challenge-X
+4. Commit your changes to the new branch
+5. Push changes to your fork
+6. Open a PR in our repository and tag one of the maintainers to review your PR
 
-1. Clone this repo & install dependencies
+Here are some tips for a high-quality pull request:
 
-```
-git clone https://github.com/dewdrip/eth-mobile.git
+- Create a title for the PR that accurately defines the work done - **Challenge X by YOUR_NAME**.
+- Structure the description neatly to make it easy to consume. For example, you can include bullet points and screenshots instead of having one large paragraph.
+- Add the link to the issue if applicable.
+- Have a good commit message that summarises the work done.
 
-cd eth-mobile
+Once you submit your PR:
 
-yarn install
+- We may ask questions, request additional information or ask for changes to be made before a PR can be merged. Please note that these are to make the PR clear for everyone involved and aims to create a frictionless interaction process.
+- As you update your PR and apply changes, mark each conversation resolved.
 
-cd packages/reactnative
+Once the PR is approved, we'll "squash-and-merge" to keep the git commit history clean.
 
-npx pod-install
-```
+Bounties end on **Sept 1st**
 
-2. Connect your WIFI to your computer. if you wish to run your app in a physical device, your device must be connected to the same WIFI
-
-3. From the root folder, run a local network in the first terminal
-
-```
-yarn chain
-```
-
-This command starts a local Ethereum network hosted on your local IP address. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `hardhat.config.ts`.
-
-Alternatively, you can use [Ganache](https://archive.trufflesuite.com/ganache/) to persist the blockchain state during development
-
-4. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-5. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/ethmobile.config.ts`
-
-#### To determine your local IP address:
-
-#### Mac:
-
-```
-ipconfig getifaddr en0
-```
-
-#### Windows:
-
-```
-ipconfig
-```
-
-6. Connect your device via USB or Run an emulator
-
-7. Run on device:
-
-#### Android
-
-```
-yarn android
-```
-
-#### IOS
-
-```
-yarn ios
-```
-
-8. Import one of the funded accounts in your local blockchain into your wallet to have funds for testing
-
-You can interact with your smart contract using the `DebugContracts` tab. You can configure your supported networks in `packages/reactnative/ethmobile.config.ts`.
-
-Run smart contract test with `yarn hardhat:test`
-
-- Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
-- Edit your frontend in `packages/reactnative/src/screens`
-- Edit your deployment scripts in `packages/hardhat/deploy`
-
-## Contributing to ETH Mobile
-
-We welcome contributions to ETH Mobile!
-
-Please see [CONTRIBUTING.MD](https://github.com/dewdrip/eth-mobile/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to ETH Mobile.
+Happy Coding! 👨‍💻
