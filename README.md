@@ -22,7 +22,13 @@ Each challenge is implemented in a separate branch in this repository:
 
 ## Bounties! 💰
 
-We're rewarding builders who complete the **3 missing challenges(Dice Game, Prediction Market & MultiSig)** and come out on top. Build these with ETH Mobile, and submit your builds as Pull Requests, merging into the respective challenge branches. Here's how! 👇
+We're rewarding builders who complete the **3 missing challenges(Dice Game, Prediction Market & MultiSig)** and come out on top.
+
+- $50 for the Dice Game
+- $100 for the Prediction Market
+- $150 for the MultiSig
+
+Build these with ETH Mobile, and submit your builds as Pull Requests, merging into the respective challenge branches. Here's how! 👇
 
 We follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr)
 
