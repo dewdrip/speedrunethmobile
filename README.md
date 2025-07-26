@@ -59,6 +59,8 @@ Once the PR is approved, we'll "squash-and-merge" to keep the git commit history
 - Apps do not need to be deployed but MUST work seamlessly on Android & IOS.
 - Smart contract tests must be thourough.
 
-Bounties end on **Sept 1st**
+Bounties end on **Sept 1st.**
+
+Join our [Telegram Group](https://t.me/+DhLDb_G-2HczYzY0) to get support from other developers.
 
 Happy Coding! 👨‍💻
