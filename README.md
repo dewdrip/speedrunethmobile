@@ -61,6 +61,6 @@ Once the PR is approved, we'll "squash-and-merge" to keep the git commit history
 
 Bounties end on **Sept 1st.**
 
-Join our [Telegram Group](https://t.me/+DhLDb_G-2HczYzY0) to get support from other developers.
+Join our [Telegram Group](https://t.me/ethmobile_io) to get support from other developers.
 
 Happy Coding! 👨‍💻
