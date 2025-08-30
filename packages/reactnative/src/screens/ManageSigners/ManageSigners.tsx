@@ -11,14 +11,15 @@ import {
 import { Button } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useIsMounted, useLocalStorage } from 'usehooks-ts';
-import { Address, createWalletClient, encodeFunctionData, http } from 'viem';
+import { useIsMounted } from 'usehooks-ts';
+import { Address, encodeFunctionData } from 'viem';
 import { AddressInput, InputBase } from '../../components/eth-mobile';
 import {
   useAccount,
   useDeployedContractInfo,
   useScaffoldContract,
-  useScaffoldReadContract
+  useScaffoldReadContract,
+  useSignMessage
 } from '../../hooks/eth-mobile';
 import { COLORS } from '../../utils/constants';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
@@ -61,13 +62,8 @@ export default function ManageSignersPage() {
   const isMounted = useIsMounted();
 
   const { address } = useAccount();
-
-  const walletClient = address
-    ? createWalletClient({
-        account: address as `0x${string}`,
-        transport: http('http://127.0.0.1:8545') // Hardhat local RPC URL
-      })
-    : null;
+  const [operationMode, setOperationMode] = useState<'add' | 'remove'>('add');
+  const [owners, setOwners] = useState<Address[]>([]);
 
   const poolServerUrl = PoorlServerUrl;
 
@@ -76,7 +72,7 @@ export default function ManageSignersPage() {
   });
 
   const [predefinedSignerData, setPredefinedSignerData] =
-    useLocalStorage<PredefinedSignerData>('predefined-signer-data', {
+    useState<PredefinedSignerData>({
       methodName: 'addSigner',
       signer: '',
       newSignaturesNumber: '',
@@ -100,46 +96,55 @@ export default function ManageSignersPage() {
   // Generate callData based on method and signer address
   const generateCallData = (
     method: SignerMethod,
-    signerAddress: string
+    signerAddress: string,
+    newSignaturesRequired?: string
   ): `0x${string}` => {
     if (!signerAddress || !contractInfo?.abi) return '' as `0x${string}`;
 
     try {
+      // Use current signatures required as default if not provided
+      const signaturesRequiredValue = newSignaturesRequired
+        ? BigInt(newSignaturesRequired)
+        : signaturesRequired || 1n;
+
       if (method === 'addSigner') {
         return encodeFunctionData({
           abi: contractInfo.abi,
           functionName: 'addSigner',
-          args: [signerAddress as Address]
+          args: [signerAddress as Address, signaturesRequiredValue]
         });
       } else if (method === 'removeSigner') {
         return encodeFunctionData({
           abi: contractInfo.abi,
           functionName: 'removeSigner',
-          args: [signerAddress as Address]
+          args: [signerAddress as Address, signaturesRequiredValue]
         });
       }
     } catch (error) {
-      console.log('Error generating callData:', error);
+      console.error('Error generating callData:', error);
     }
 
     return '' as `0x${string}`;
   };
 
+  const { signMessage } = useSignMessage();
+
   const handleCreate = async () => {
     try {
-      if (!walletClient) {
-        console.log('No wallet client!');
-        return;
-      }
-
       if (!predefinedSignerData.signer) {
         Alert.alert('Error', 'Please enter a signer address');
         return;
       }
 
+      if (!predefinedSignerData.newSignaturesNumber) {
+        Alert.alert('Error', 'Please enter the new signatures required');
+        return;
+      }
+
       const callData = generateCallData(
         predefinedSignerData.methodName,
-        predefinedSignerData.signer
+        predefinedSignerData.signer,
+        predefinedSignerData.newSignaturesNumber
       );
 
       if (!callData) {
@@ -154,9 +159,7 @@ export default function ManageSignersPage() {
         callData
       ])) as `0x${string}`;
 
-      const signature = await walletClient.signMessage({
-        message: { raw: newHash }
-      });
+      const signature = await signMessage({ message: newHash });
 
       const recover = (await metaMultiSigWallet?.read.recover([
         newHash,
@@ -164,6 +167,8 @@ export default function ManageSignersPage() {
       ])) as Address;
 
       const isOwner = await metaMultiSigWallet?.read.isOwner([recover]);
+
+      console.log('isOwner', isOwner, 'recover', recover, 'address', address);
 
       if (isOwner) {
         if (!contractInfo?.address) {
@@ -178,7 +183,7 @@ export default function ManageSignersPage() {
           amount: '0', // No ETH transfer
           data: callData,
           hash: newHash,
-          signatures: [signature],
+          signatures: [signature as `0x${string}`],
           signers: [recover],
           requiredApprovals: signaturesRequired || 0n
         };
@@ -196,9 +201,13 @@ export default function ManageSignersPage() {
 
         setPredefinedSignerData(DEFAULT_SIGNER_DATA);
 
-        setTimeout(() => {
-          navigation.navigate('Pool' as never);
-        }, 777);
+        // Show success message and go back
+        Alert.alert('Success', 'Transaction created successfully!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack()
+          }
+        ]);
       } else {
         Alert.alert('Info', 'Only owners can propose signer changes');
       }
@@ -208,27 +217,94 @@ export default function ManageSignersPage() {
     }
   };
 
+  // Sync operation mode with predefined signer data on mount
+  // useEffect(() => {
+  //   if (predefinedSignerData.methodName === 'removeSigner') {
+  //     setOperationMode('remove');
+  //   } else {
+  //     setOperationMode('add');
+  //   }
+  // }, []);
+
   // Update callData when method or signer changes
   useEffect(() => {
-    if (
-      predefinedSignerData.signer &&
-      predefinedSignerData.methodName &&
-      contractInfo?.abi
-    ) {
+    if (predefinedSignerData.signer && predefinedSignerData.methodName) {
       const callData = generateCallData(
         predefinedSignerData.methodName,
-        predefinedSignerData.signer
+        predefinedSignerData.signer,
+        predefinedSignerData.newSignaturesNumber
       );
-      setPredefinedSignerData({
-        ...predefinedSignerData,
-        callData
-      });
+
+      console.log('callData', callData);
+
+      // Only update if callData has actually changed to prevent infinite loops
+      if (callData && callData !== predefinedSignerData.callData) {
+        setPredefinedSignerData(prev => ({
+          ...prev,
+          callData
+        }));
+      }
     }
   }, [
     predefinedSignerData.methodName,
     predefinedSignerData.signer,
-    contractInfo
+    predefinedSignerData.newSignaturesNumber,
+    signaturesRequired
   ]);
+
+  // Fetch owners from contract events
+  useEffect(() => {
+    const fetchOwners = async () => {
+      if (!metaMultiSigWallet || !contractInfo?.address) return;
+
+      try {
+        // Get Owner events from the contract
+        const ownerEvents = await metaMultiSigWallet.getEvents.Owner(
+          {},
+          {
+            fromBlock: 0n,
+            toBlock: 'latest'
+          }
+        );
+
+        // Process events to get current owners
+        const ownerMap = new Map<Address, boolean>();
+
+        ownerEvents.forEach(event => {
+          if (event.args?.owner && typeof event.args.added === 'boolean') {
+            ownerMap.set(event.args.owner as Address, event.args.added);
+          }
+        });
+
+        // Filter to get only current owners (added = true)
+        const currentOwners = Array.from(ownerMap.entries())
+          .filter(([, isActive]) => isActive)
+          .map(([owner]) => owner);
+
+        setOwners(currentOwners);
+      } catch (error) {
+        console.error('Error fetching owners:', error);
+        // Fallback: if current user is connected and is an owner, show them
+        if (address) {
+          try {
+            const isCurrentUserOwner = await metaMultiSigWallet.read.isOwner([
+              address
+            ]);
+            if (isCurrentUserOwner) {
+              setOwners([address as `0x${string}`]);
+            }
+          } catch (fallbackError) {
+            console.error(
+              'Error checking if current user is owner:',
+              fallbackError
+            );
+          }
+        }
+      }
+    };
+
+    fetchOwners();
+  }, [metaMultiSigWallet, contractInfo?.address, address]);
 
   return isMounted() ? (
     <View style={styles.container}>
@@ -266,43 +342,125 @@ export default function ManageSignersPage() {
               />
             </View>
 
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                Current Owners ({owners.length}) - Signatures Required:{' '}
+                {signaturesRequired || 'Loading...'}
+              </Text>
+              <View style={styles.ownersContainer}>
+                {owners.length > 0 ? (
+                  owners.map((owner, index) => (
+                    <View key={owner} style={styles.ownerItem}>
+                      <Text style={styles.ownerAddress}>
+                        {owner === address ? '👤 ' : ''}
+                        {owner.slice(0, 6)}...{owner.slice(-4)}
+                        {owner === address ? ' (You)' : ''}
+                      </Text>
+                      <View
+                        style={[
+                          styles.ownerStatus,
+                          {
+                            backgroundColor:
+                              owner === address ? COLORS.primary : '#28a745'
+                          }
+                        ]}
+                      >
+                        <Text style={styles.ownerStatusText}>
+                          {owner === address ? 'Connected' : 'Owner'}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noOwnersText}>
+                    {metaMultiSigWallet
+                      ? 'No owners found'
+                      : 'Loading owners...'}
+                  </Text>
+                )}
+              </View>
+            </View>
+
             <View style={styles.fieldsContainer}>
               <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Select method</Text>
+                <Text style={styles.label}>Select operation</Text>
                 <View style={styles.pickerContainer}>
-                  {SIGNER_METHODS.map(method => (
-                    <Button
-                      key={method}
-                      mode={
-                        predefinedSignerData.methodName === method
-                          ? 'contained'
-                          : 'outlined'
-                      }
-                      onPress={() =>
-                        setPredefinedSignerData({
-                          ...predefinedSignerData,
-                          methodName: method,
-                          callData: '' as `0x${string}`
-                        })
-                      }
-                      style={styles.methodButton}
-                    >
-                      {method}
-                    </Button>
-                  ))}
+                  <Button
+                    mode={operationMode === 'add' ? 'contained' : 'outlined'}
+                    onPress={() => {
+                      setOperationMode('add');
+                      setPredefinedSignerData(prev => ({
+                        ...prev,
+                        methodName: 'addSigner'
+                      }));
+                    }}
+                    style={styles.methodButton}
+                  >
+                    Add Signer
+                  </Button>
+                  <Button
+                    mode={operationMode === 'remove' ? 'contained' : 'outlined'}
+                    onPress={() => {
+                      setOperationMode('remove');
+                      setPredefinedSignerData(prev => ({
+                        ...prev,
+                        methodName: 'removeSigner'
+                      }));
+                    }}
+                    style={styles.methodButton}
+                  >
+                    Remove Signer
+                  </Button>
                 </View>
               </View>
+
+              {operationMode === 'add' && (
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.label}>Method</Text>
+                  <View style={styles.pickerContainer}>
+                    <Button mode="contained" style={styles.methodButton}>
+                      addSigner
+                    </Button>
+                  </View>
+                </View>
+              )}
+
+              {operationMode === 'remove' && (
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.label}>Method</Text>
+                  <View style={styles.pickerContainer}>
+                    <Button mode="contained" style={styles.methodButton}>
+                      removeSigner
+                    </Button>
+                  </View>
+                </View>
+              )}
 
               <AddressInput
                 placeholder="Signer address"
                 value={predefinedSignerData.signer}
                 onChange={signer =>
-                  setPredefinedSignerData({
-                    ...predefinedSignerData,
+                  setPredefinedSignerData(prev => ({
+                    ...prev,
                     signer: signer
-                  })
+                  }))
                 }
               />
+
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>New Signatures Required</Text>
+                <InputBase
+                  value={predefinedSignerData.newSignaturesNumber}
+                  placeholder={`Current: ${signaturesRequired || 'Loading...'}`}
+                  onChange={(text: string) => {
+                    console.log('text', text);
+                    setPredefinedSignerData({
+                      ...predefinedSignerData,
+                      newSignaturesNumber: text // Only allow numbers
+                    });
+                  }}
+                />
+              </View>
 
               <InputBase
                 value={predefinedSignerData.callData || ''}
@@ -315,11 +473,17 @@ export default function ManageSignersPage() {
 
               <Button
                 mode="contained"
-                disabled={!walletClient || !predefinedSignerData.signer}
+                disabled={
+                  !predefinedSignerData.signer ||
+                  !predefinedSignerData.newSignaturesNumber ||
+                  predefinedSignerData.newSignaturesNumber.trim() === ''
+                }
                 onPress={handleCreate}
                 style={styles.createButton}
               >
-                Create Signer Transaction
+                {operationMode === 'add'
+                  ? 'Create Add Signer Tx Proposal'
+                  : 'Create Remove Signer Tx Proposal'}
               </Button>
             </View>
           </View>
@@ -452,6 +616,46 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: 16
+  },
+  ownersContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#e5e5e5'
+  },
+  ownerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0'
+  },
+  ownerAddress: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    flex: 1
+  },
+  ownerStatus: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8
+  },
+  ownerStatusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff'
+  },
+  noOwnersText: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    paddingVertical: 16,
+    fontStyle: 'italic'
   },
   tabBar: {
     flexDirection: 'row',

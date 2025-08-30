@@ -1,6 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState, type FC } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -11,14 +13,17 @@ import {
 import { Button, TextInput } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { useIsMounted, useLocalStorage } from 'usehooks-ts';
+import { useIsMounted } from 'usehooks-ts';
 import { Address, createWalletClient, http, parseEther } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { hardhat } from 'viem/chains';
 import { AddressInput, InputBase } from '../../components/eth-mobile';
 import {
   useAccount,
   useDeployedContractInfo,
   useScaffoldContract,
-  useScaffoldReadContract
+  useScaffoldReadContract,
+  useSignMessage
 } from '../../hooks/eth-mobile';
 import { COLORS } from '../../utils/constants';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
@@ -29,7 +34,9 @@ export const METHODS: Method[] = ['transferFunds'];
 export const DEFAULT_TX_DATA = {
   methodName: 'transferFunds' as Method,
   signer: '',
-  newSignaturesNumber: ''
+  newSignaturesNumber: '',
+  amount: '0',
+  callData: '0x' as `0x${string}`
 };
 
 export type PredefinedTxData = {
@@ -40,6 +47,43 @@ export type PredefinedTxData = {
   amount?: string;
   callData?: `0x${string}` | '';
 };
+
+// Custom hook to replace useLocalStorage for React Native
+function useAsyncStorage<T>(
+  key: string,
+  initialValue: T
+): [T, (value: T) => void] {
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  const setValue = useCallback(
+    async (value: T) => {
+      try {
+        setStoredValue(value);
+        await AsyncStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error(`Error saving to AsyncStorage:`, error);
+      }
+    },
+    [key]
+  );
+
+  useEffect(() => {
+    const loadStoredValue = async () => {
+      try {
+        const item = await AsyncStorage.getItem(key);
+        if (item) {
+          setStoredValue(JSON.parse(item));
+        }
+      } catch (error) {
+        console.error(`Error loading from AsyncStorage:`, error);
+      }
+    };
+
+    loadStoredValue();
+  }, [key]);
+
+  return [storedValue, setValue];
+}
 
 export const PoorlServerUrl = 'http://localhost:49832/';
 
@@ -61,15 +105,9 @@ export default function CreatePage() {
   const navigation = useNavigation();
   const chainId = 31337; // Hardhat chain ID
   const isMounted = useIsMounted();
+  const [isCreating, setIsCreating] = useState(false);
 
   const { address } = useAccount();
-
-  const walletClient = address
-    ? createWalletClient({
-        account: address as `0x${string}`,
-        transport: http('http://127.0.0.1:8545') // Hardhat local RPC URL
-      })
-    : null;
 
   const poolServerUrl = PoorlServerUrl;
 
@@ -79,11 +117,12 @@ export default function CreatePage() {
   });
 
   const [predefinedTxData, setPredefinedTxData] =
-    useLocalStorage<PredefinedTxData>('predefined-tx-data', {
+    useAsyncStorage<PredefinedTxData>('predefined-tx-data', {
       methodName: 'transferFunds',
       signer: '',
       newSignaturesNumber: '',
-      amount: '0'
+      amount: '0',
+      callData: '0x'
     });
 
   const { data: nonce } = useScaffoldReadContract({
@@ -105,30 +144,62 @@ export default function CreatePage() {
     contractName: 'MetaMultiSigWallet'
   });
 
+  const { signMessage } = useSignMessage();
+
   const handleCreate = async () => {
     try {
-      if (!walletClient) {
-        console.log('No wallet client!');
+      setIsCreating(true);
+
+      if (!metaMultiSigWallet) {
+        Alert.alert('Error', 'Contract not loaded yet');
         return;
       }
 
-      const newHash = (await metaMultiSigWallet?.read.getTransactionHash([
-        nonce as bigint,
-        String(txTo),
-        BigInt(predefinedTxData.amount as string),
-        predefinedTxData.callData as `0x${string}`
-      ])) as `0x${string}`;
+      if (
+        nonce === undefined ||
+        nonce === null ||
+        !txTo ||
+        !predefinedTxData.amount
+      ) {
+        Alert.alert('Error', 'Missing required transaction data');
+        return;
+      }
 
-      const signature = await walletClient.signMessage({
-        message: { raw: newHash }
-      });
+      const getTransactionHashCall = metaMultiSigWallet.read.getTransactionHash(
+        [
+          nonce as bigint,
+          String(txTo),
+          BigInt(predefinedTxData.amount as string),
+          (predefinedTxData.callData || '0x') as `0x${string}`
+        ]
+      );
 
-      const recover = (await metaMultiSigWallet?.read.recover([
-        newHash,
-        signature
-      ])) as Address;
+      if (!getTransactionHashCall) {
+        Alert.alert('Error', 'Failed to Transfer hash call');
+        return;
+      }
 
-      const isOwner = await metaMultiSigWallet?.read.isOwner([recover]);
+      const newHash = (await getTransactionHashCall) as `0x${string}`;
+
+      const signature = await signMessage({ message: newHash });
+
+      const recoverCall = metaMultiSigWallet.read.recover([newHash, signature]);
+
+      if (!recoverCall) {
+        Alert.alert('Error', 'Failed to create recover call');
+        return;
+      }
+
+      const recover = (await recoverCall) as Address;
+
+      const isOwnerCall = metaMultiSigWallet.read.isOwner([recover]);
+
+      if (!isOwnerCall) {
+        Alert.alert('Error', 'Failed to create isOwner call');
+        return;
+      }
+
+      const isOwner = await isOwnerCall;
 
       if (isOwner) {
         if (!contractInfo?.address || !predefinedTxData.amount || !txTo) {
@@ -141,9 +212,9 @@ export default function CreatePage() {
           nonce: nonce || 0n,
           to: txTo,
           amount: predefinedTxData.amount,
-          data: predefinedTxData.callData as `0x${string}`,
+          data: (predefinedTxData.callData || '0x') as `0x${string}`,
           hash: newHash,
-          signatures: [signature],
+          signatures: [signature as `0x${string}`],
           signers: [recover],
           requiredApprovals: signaturesRequired || 0n
         };
@@ -160,16 +231,23 @@ export default function CreatePage() {
         });
 
         setPredefinedTxData(DEFAULT_TX_DATA);
+        setEthValue('');
 
-        setTimeout(() => {
-          navigation.navigate('Pool' as never);
-        }, 777);
+        // Show success message and go back
+        Alert.alert('Success', 'Transaction created successfully!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack()
+          }
+        ]);
       } else {
         Alert.alert('Info', 'Only owners can propose transactions');
       }
     } catch (e) {
       Alert.alert('Error', 'Error while proposing transaction');
       console.log(e);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -194,14 +272,15 @@ export default function CreatePage() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
+          disabled={isCreating}
         >
           <Ionicons
             name="arrow-back"
             size={WINDOW_WIDTH * 0.06}
-            color={COLORS.primary}
+            color={isCreating ? COLORS.textSecondary : COLORS.primary}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Transaction</Text>
+        <Text style={styles.headerTitle}>Transfer</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -263,11 +342,18 @@ export default function CreatePage() {
 
               <Button
                 mode="contained"
-                disabled={!walletClient}
+                disabled={
+                  isCreating ||
+                  !metaMultiSigWallet ||
+                  nonce === undefined ||
+                  nonce === null ||
+                  !contractInfo
+                }
                 onPress={handleCreate}
                 style={styles.createButton}
+                loading={isCreating}
               >
-                Create
+                {isCreating ? 'Creating...' : 'Create'}
               </Button>
             </View>
           </View>
@@ -317,6 +403,17 @@ export default function CreatePage() {
           />
         </TouchableOpacity>
       </View>
+
+      {/* Loading Overlay */}
+      {isCreating && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Creating transaction...</Text>
+            <Text style={styles.loadingSubtext}>Please wait</Text>
+          </View>
+        </View>
+      )}
     </View>
   ) : null;
 }
@@ -415,5 +512,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 5
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+  },
+  loadingContainer: {
+    backgroundColor: '#fff',
+    padding: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    minWidth: 200
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    textAlign: 'center'
+  },
+  loadingSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center'
   }
 });

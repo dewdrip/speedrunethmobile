@@ -1,4 +1,4 @@
-import { JsonRpcProvider, Wallet } from 'ethers';
+import { ethers, JsonRpcProvider, Wallet } from 'ethers';
 import { useModal } from 'react-native-modalfy';
 import { useSelector } from 'react-redux';
 import { useAccount, useNetwork } from '.';
@@ -73,7 +73,13 @@ export function useSignMessage({
           }
 
           const activeWallet = new Wallet(activeAccount.privateKey, provider);
-          const signature = await activeWallet.signMessage(messageToSign!);
+
+          //const signature = await activeWallet.signMessage(messageToSign!);
+
+          const signature = await activeWallet.signMessage(
+            ethers.getBytes(messageToSign)
+          );
+
           resolve(signature);
         } catch (error) {
           reject(getParsedError(error));

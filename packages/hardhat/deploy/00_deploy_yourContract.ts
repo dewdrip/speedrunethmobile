@@ -25,7 +25,7 @@ const deployMetaMultiSigWallet: DeployFunction = async function (
   await deploy('MetaMultiSigWallet', {
     from: deployer,
     // Contract constructor arguments
-    args: [31337, ['0x83b68476703A103146b5d14ab063252df3b75f5a'], 1],
+    args: [31337, ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'], 1],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.

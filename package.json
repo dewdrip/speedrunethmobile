@@ -19,7 +19,7 @@
     "add:backend": "yarn workspace @ethmobile/backend-local add",
     "android": "yarn workspace @ethmobile/reactnative android",
     "backend:build": "yarn workspace @ethmobile/backend-local build",
-    "backend:dev": "yarn workspace @ethmobile/backend-local dev",
+    "backend:local": "yarn workspace @ethmobile/backend-local dev",
     "backend:start": "yarn workspace @ethmobile/backend-local start",
     "chain": "yarn hardhat:chain",
     "clean": "yarn hardhat:clean",
