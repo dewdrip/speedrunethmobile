@@ -5,7 +5,8 @@
   "workspaces": {
     "packages": [
       "packages/hardhat",
-      "packages/reactnative"
+      "packages/reactnative",
+      "packages/backend-local"
     ]
   },
   "scripts": {
@@ -15,7 +16,11 @@
     "account:reveal-pk": "yarn workspace @ethmobile/hardhat account:reveal-pk",
     "add:reactnative": "yarn workspace @ethmobile/reactnative add",
     "add:hardhat": "yarn workspace @ethmobile/hardhat add",
+    "add:backend": "yarn workspace @ethmobile/backend-local add",
     "android": "yarn workspace @ethmobile/reactnative android",
+    "backend:build": "yarn workspace @ethmobile/backend-local build",
+    "backend:dev": "yarn workspace @ethmobile/backend-local dev",
+    "backend:start": "yarn workspace @ethmobile/backend-local start",
     "chain": "yarn hardhat:chain",
     "clean": "yarn hardhat:clean",
     "compile": "yarn hardhat:compile",
@@ -47,6 +52,7 @@
     "reactnative:lint": "yarn workspace @ethmobile/reactnative lint",
     "remove:hardhat": "yarn workspace @ethmobile/hardhat remove",
     "remove:reactnative": "yarn workspace @ethmobile/reactnative remove",
+    "remove:backend": "yarn workspace @ethmobile/backend-local remove",
     "rename": "yarn workspace @ethmobile/reactnative rename",
     "start": "yarn workspace @ethmobile/reactnative start",
     "test": "yarn hardhat:test",

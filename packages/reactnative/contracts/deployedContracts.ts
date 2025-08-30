@@ -6,15 +6,25 @@ import { GenericContractsDeclaration } from "../src/utils/eth-mobile/contract";
 
 const deployedContracts = {
   31337: {
-    YourContract: {
+    MetaMultiSigWallet: {
       address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
           inputs: [
             {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
+              internalType: "uint256",
+              name: "_chainId",
+              type: "uint256",
+            },
+            {
+              internalType: "address[]",
+              name: "_owners",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_signaturesRequired",
+              type: "uint256",
             },
           ],
           stateMutability: "nonpayable",
@@ -22,12 +32,29 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "YourContract__NotOwner",
+          name: "ECDSAInvalidSignature",
           type: "error",
         },
         {
-          inputs: [],
-          name: "YourContract__TransferFailed",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "length",
+              type: "uint256",
+            },
+          ],
+          name: "ECDSAInvalidSignatureLength",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "s",
+              type: "bytes32",
+            },
+          ],
+          name: "ECDSAInvalidSignatureS",
           type: "error",
         },
         {
@@ -36,20 +63,39 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "greetingSetter",
+              name: "sender",
               type: "address",
             },
             {
               indexed: false,
-              internalType: "string",
-              name: "newGreeting",
-              type: "string",
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
             },
             {
               indexed: false,
-              internalType: "bool",
-              name: "premium",
-              type: "bool",
+              internalType: "uint256",
+              name: "balance",
+              type: "uint256",
+            },
+          ],
+          name: "Deposit",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address payable",
+              name: "to",
+              type: "address",
             },
             {
               indexed: false,
@@ -57,39 +103,161 @@ const deployedContracts = {
               name: "value",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "nonce",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "hash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "result",
+              type: "bytes",
+            },
           ],
-          name: "GreetingChange",
+          name: "ExecuteTransaction",
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "added",
+              type: "bool",
+            },
+          ],
+          name: "Owner",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newSigner",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "newSignaturesRequired",
+              type: "uint256",
+            },
+          ],
+          name: "addSigner",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
-          name: "greeting",
+          name: "chainId",
           outputs: [
             {
-              internalType: "string",
+              internalType: "uint256",
               name: "",
-              type: "string",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
           type: "function",
         },
         {
-          inputs: [],
-          name: "owner",
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "to",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+            {
+              internalType: "bytes[]",
+              name: "signatures",
+              type: "bytes[]",
+            },
+          ],
+          name: "executeTransaction",
           outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "getTransactionHash",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
             {
               internalType: "address",
               name: "",
               type: "address",
             },
           ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "premium",
+          name: "isOwner",
           outputs: [
             {
               internalType: "bool",
@@ -101,21 +269,8 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_newGreeting",
-              type: "string",
-            },
-          ],
-          name: "setGreeting",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
           inputs: [],
-          name: "totalCounter",
+          name: "nonce",
           outputs: [
             {
               internalType: "uint256",
@@ -128,13 +283,49 @@ const deployedContracts = {
         },
         {
           inputs: [
+            {
+              internalType: "bytes32",
+              name: "_hash",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_signature",
+              type: "bytes",
+            },
+          ],
+          name: "recover",
+          outputs: [
             {
               internalType: "address",
               name: "",
               type: "address",
             },
           ],
-          name: "userGreetingCounter",
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "oldSigner",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "newSignaturesRequired",
+              type: "uint256",
+            },
+          ],
+          name: "removeSigner",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "signaturesRequired",
           outputs: [
             {
               internalType: "uint256",
@@ -146,8 +337,14 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "withdraw",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "newSignaturesRequired",
+              type: "uint256",
+            },
+          ],
+          name: "updateSignaturesRequired",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",

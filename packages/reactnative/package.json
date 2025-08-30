@@ -6,7 +6,7 @@
     "android": "npx react-native run-android",
     "format": "prettier src --write",
     "lint": "eslint .",
-    "ios": "npx react-native run-ios",
+    "ios": "npx react-native run-ios --verbose",
     "patch-ethers": "npx patch-package",
     "rename": "npx react-native-rename@latest",
     "start": "npx react-native start",

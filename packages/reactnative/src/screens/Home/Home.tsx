@@ -1,9 +1,23 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { Button, Card, Text } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import { Address, Balance } from '../../components/eth-mobile';
+import { Pool } from '../../components/Pool';
+import {
+  useAccount,
+  useDeployedContractInfo,
+  useScaffoldEventHistory,
+  useScaffoldReadContract
+} from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
@@ -30,139 +44,151 @@ function HighlightedText({ children }: { children: string }) {
 
 export default function Home({}: Props) {
   const navigation = useNavigation();
+  const { data: contractInfo } = useDeployedContractInfo({
+    contractName: 'MetaMultiSigWallet'
+  });
+
+  const contractAddress = contractInfo?.address;
+
+  const { data: executeTransactionEvents } = useScaffoldEventHistory({
+    contractName: 'MetaMultiSigWallet',
+    eventName: 'ExecuteTransaction',
+    fromBlock: 0n
+  });
+
+  // Placeholder variables - replace with your actual state/data
+  const multisigsLoading = false;
+  const registryAddressLoading = false;
+  const multisigs: string[] = [];
+  const connectedAddress = null;
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 10 }}
-    >
-      <View style={{ paddingVertical: 32, alignItems: 'center' }}>
-        <Text variant="headlineSmall" style={globalStyles.text}>
-          Welcome to
-        </Text>
-        <Text variant="displaySmall" style={globalStyles.textSemiBold}>
-          ETH Mobile
-        </Text>
-
-        <Text
-          style={{
-            marginTop: 16,
-            marginBottom: 4,
-            fontSize: FONT_SIZE['lg'],
-            ...globalStyles.text
-          }}
-        >
-          Get started by editing
-        </Text>
-        <HighlightedText>
-          packages/reactnative/src/screens/Dashboard/Tab/Home.tsx
-        </HighlightedText>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            marginTop: 16,
-            marginBottom: 4,
-            gap: 4,
-            maxWidth: '100%'
-          }}
-        >
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            Edit your smart contract
-          </Text>
-          <HighlightedText>YourContract.sol</HighlightedText>
-          <Text style={{ fontSize: FONT_SIZE['lg'], ...globalStyles.text }}>
-            in
-          </Text>
+    <View style={styles.mainContainer}>
+      {contractAddress ? (
+        <View style={styles.qrContainer}>
+          <Balance address={contractAddress} />
+          <Text>QR Code would go here</Text>
+          <Address address={contractAddress} />
         </View>
-        <HighlightedText>packages/hardhat/contracts</HighlightedText>
-      </View>
+      ) : (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Loading contract...</Text>
+        </View>
+      )}
 
-      <View style={styles.featuresContainer}>
-        {/* Contract Debugger */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="bug-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
-
-            <Text style={styles.featureCaption}>
-              Tinker with your smart contracts using the
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('DebugContracts')}
-              >
-                {' '}
-                DebugContracts{' '}
-              </Text>
-              tab
+      {contractAddress && (
+        <View style={styles.eventsContainer}>
+          <Text style={styles.eventsTitle}>Events:</Text>
+          {executeTransactionEvents?.map((txEvent, index) => (
+            <Text key={index}>
+              Transaction Event: {JSON.stringify(txEvent.args)}
             </Text>
-          </Card.Content>
-        </Card>
+          ))}
+        </View>
+      )}
 
-        {/* Wallet */}
-        <Card style={styles.feature}>
-          <Card.Content
-            style={{
-              alignItems: 'center',
-              gap: 10
-            }}
-          >
-            <Ionicons
-              name="wallet-outline"
-              color={'grey'}
-              size={WINDOW_WIDTH * 0.09}
-            />
+      <Pool />
 
-            <Text style={styles.featureCaption}>
-              Manage your accounts, funds, and tokens in your
-              <Text
-                style={styles.featureLink}
-                onPress={() => navigation.navigate('Wallet')}
-              >
-                {' '}
-                Wallet
-              </Text>
-            </Text>
-          </Card.Content>
-        </Card>
+      <View style={styles.buttonsContainer}>
+        <Button
+          onPress={() => navigation.navigate('Create' as never)}
+          mode="contained"
+          style={styles.actionButton}
+          contentStyle={styles.actionButtonContent}
+        >
+          Create Transaction
+        </Button>
+
+        <Button
+          onPress={() => navigation.navigate('ManageSigners' as never)}
+          mode="outlined"
+          style={styles.actionButton}
+          contentStyle={styles.actionButtonContent}
+        >
+          Manage Signers
+        </Button>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  featuresContainer: {
+  // ... your existing styles
+  mainContainer: {
     flex: 1,
-    padding: 10,
+    alignItems: 'center',
+    flexDirection: 'column',
+    width: '100%',
+    marginVertical: 80, // my-20 equivalent (20 * 4px = 80px)
+    paddingHorizontal: 16, // Add horizontal padding to the main container
+    gap: 12 // gap-8 equivalent (8 * 4px = 32px)
+  },
+  qrContainer: {
+    flexDirection: 'column',
+    gap: 16, // gap-4 equivalent
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa', // base-100 equivalent
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8, // Android shadow
+    borderWidth: 8,
+    borderColor: '#6366f1', // secondary color equivalent
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 320 // max-w-lg equivalent (~20rem)
+  },
+  eventsContainer: {
+    flexDirection: 'column',
+    marginTop: 40, // mt-10 equivalent
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 8,
+    borderColor: '#6366f1',
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 768 // max-w-3xl equivalent (~48rem)
+  },
+  eventsTitle: {
+    fontSize: 20, // text-xl equivalent
+    fontWeight: 'bold',
+    marginVertical: 8 // my-2 equivalent
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20
+    gap: 16
   },
-  feature: {
-    paddingVertical: 32,
-    width: '90%',
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: 24,
-    backgroundColor: 'white',
-    gap: 24
+  buttonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    alignSelf: 'center',
+    marginTop: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'center'
   },
-  featureCaption: {
-    textAlign: 'center',
-    width: WINDOW_WIDTH * 0.6,
-    fontSize: FONT_SIZE['lg'],
-    ...globalStyles.text
+  actionButton: {
+    minWidth: 160,
+    maxWidth: 200
   },
-  featureLink: {
-    textDecorationLine: 'underline',
-    fontSize: FONT_SIZE['lg'],
-    ...globalStyles.textSemiBold
+  actionButtonContent: {
+    paddingVertical: 6,
+    paddingHorizontal: 12
   }
 });
