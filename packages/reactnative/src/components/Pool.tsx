@@ -15,6 +15,7 @@ export const Pool: FC = () => {
   const { data: contractInfo } = useDeployedContractInfo({
     contractName: 'MetaMultiSigWallet'
   });
+
   const poolServerUrl = PoorlServerUrl;
   const chainId = 31337; // Hardhat chain ID
   const { data: nonce } = useScaffoldReadContract({
@@ -41,6 +42,11 @@ export const Pool: FC = () => {
   useInterval(() => {
     const getTransactions = async () => {
       try {
+        if (!contractInfo?.address || !metaMultiSigWallet) {
+          console.log('Contract not ready yet');
+          return;
+        }
+
         const res: { [key: string]: TransactionData } = await (
           await fetch(`${poolServerUrl}${contractInfo?.address}_${chainId}`)
         ).json();
@@ -51,14 +57,28 @@ export const Pool: FC = () => {
           const validSignatures = [];
           // eslint-disable-next-line guard-for-in, no-restricted-syntax
           for (const s in res[i].signatures) {
-            const signer = (await metaMultiSigWallet?.read.recover([
+            const recoverCall = metaMultiSigWallet.read.recover([
               res[i].hash as `0x${string}`,
               res[i].signatures[s]
-            ])) as `0x${string}`;
+            ]);
 
-            const isOwner = await metaMultiSigWallet?.read.isOwner([
+            if (!recoverCall) {
+              console.log('Failed to create recover call');
+              continue;
+            }
+
+            const signer = (await recoverCall) as `0x${string}`;
+
+            const isOwnerCall = metaMultiSigWallet.read.isOwner([
               signer as string
             ]);
+
+            if (!isOwnerCall) {
+              console.log('Failed to create isOwner call');
+              continue;
+            }
+
+            const isOwner = await isOwnerCall;
 
             if (signer && isOwner) {
               validSignatures.push({ signer, signature: res[i].signatures[s] });
@@ -67,10 +87,11 @@ export const Pool: FC = () => {
           const update: TransactionData = { ...res[i], validSignatures };
           newTransactions.push(update);
         }
+
         setTransactions(newTransactions);
       } catch (e) {
         //Alert.alert('Error', 'Error fetching transactions');
-        console.log(e);
+        console.log('Error fetching transactions:', e);
       }
     };
 
@@ -86,87 +107,184 @@ export const Pool: FC = () => {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
+    <View style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.poolContainer}>
-          <Text style={styles.title}>Pool</Text>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <Text style={styles.title}>Transaction Pool</Text>
+              <Text style={styles.subtitle}>
+                Multi-signature wallet transactions
+              </Text>
 
-          <Text style={styles.nonce}>
-            Nonce: {nonce !== undefined ? `#${nonce}` : 'Loading...'}
-          </Text>
+              <View style={styles.nonceContainer}>
+                <Text style={styles.nonce}>
+                  {nonce !== undefined
+                    ? `Current Nonce: #${nonce}`
+                    : 'Loading nonce...'}
+                </Text>
+              </View>
+            </View>
+          </View>
 
-          <View style={styles.transactionsContainer}>
+          {/* Transactions Section */}
+          <View style={styles.transactionsSection}>
             {transactions === undefined ? (
-              <Text>Loading...</Text>
+              <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Loading transactions...</Text>
+              </View>
+            ) : transactions.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyIcon}>📝</Text>
+                <Text style={styles.emptyText}>
+                  No pending transactions found.{'\n'}
+                  Create a new transaction to get started.
+                </Text>
+              </View>
             ) : (
-              transactions.map(tx => (
-                <TransactionItem
-                  key={tx.hash}
-                  tx={tx}
-                  completed={historyHashes.includes(tx.hash as `0x${string}`)}
-                  outdated={
-                    lastTx?.nonce != undefined &&
-                    BigInt(tx.nonce) <= BigInt(lastTx?.nonce)
-                  }
-                />
-              ))
+              <>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Pending Transactions</Text>
+                  <Text style={styles.transactionCount}>
+                    {transactions.length} transaction
+                    {transactions.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+
+                <ScrollView
+                  style={styles.transactionsContainer}
+                  contentContainerStyle={{ paddingBottom: 20 }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {transactions.map(tx => (
+                    <TransactionItem
+                      key={tx.hash}
+                      tx={tx}
+                      completed={historyHashes.includes(
+                        tx.hash as `0x${string}`
+                      )}
+                      outdated={
+                        lastTx?.nonce != undefined &&
+                        BigInt(tx.nonce) <= BigInt(lastTx?.nonce)
+                      }
+                    />
+                  ))}
+                </ScrollView>
+              </>
             )}
           </View>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F7FA',
     width: '100%'
   },
   contentContainer: {
     flexGrow: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    gap: 32
+    paddingBottom: 20
   },
   innerContainer: {
     flex: 1,
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 512,
-    alignSelf: 'center'
-  },
-  poolContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 8,
-    borderColor: '#6366f1',
-    borderRadius: 12,
-    padding: 24,
     width: '100%'
   },
+  poolContainer: {
+    flex: 1,
+    width: '100%'
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2
+  },
+  headerContent: {
+    alignItems: 'center',
+    gap: 8
+  },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold'
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1F2937',
+    letterSpacing: -0.5
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500'
+  },
+  nonceContainer: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 8
   },
   nonce: {
     fontSize: 16,
-    marginTop: 8
+    fontWeight: '600',
+    color: '#4F46E5'
+  },
+  transactionsSection: {
+    flex: 1,
+    paddingTop: 16
+  },
+  sectionHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 12
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 4
+  },
+  transactionCount: {
+    fontSize: 14,
+    color: '#6B7280'
   },
   transactionsContainer: {
-    flexDirection: 'column',
-    marginTop: 32,
-    gap: 16,
-    width: '100%'
+    paddingHorizontal: 4
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6B7280',
+    fontWeight: '500'
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 40
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 24
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+    opacity: 0.5
   }
 });

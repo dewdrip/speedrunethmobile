@@ -49,43 +49,53 @@ export default function SignTransactionModal({
   });
 
   const estimateGasCost = async () => {
-    const provider = new ethers.JsonRpcProvider(network.provider);
+    try {
+      const provider = new ethers.JsonRpcProvider(network.provider);
 
-    const gasEstimate = await params.contract
-      .getFunction(params.functionName)
-      .estimateGas(...params.args, {
-        value: params.value,
-        gasLimit: params.gasLimit
-      });
-    const feeData = await provider.getFeeData();
+      const gasEstimate = await params.contract
+        .getFunction(params.functionName)
+        .estimateGas(...params.args, {
+          value: params.value && params.value !== 0n ? params.value : undefined,
+          gasLimit:
+            params.gasLimit && params.gasLimit !== 0n
+              ? params.gasLimit
+              : undefined
+        });
+      const feeData = await provider.getFeeData();
 
-    const gasCost: GasCost = {
-      min: null,
-      max: null
-    };
+      const gasCost: GasCost = {
+        min: null,
+        max: null
+      };
 
-    if (feeData.gasPrice) {
-      gasCost.min = gasEstimate * feeData.gasPrice;
+      if (feeData.gasPrice && gasEstimate) {
+        gasCost.min = BigInt(gasEstimate) * BigInt(feeData.gasPrice);
+      }
+
+      if (feeData.maxFeePerGas && gasEstimate) {
+        gasCost.max = BigInt(gasEstimate) * BigInt(feeData.maxFeePerGas);
+      }
+
+      setEstimatedGasCost(gasCost);
+    } catch (error) {
+      console.error('Error estimating gas cost:', error);
+      setEstimatedGasCost({ min: null, max: null });
     }
-
-    if (feeData.maxFeePerGas) {
-      gasCost.max = gasEstimate * feeData.maxFeePerGas;
-    }
-
-    setEstimatedGasCost(gasCost);
   };
 
   const calcTotal = () => {
+    const safeValue = params.value ? BigInt(params.value) : 0n;
+
     const minAmount =
       estimatedGasCost.min &&
       parseFloat(
-        ethers.formatEther(params.value + estimatedGasCost.min),
+        ethers.formatEther(safeValue + BigInt(estimatedGasCost.min)),
         8
       ).toString();
     const maxAmount =
       estimatedGasCost.max &&
       parseFloat(
-        ethers.formatEther(params.value + estimatedGasCost.max),
+        ethers.formatEther(safeValue + BigInt(estimatedGasCost.max)),
         8
       ).toString();
     return {
@@ -119,6 +129,7 @@ export default function SignTransactionModal({
   }
 
   function parseGasCost(value: bigint) {
+    if (!value || value === 0n) return '0';
     return parseFloat(ethers.formatEther(value), 8);
   }
 
@@ -188,7 +199,8 @@ export default function SignTransactionModal({
         variant="headlineMedium"
         style={{ textAlign: 'center', marginBottom: 16, ...globalStyles.text }}
       >
-        {ethers.formatEther(params.value)} {network.currencySymbol}
+        {params.value ? ethers.formatEther(params.value) : '0'}{' '}
+        {network.currencySymbol}
       </Text>
 
       <View
