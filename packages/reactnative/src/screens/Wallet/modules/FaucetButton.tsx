@@ -39,12 +39,15 @@ export default function FaucetButton() {
       setLoading(true);
 
       const provider = new JsonRpcProvider(connectedNetwork.provider);
+
       const faucetWallet = new Wallet(FAUCET_PRIVATE_KEY, provider);
 
       const tx = await faucetWallet.sendTransaction({
         to: connectedAccount.address,
         value: parseEther(NUM_OF_ETH)
       });
+
+      console.log('Faucet transaction:', tx);
 
       await tx.wait(1);
 
