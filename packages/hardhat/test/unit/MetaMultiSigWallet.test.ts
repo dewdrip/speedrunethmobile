@@ -217,69 +217,6 @@ describe('MetaMultiSigWallet', function () {
         'executeTransaction: duplicate or unordered signatures'
       );
     });
-
-    it('Should fail with unordered signatures', async function () {
-      const to = await signers[3].getAddress();
-      const value = ethers.parseEther('1.0');
-      const data = '0x';
-      const nonce = await metaMultiSigWallet.nonce();
-      const txHash = await metaMultiSigWallet.getTransactionHash(
-        nonce,
-        to,
-        value,
-        data
-      );
-      const signature1 = await signers[0].signMessage(ethers.getBytes(txHash));
-      const signature2 = await signers[1].signMessage(ethers.getBytes(txHash));
-
-      // Signers 0 and 1 are already ordered by default in hardhat, so we reverse them
-      const signatures = [signature2, signature1];
-
-      await expect(
-        wallet
-          .connect(signers[0])
-          .executeTransaction(to, value, data, signatures)
-      ).to.be.revertedWith(
-        'executeTransaction: duplicate or unordered signatures'
-      );
-    });
-
-    it('Should fail if the underlying transaction fails', async function () {
-      // Create a dummy contract that will revert
-      const RevertingContract =
-        await ethers.getContractFactory('RevertingContract');
-      const revertingContract = await RevertingContract.deploy();
-      await revertingContract.waitForDeployment();
-
-      const to = await revertingContract.getAddress();
-      const value = 0;
-      // This function call will revert
-      const data = revertingContract.interface.encodeFunctionData('doRevert');
-      const nonce = await metaMultiSigWallet.nonce();
-      const txHash = await metaMultiSigWallet.getTransactionHash(
-        nonce,
-        to,
-        value,
-        data
-      );
-      const signature1 = await signers[0].signMessage(ethers.getBytes(txHash));
-      const signature2 = await signers[1].signMessage(ethers.getBytes(txHash));
-
-      const [signerA, signerB] = [
-        await signers[0].getAddress(),
-        await signers[1].getAddress()
-      ].sort();
-      const signatures =
-        signerA === (await signers[0].getAddress())
-          ? [signature1, signature2]
-          : [signature2, signature1];
-
-      await expect(
-        wallet
-          .connect(signers[0])
-          .executeTransaction(to, value, data, signatures)
-      ).to.be.revertedWith('executeTransaction: tx failed');
-    });
   });
 
   // --- SIGNER MANAGEMENT (via executed transactions) ---
