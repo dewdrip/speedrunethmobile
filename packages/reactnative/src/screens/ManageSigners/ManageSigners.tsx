@@ -12,12 +12,13 @@ import { Button } from 'react-native-paper';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import { useIsMounted } from 'usehooks-ts';
-import { Address, encodeFunctionData } from 'viem';
-import { AddressInput, InputBase } from '../../components/eth-mobile';
+import { encodeFunctionData } from 'viem';
+import { Address, AddressInput, InputBase } from '../../components/eth-mobile';
 import {
   useAccount,
   useDeployedContractInfo,
   useScaffoldContract,
+  useScaffoldEventHistory,
   useScaffoldReadContract,
   useSignMessage
 } from '../../hooks/eth-mobile';
@@ -44,15 +45,15 @@ export const PoorlServerUrl = 'http://localhost:49832/';
 
 export type TransactionData = {
   chainId: number;
-  address: Address;
+  address: `0x${string}`;
   nonce: bigint;
   to: string;
   amount: string;
   data: `0x${string}`;
   hash: `0x${string}`;
   signatures: `0x${string}`[];
-  signers: Address[];
-  validSignatures?: { signer: Address; signature: Address }[];
+  signers: `0x${string}`[];
+  validSignatures?: { signer: `0x${string}`; signature: `0x${string}` }[];
   requiredApprovals: bigint;
 };
 
@@ -63,7 +64,6 @@ export default function ManageSignersPage() {
 
   const { address } = useAccount();
   const [operationMode, setOperationMode] = useState<'add' | 'remove'>('add');
-  const [owners, setOwners] = useState<Address[]>([]);
 
   const poolServerUrl = PoorlServerUrl;
 
@@ -93,6 +93,12 @@ export default function ManageSignersPage() {
     contractName: 'MetaMultiSigWallet'
   });
 
+  const { data: ownerEventsHistory } = useScaffoldEventHistory({
+    contractName: 'MetaMultiSigWallet',
+    eventName: 'Owner',
+    fromBlock: 0n // Start from genesis block, or use a specific block number
+  });
+
   // Generate callData based on method and signer address
   const generateCallData = (
     method: SignerMethod,
@@ -111,13 +117,13 @@ export default function ManageSignersPage() {
         return encodeFunctionData({
           abi: contractInfo.abi,
           functionName: 'addSigner',
-          args: [signerAddress as Address, signaturesRequiredValue]
+          args: [signerAddress as `0x${string}`, signaturesRequiredValue]
         });
       } else if (method === 'removeSigner') {
         return encodeFunctionData({
           abi: contractInfo.abi,
           functionName: 'removeSigner',
-          args: [signerAddress as Address, signaturesRequiredValue]
+          args: [signerAddress as `0x${string}`, signaturesRequiredValue]
         });
       }
     } catch (error) {
@@ -164,7 +170,7 @@ export default function ManageSignersPage() {
       const recover = (await metaMultiSigWallet?.read.recover([
         newHash,
         signature
-      ])) as Address;
+      ])) as `0x${string}`;
 
       const isOwner = await metaMultiSigWallet?.read.isOwner([recover]);
 
@@ -252,60 +258,6 @@ export default function ManageSignersPage() {
     signaturesRequired
   ]);
 
-  // Fetch owners from contract events
-  useEffect(() => {
-    const fetchOwners = async () => {
-      if (!metaMultiSigWallet || !contractInfo?.address) return;
-
-      try {
-        // Get Owner events from the contract
-        const ownerEvents = await metaMultiSigWallet.getEvents.Owner(
-          {},
-          {
-            fromBlock: 0n,
-            toBlock: 'latest'
-          }
-        );
-
-        // Process events to get current owners
-        const ownerMap = new Map<Address, boolean>();
-
-        ownerEvents.forEach(event => {
-          if (event.args?.owner && typeof event.args.added === 'boolean') {
-            ownerMap.set(event.args.owner as Address, event.args.added);
-          }
-        });
-
-        // Filter to get only current owners (added = true)
-        const currentOwners = Array.from(ownerMap.entries())
-          .filter(([, isActive]) => isActive)
-          .map(([owner]) => owner);
-
-        setOwners(currentOwners);
-      } catch (error) {
-        console.error('Error fetching owners:', error);
-        // Fallback: if current user is connected and is an owner, show them
-        if (address) {
-          try {
-            const isCurrentUserOwner = await metaMultiSigWallet.read.isOwner([
-              address
-            ]);
-            if (isCurrentUserOwner) {
-              setOwners([address as `0x${string}`]);
-            }
-          } catch (fallbackError) {
-            console.error(
-              'Error checking if current user is owner:',
-              fallbackError
-            );
-          }
-        }
-      }
-    };
-
-    fetchOwners();
-  }, [metaMultiSigWallet, contractInfo?.address, address]);
-
   return isMounted() ? (
     <View style={styles.container}>
       {/* Header with back button */}
@@ -329,56 +281,63 @@ export default function ManageSignersPage() {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.innerContainer}>
-          <View style={styles.formContainer}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Nonce</Text>
-              <InputBase
-                disabled
-                value={nonce !== undefined ? `# ${nonce}` : 'Loading...'}
-                placeholder={'Loading...'}
-                onChange={() => {
-                  null;
-                }}
-              />
-            </View>
+          <View style={styles.ownerEventsContainer}>
+            <Text style={styles.sectionTitle}>Recent Signer Changes</Text>
+            {ownerEventsHistory && ownerEventsHistory.length > 0 ? (
+              ownerEventsHistory.map((event, i) => {
+                const isAdded = event.args?.added;
+                const ownerAddress = event.args?.owner;
 
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>
-                Current Owners ({owners.length}) - Signatures Required:{' '}
-                {signaturesRequired || 'Loading...'}
-              </Text>
-              <View style={styles.ownersContainer}>
-                {owners.length > 0 ? (
-                  owners.map((owner, index) => (
-                    <View key={owner} style={styles.ownerItem}>
-                      <Text style={styles.ownerAddress}>
-                        {owner === address ? '👤 ' : ''}
-                        {owner.slice(0, 6)}...{owner.slice(-4)}
-                        {owner === address ? ' (You)' : ''}
-                      </Text>
-                      <View
-                        style={[
-                          styles.ownerStatus,
-                          {
-                            backgroundColor:
-                              owner === address ? COLORS.primary : '#28a745'
-                          }
-                        ]}
-                      >
-                        <Text style={styles.ownerStatusText}>
-                          {owner === address ? 'Connected' : 'Owner'}
-                        </Text>
+                return (
+                  <View key={i} style={styles.ownerEventItem}>
+                    <View style={styles.eventContent}>
+                      <View style={styles.addressContainer}>
+                        <Ionicons
+                          name="wallet-outline"
+                          size={18}
+                          color={COLORS.primary}
+                        />
+                        <Address address={ownerAddress} />
+                      </View>
+
+                      <View style={styles.eventHeader}>
+                        <View
+                          style={[
+                            styles.statusBadge,
+                            isAdded ? styles.addedBadge : styles.removedBadge
+                          ]}
+                        >
+                          <Ionicons
+                            name={isAdded ? 'person-add' : 'person-remove'}
+                            size={16}
+                            color="#fff"
+                          />
+                          <Text style={styles.statusText}>
+                            {isAdded ? 'Added' : 'Removed'}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  ))
-                ) : (
-                  <Text style={styles.noOwnersText}>
-                    {metaMultiSigWallet
-                      ? 'No owners found'
-                      : 'Loading owners...'}
-                  </Text>
-                )}
+                  </View>
+                );
+              })
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="people-outline" size={48} color="#9CA3AF" />
+                <Text style={styles.emptyStateText}>No signer changes yet</Text>
+                <Text style={styles.emptyStateSubtext}>
+                  Signer additions and removals will appear here
+                </Text>
               </View>
+            )}
+          </View>
+
+          <View style={styles.formContainer}>
+            <View style={styles.nonceContainer}>
+              <Text style={styles.label}>Nonce</Text>
+              <Text style={styles.label}>
+                {nonce !== undefined ? `# ${nonce}` : 'Loading...'}
+              </Text>
             </View>
 
             <View style={styles.fieldsContainer}>
@@ -471,20 +430,22 @@ export default function ManageSignersPage() {
                 disabled
               />
 
-              <Button
-                mode="contained"
-                disabled={
-                  !predefinedSignerData.signer ||
-                  !predefinedSignerData.newSignaturesNumber ||
-                  predefinedSignerData.newSignaturesNumber.trim() === ''
-                }
-                onPress={handleCreate}
-                style={styles.createButton}
-              >
-                {operationMode === 'add'
-                  ? 'Create Add Signer Tx Proposal'
-                  : 'Create Remove Signer Tx Proposal'}
-              </Button>
+              <View style={styles.createButtonContainer}>
+                <Button
+                  mode="contained"
+                  disabled={
+                    !predefinedSignerData.signer ||
+                    !predefinedSignerData.newSignaturesNumber ||
+                    predefinedSignerData.newSignaturesNumber.trim() === ''
+                  }
+                  onPress={handleCreate}
+                  style={styles.createButton}
+                >
+                  {operationMode === 'add'
+                    ? 'Create Add Signer Tx Proposal'
+                    : 'Create Remove Signer Tx Proposal'}
+                </Button>
+              </View>
             </View>
           </View>
         </View>
@@ -615,7 +576,13 @@ const styles = StyleSheet.create({
     marginVertical: 2
   },
   createButton: {
-    marginTop: 16
+    marginTop: 16,
+    borderWidth: 1,
+    borderBlockColor: '#808080',
+    borderRadius: 100,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    width: '100%'
   },
   ownersContainer: {
     backgroundColor: '#fff',
@@ -623,6 +590,11 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: '#e5e5e5'
+  },
+  nonceContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start'
   },
   ownerItem: {
     flexDirection: 'row',
@@ -645,11 +617,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginLeft: 8
   },
-  ownerStatusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff'
-  },
+  createButtonContainer: { padding: 10 },
   noOwnersText: {
     fontSize: 14,
     color: '#6b7280',
@@ -671,5 +639,102 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 5
+  },
+  ownerEventsContainer: {
+    marginTop: 24,
+    marginBottom: 24,
+    width: '100%',
+    maxWidth: 400,
+    paddingHorizontal: 16
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 16,
+    textAlign: 'center'
+  },
+  ownerEventItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F3F4F6'
+  },
+  eventContent: {
+    paddingHorizontal: 16,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'center'
+  },
+  eventHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6
+  },
+  addedBadge: {
+    backgroundColor: '#10B981'
+  },
+  removedBadge: {
+    backgroundColor: '#EF4444'
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  eventTimestamp: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '500'
+  },
+  addressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    padding: 12,
+    borderRadius: 8,
+    gap: 8
+  },
+  ownerAddress: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    flex: 1,
+    fontFamily: 'monospace'
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    paddingHorizontal: 24
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginTop: 12,
+    textAlign: 'center'
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    marginTop: 4,
+    textAlign: 'center',
+    lineHeight: 20
   }
 });
