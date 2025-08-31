@@ -12,6 +12,7 @@ import WalletSetup from './Authentication/WalletSetup';
 import Create from './Create';
 import Dashboard from './Dashboard';
 import DebugContracts from './DebugContracts';
+import Events from './Events';
 import Home from './Home';
 import ManageSigners from './ManageSigners';
 import NFTs from './NFTs';
@@ -52,6 +53,7 @@ type AppStackParamsList = {
   NFTs: undefined;
   Transactions: undefined;
   Home: undefined;
+  Events: undefined;
   Create: undefined;
   ManageSigners: undefined;
   Wallet: undefined;
@@ -98,6 +100,7 @@ export default function Navigation({}: Props) {
         <AppStack.Screen name="Transactions" component={Transactions} />
         <AppStack.Screen name="Home" component={Home} />
         <AppStack.Screen name="Create" component={Create} />
+        <AppStack.Screen name="Events" component={Events} />
         <AppStack.Screen name="ManageSigners" component={ManageSigners} />
         <AppStack.Screen name="Settings" component={Settings} />
         <AppStack.Screen name="Wallet" component={Wallet} />

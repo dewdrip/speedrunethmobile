@@ -304,7 +304,7 @@ export const TransactionItem: FC<TransactionItemProps> = ({
                       ])) as `0x${string}`;
 
                     const signature = await signMessage({
-                      message: { raw: newHash }
+                      message: newHash
                     });
 
                     const signer = await metaMultiSigWallet?.read.recover([

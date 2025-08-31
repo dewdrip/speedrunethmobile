@@ -114,10 +114,6 @@ export const Pool: FC = () => {
           <View style={styles.header}>
             <View style={styles.headerContent}>
               <Text style={styles.title}>Transaction Pool</Text>
-              <Text style={styles.subtitle}>
-                Multi-signature wallet transactions
-              </Text>
-
               <View style={styles.nonceContainer}>
                 <Text style={styles.nonce}>
                   {nonce !== undefined
@@ -211,12 +207,12 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   headerContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
     color: '#1F2937',
     letterSpacing: -0.5
   },

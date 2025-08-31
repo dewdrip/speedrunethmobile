@@ -1,51 +1,22 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
-import { Button, Card, Text } from 'react-native-paper';
-// @ts-ignore
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import { Address, Balance } from '../../components/eth-mobile';
+import { Button, Text } from 'react-native-paper';
+import QRCode from 'react-native-qrcode-svg';
+import { Address } from '../../components/eth-mobile';
 import { Pool } from '../../components/Pool';
 import {
-  useAccount,
   useBalance,
   useCryptoPrice,
   useDeployedContractInfo,
-  useNetwork,
-  useScaffoldEventHistory,
-  useScaffoldReadContract
+  useNetwork
 } from '../../hooks/eth-mobile';
 import globalStyles from '../../styles/globalStyles';
 import { COLORS } from '../../utils/constants';
 import { parseBalance } from '../../utils/eth-mobile';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 
 type Props = {};
-
-function HighlightedText({ children }: { children: string }) {
-  return (
-    <View
-      style={{ backgroundColor: COLORS.primaryLight, paddingHorizontal: 4 }}
-    >
-      <Text
-        style={{
-          textAlign: 'center',
-          fontSize: FONT_SIZE['md'],
-          ...globalStyles.text
-        }}
-      >
-        {children}
-      </Text>
-    </View>
-  );
-}
 
 export default function Home({}: Props) {
   const navigation = useNavigation();
@@ -61,7 +32,7 @@ export default function Home({}: Props) {
     watch: true
   });
 
-  const { price, fetchPrice } = useCryptoPrice({
+  const { fetchPrice } = useCryptoPrice({
     priceID: network.coingeckoPriceId,
     enabled: false
   });
@@ -113,12 +84,21 @@ export default function Home({}: Props) {
 
           <Button
             onPress={() => navigation.navigate('ManageSigners' as never)}
-            mode="outlined"
-            style={[styles.actionButton, styles.secondaryButton]}
+            mode="contained"
+            style={[styles.actionButton, styles.primaryButton]}
             contentStyle={styles.actionButtonContent}
             labelStyle={styles.buttonLabel}
           >
-            Manage Signers
+            Signers
+          </Button>
+          <Button
+            onPress={() => navigation.navigate('Events' as never)}
+            mode="contained"
+            style={[styles.actionButton, styles.primaryButton]}
+            contentStyle={styles.actionButtonContent}
+            labelStyle={styles.buttonLabel}
+          >
+            Events
           </Button>
         </View>
 
@@ -126,24 +106,27 @@ export default function Home({}: Props) {
         {contractAddress ? (
           <View style={styles.contractContainer}>
             <View style={styles.contractHeader}>
-              <Text style={styles.contractTitle}>Wallet Details</Text>
-            </View>
-
-            <View style={styles.balanceContainer}>
               <Text variant="headlineLarge" style={styles.balanceText}>
                 {balance !== null
                   ? `${Number(parseBalance(balance)).toLocaleString('en-US')} ${network.currencySymbol}`
                   : null}
               </Text>
+
+              <View style={styles.addressContainer}>
+                <Address address={contractAddress} />
+              </View>
             </View>
 
-            <View style={styles.qrPlaceholder}>
-              <Text style={styles.qrText}>QR Code</Text>
+            <View style={styles.qrContainer}>
+              <View style={styles.qrCodeWrapper}>
+                <QRCode
+                  value={contractAddress}
+                  size={140}
+                  color={COLORS.text}
+                  backgroundColor={COLORS.surface}
+                />
+              </View>
               <Text style={styles.qrSubtext}>Scan to send funds</Text>
-            </View>
-
-            <View style={styles.addressContainer}>
-              <Address address={contractAddress} />
             </View>
           </View>
         ) : (
@@ -177,13 +160,13 @@ const styles = StyleSheet.create({
     paddingTop: 20
   },
   headerContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 32,
     paddingTop: 20
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '600',
     color: COLORS.text,
     marginBottom: 8,
     textAlign: 'center'
@@ -195,12 +178,12 @@ const styles = StyleSheet.create({
     opacity: 0.8
   },
   buttonsContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     gap: 16,
     marginBottom: 32
   },
   actionButton: {
-    borderRadius: 12,
+    borderRadius: 100,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {
@@ -218,8 +201,8 @@ const styles = StyleSheet.create({
     borderWidth: 2
   },
   actionButtonContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 24
+    paddingVertical: 2,
+    paddingHorizontal: 2
   },
   buttonLabel: {
     fontSize: 16,
@@ -228,7 +211,7 @@ const styles = StyleSheet.create({
   contractContainer: {
     backgroundColor: COLORS.surface,
     borderRadius: 16,
-    padding: 20,
+    paddingHorizontal: 20,
     marginBottom: 24,
     elevation: 4,
     shadowColor: '#000',
@@ -240,44 +223,41 @@ const styles = StyleSheet.create({
     shadowRadius: 8
   },
   contractHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   contractTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: 'normal',
     color: COLORS.text
   },
-  balanceContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-    padding: 16,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 12
-  },
-  qrPlaceholder: {
+  balanceContainer: {},
+  qrContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 120,
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: COLORS.border,
-    borderStyle: 'dashed'
+    marginBottom: 20
   },
-  qrText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 4
+  qrCodeWrapper: {
+    padding: 16,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2
   },
   qrSubtext: {
     fontSize: 14,
-    color: COLORS.textSecondary
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    fontWeight: '500'
   },
   addressContainer: {
     alignItems: 'center',
@@ -303,7 +283,10 @@ const styles = StyleSheet.create({
   },
   balanceText: {
     textAlign: 'center',
-    ...globalStyles.textMedium
+    fontSize: 20,
+    fontWeight: '500',
+    color: COLORS.text,
+    marginBottom: 8
   },
   eventsContainer: {
     backgroundColor: COLORS.surface,
