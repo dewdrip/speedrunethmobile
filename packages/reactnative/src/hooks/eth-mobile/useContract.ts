@@ -10,7 +10,7 @@ import { useCallback, useMemo } from 'react';
 import { useModal } from 'react-native-modalfy';
 import { useSelector } from 'react-redux';
 import { Address } from 'viem';
-import { useAccount, useNetwork } from '.';
+import { useAccount, useNetwork, useTransactions } from '.';
 import { Account } from '../../store/reducers/Wallet';
 import { parseFloat } from '../../utils/eth-mobile';
 
@@ -60,6 +60,8 @@ export function useContract({
   const wallet = useSelector((state: any) => state.wallet);
 
   const { openModal } = useModal();
+
+  const { addTx } = useTransactions();
 
   const getContract = useCallback(() => {
     if (!network?.provider || !connectedAccount?.address) {

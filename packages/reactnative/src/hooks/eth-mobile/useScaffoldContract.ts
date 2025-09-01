@@ -10,7 +10,12 @@ import { useCallback, useMemo } from 'react';
 import { useModal } from 'react-native-modalfy';
 import { useSelector } from 'react-redux';
 import { Address } from 'viem';
-import { useAccount, useDeployedContractInfo, useNetwork } from '.';
+import {
+  useAccount,
+  useDeployedContractInfo,
+  useNetwork,
+  useTransactions
+} from '.';
 import { Account } from '../../store/reducers/Wallet';
 import { parseFloat } from '../../utils/eth-mobile';
 
@@ -62,6 +67,8 @@ export function useScaffoldContract({
   const { data: deployedContractData } = useDeployedContractInfo({
     contractName
   });
+
+  const { addTx } = useTransactions();
 
   const getContract = useCallback(() => {
     if (
