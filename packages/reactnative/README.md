@@ -1,79 +1,104 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📲 Multisig Wallet Implemented With Eth Mobile! 🚀
 
-# Getting Started
+![readme-6](https://raw.githubusercontent.com/scaffold-eth/se-2-challenges/challenge-multisig/extension/packages/nextjs/public/hero.png)
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+👩‍👩‍👧‍👧 A multisig wallet is a smart contract that acts like a wallet, allowing us to secure assets by requiring multiple accounts to "vote" on transactions. Think of it as a treasure chest that can only be opened when all key parties agree.
 
-## Step 1: Start the Metro Server
+📜 The contract keeps track of all transactions. Each transaction can be confirmed or rejected by the signers (smart contract owners). Only transactions that receive enough confirmations can be "executed" by the signers.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+✍️ **ETH Mobile** is an open-source toolkit for building mobile decentralized applications (dApps) on Ethereum and other EVM-compatible blockchains. It simplifies mobile dApp development with fast, secure and customizable pre-built components to create, deploy and interact with smart contracts.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## Requirements
 
-```bash
-# using npm
-npm start
+Before you begin, you need to install the following tools:
 
-# OR using Yarn
-yarn start
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
+- [React Native](https://reactnative.dev/docs/environment-setup?guide=native&platform=android)
+- [Yeet CLI](https://npmjs.com/package/yeet-cli)
+
+## Quickstart
+
+To get started, follow the steps below:
+
+1. Clone this repo & install dependencies
+
+```
+git clone https://github.com/dewdrip/eth-mobile.git
+
+cd eth-mobile
+
+yarn install
+
+cd packages/reactnative
+
+npx pod-install
 ```
 
-## Step 2: Start your Application
+2. Connect your WIFI to your computer. if you wish to run your app in a physical device, your device must be connected to the same WIFI
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+3. From the root folder, run a local network in the first terminal
 
-### For Android
+```
+yarn chain
+```
 
-```bash
-# using npm
-npm run android
+This command starts a local Ethereum network hosted on your local IP address. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `hardhat.config.ts`.
 
-# OR using Yarn
+Alternatively, you can use [Ganache](https://archive.trufflesuite.com/ganache/) to persist the blockchain state during development
+
+4. On a second terminal, deploy the test contract:
+
+```
+yarn deploy
+```
+
+This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+
+5. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/ethmobile.config.ts`
+
+#### To determine your local IP address:
+
+#### Mac:
+
+```
+ipconfig getifaddr en0
+```
+
+#### Windows:
+
+```
+ipconfig
+```
+
+6. Connect your device via USB or Run an emulator
+
+7. Run on device:
+
+#### Android
+
+```
 yarn android
 ```
 
-### For iOS
+#### IOS
 
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
+```
 yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+8. Import one of the funded accounts in your local blockchain into your wallet to have funds for testing
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+You can interact with your smart contract using the `DebugContracts` tab. You can configure your supported networks in `packages/reactnative/ethmobile.config.ts`.
 
-## Step 3: Modifying your App
+Run smart contract test with `yarn hardhat:test`
 
-Now that you have successfully run the app, let's modify it.
+- Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
+- Edit your frontend in `packages/reactnative/src/screens`
+- Edit your deployment scripts in `packages/hardhat/deploy`
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+## Contributing to ETH Mobile
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+We welcome contributions to ETH Mobile!
 
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Please see [CONTRIBUTING.MD](https://github.com/dewdrip/eth-mobile/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to ETH Mobile.
