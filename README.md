@@ -22,7 +22,7 @@ To get started, follow the steps below:
 1. Clone this repo & install dependencies
 
 ```
-git clone https://github.com/valentinecodes/speedrunethmobile.git
+git clone https://github.com/dewdrip/speedrunethmobile.git
 
 cd speedrunethmobile
 
