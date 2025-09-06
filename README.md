@@ -24,9 +24,11 @@ To get started, follow the steps below:
 1. Clone this repo & install dependencies
 
 ```
-git clone https://github.com/dewdrip/eth-mobile.git
+git clone https://github.com/dewdrip/speedrunethmobile.git
 
-cd eth-mobile
+cd speedrunethmobile
+
+git checkout challenge-8-multisig-wallet
 
 yarn install
 
@@ -55,7 +57,15 @@ yarn deploy
 
 This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-5. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/ethmobile.config.ts`
+5. On another terminal, run the backend:
+
+```
+yarn backend:local
+```
+
+This command runs the local backend. The backend is located in `packages/backend-local` and can be modified to suit your needs.
+
+6. Set the `ALCHEMY_KEY` and `localhost.provider`(port **8545**) variables in `packages/reactnative/ethmobile.config.ts`
 
 #### To determine your local IP address:
 
@@ -71,9 +81,9 @@ ipconfig getifaddr en0
 ipconfig
 ```
 
-6. Connect your device via USB or Run an emulator
+7. Connect your device via USB or Run an emulator
 
-7. Run on device:
+8. Run on device:
 
 #### Android
 
@@ -87,7 +97,7 @@ yarn android
 yarn ios
 ```
 
-8. Import one of the funded accounts in your local blockchain into your wallet to have funds for testing
+9. Import one of the funded accounts in your local blockchain into your wallet to have funds for testing
 
 You can interact with your smart contract using the `DebugContracts` tab. You can configure your supported networks in `packages/reactnative/ethmobile.config.ts`.
 
